@@ -2,17 +2,19 @@
   "name": "catwalk-of-curiosity",
   "private": true,
   "version": "1.0.0",
-  "description": "Hien Ta, Data Analyst: a creative GitHub companion site",
+  "description": "Hien Ta, Data Analyst: the website half of a GitHub identity system (the Python half lives in hienta16/hienta16)",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "predev": "node scripts/snapshot-github.mjs --soft",
+    "predev": "python scripts/sync_hub.py --soft",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc",
-    "snapshot:github": "node scripts/snapshot-github.mjs",
-    "toys:collect": "node scripts/collect-cat-toys.mjs"
+    "data": "python scripts/sync_hub.py",
+    "data:remote": "python scripts/sync_hub.py --remote",
+    "export:art": "tsx scripts/export-art.tsx",
+    "preview:readme": "node scripts/preview-readme.mjs"
   },
   "dependencies": {
     "@fontsource-variable/anybody": "^5.3.0",
@@ -24,6 +26,9 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "github-markdown-css": "^5.9.0",
+    "marked": "^18.2.1",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"

@@ -1,0 +1,33 @@
+{
+  "title_prefix": "[cat-toy]",
+  "cooldown_hours": 24,
+  "max_visible": 9,
+  "history_days": 30,
+  "exempt_logins": [],
+  "toys": {
+    "yarn": {
+      "label": "Yarn ball",
+      "action": "Give yarn",
+      "lifetime_hours": 168,
+      "variants": ["pink", "blue"],
+      "behavior": "chase, roll, paw",
+      "arrival": "Your yarn ball has arrived. Hien's cat is already investigating it."
+    },
+    "feather": {
+      "label": "Feather toy",
+      "action": "Give a feather",
+      "lifetime_hours": 48,
+      "variants": ["orange"],
+      "behavior": "watch, jump, swat",
+      "arrival": "Your feather toy has arrived. Hien's cat has not blinked since."
+    },
+    "box": {
+      "label": "Cardboard box",
+      "action": "Give a box",
+      "lifetime_hours": 336,
+      "variants": ["kraft"],
+      "behavior": "hide, peek, nap",
+      "arrival": "Your cardboard box has arrived. Hien's cat moved in straight away."
+    }
+  }
+}

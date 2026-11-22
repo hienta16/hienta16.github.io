@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import raw from '../data/github.json'
-import { expandDays, validateSnapshot, type Day, type GitHubData, type SnapshotProblem } from './stats'
+import { bundledSnapshot, snapshotOk, type Snapshot } from './hub'
+import { expandDays, type Day } from './stats'
 
 /* ---------- Reduced motion ---------- */
 
@@ -63,13 +63,13 @@ export function useOnScreen<T extends Element>(ref: React.RefObject<T | null>) {
   return on
 }
 
-/* ---------- GitHub data, validated once ---------- */
+/* ---------- GitHub data (written by the hub's Python), validated once ---------- */
 
-export type GitHubState = { ok: true; data: GitHubData; days: Day[] } | { ok: false; problem: SnapshotProblem }
+export type GitHubState = { ok: true; data: Snapshot; days: Day[] } | { ok: false }
 
-const data = raw as unknown as GitHubData
-const problem = validateSnapshot(data?.calendar)
-const state: GitHubState = problem ? { ok: false, problem } : { ok: true, data, days: expandDays(data.calendar) }
+const state: GitHubState = snapshotOk(bundledSnapshot)
+  ? { ok: true, data: bundledSnapshot, days: expandDays(bundledSnapshot.calendar) }
+  : { ok: false }
 
 export const useGitHub = () => state
 

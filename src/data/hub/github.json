@@ -1,0 +1,277 @@
+{
+  "schema": 2,
+  "login": "hienta16",
+  "generatedAt": "2026-11-22T21:42:13Z",
+  "profile": {
+    "name": "Hien Minh Ta",
+    "url": "https://github.com/hienta16",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/210944667?u=a13f7ad76de3189d72d2ee814b9aaa7b5bb67561&v=4",
+    "joined": "2025-05-09",
+    "followers": 0,
+    "asOf": "2026-11-22T21:42:13Z"
+  },
+  "calendar": {
+    "from": "2025-11-23",
+    "to": "2026-11-23",
+    "total": 1473,
+    "days": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 6, 23, 0, 6, 3, 1, 0, 1, 3, 17, 41, 7, 15, 3, 22, 24, 10, 40, 47, 2, 15, 18, 16, 7, 23, 20, 15, 15, 12, 36, 10, 9, 10, 11, 1, 17, 3, 47, 20, 23, 94, 60, 10, 19, 1, 29, 13, 12, 23, 7, 31, 10, 12, 17, 14, 31, 8, 9, 35, 32, 32, 6, 35, 29, 19, 120, 84, 16, 2, 3, 9, 6, 1, 36, 2],
+    "privateContributions": 1471,
+    "verifiedAgainstPublicProfile": true,
+    "asOf": "2026-11-22T21:42:13Z"
+  },
+  "metrics": {
+    "activeDays": 76,
+    "firstContribution": "2026-09-06",
+    "daysSinceFirst": 79,
+    "activeShareSinceFirst": 0.962,
+    "longestStreak": {
+      "length": 68,
+      "start": "2026-09-17",
+      "end": "2026-11-23",
+      "running": true
+    },
+    "currentStreak": {
+      "length": 68,
+      "start": "2026-09-17",
+      "end": "2026-11-23",
+      "todayPending": false
+    },
+    "bestDay": {
+      "date": "2026-11-14",
+      "count": 120
+    },
+    "meanPerActiveDay": 19.4,
+    "medianPerActiveDay": 14.5,
+    "months": [
+      {
+        "month": "2025-11",
+        "total": 0,
+        "activeDays": 0,
+        "days": 8,
+        "partial": true
+      },
+      {
+        "month": "2025-12",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-01",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-02",
+        "total": 0,
+        "activeDays": 0,
+        "days": 28,
+        "partial": false
+      },
+      {
+        "month": "2026-03",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-04",
+        "total": 0,
+        "activeDays": 0,
+        "days": 30,
+        "partial": false
+      },
+      {
+        "month": "2026-05",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-06",
+        "total": 0,
+        "activeDays": 0,
+        "days": 30,
+        "partial": false
+      },
+      {
+        "month": "2026-07",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-08",
+        "total": 0,
+        "activeDays": 0,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-09",
+        "total": 293,
+        "activeDays": 22,
+        "days": 30,
+        "partial": false
+      },
+      {
+        "month": "2026-10",
+        "total": 622,
+        "activeDays": 31,
+        "days": 31,
+        "partial": false
+      },
+      {
+        "month": "2026-11",
+        "total": 558,
+        "activeDays": 23,
+        "days": 23,
+        "partial": true
+      }
+    ],
+    "weekdays": [
+      {
+        "day": "Mon",
+        "total": 192
+      },
+      {
+        "day": "Tue",
+        "total": 174
+      },
+      {
+        "day": "Wed",
+        "total": 186
+      },
+      {
+        "day": "Thu",
+        "total": 139
+      },
+      {
+        "day": "Fri",
+        "total": 189
+      },
+      {
+        "day": "Sat",
+        "total": 258
+      },
+      {
+        "day": "Sun",
+        "total": 335
+      }
+    ],
+    "levels": [
+      {
+        "min": 0,
+        "max": 0,
+        "days": 290
+      },
+      {
+        "min": 1,
+        "max": 5,
+        "days": 16
+      },
+      {
+        "min": 6,
+        "max": 15,
+        "days": 26
+      },
+      {
+        "min": 16,
+        "max": 40,
+        "days": 27
+      },
+      {
+        "min": 41,
+        "max": null,
+        "days": 7
+      }
+    ]
+  },
+  "counts": {
+    "scope": "public-and-private",
+    "asOf": "2026-11-22T21:42:13Z",
+    "commitsLastYear": 1366,
+    "pullRequestsLastYear": 85,
+    "issuesLastYear": 111,
+    "pullRequestsAllTime": 85,
+    "issuesAllTime": 111,
+    "contributedToLastYear": 2
+  },
+  "repositories": {
+    "scope": "public-and-private",
+    "asOf": "2026-11-22T21:42:13Z",
+    "total": 4,
+    "public": 0,
+    "private": 4,
+    "stars": 0,
+    "withLanguages": 4,
+    "languages": {
+      "byBytes": [
+        {
+          "name": "PHP",
+          "share": 0.5224
+        },
+        {
+          "name": "JavaScript",
+          "share": 0.1464
+        },
+        {
+          "name": "Python",
+          "share": 0.1279
+        },
+        {
+          "name": "HTML",
+          "share": 0.1071
+        },
+        {
+          "name": "CSS",
+          "share": 0.0682
+        },
+        {
+          "name": "Other",
+          "share": 0.0279
+        }
+      ],
+      "byRepos": [
+        {
+          "name": "HTML",
+          "share": 0.2775
+        },
+        {
+          "name": "C++",
+          "share": 0.25
+        },
+        {
+          "name": "Python",
+          "share": 0.1565
+        },
+        {
+          "name": "PHP",
+          "share": 0.1345
+        },
+        {
+          "name": "Jupyter Notebook",
+          "share": 0.1242
+        },
+        {
+          "name": "Other",
+          "share": 0.0573
+        }
+      ]
+    }
+  },
+  "refresh": {
+    "attemptedAt": "2026-11-22T21:42:13Z",
+    "ok": true,
+    "lastCompleteAt": "2026-11-22T21:42:13Z",
+    "problems": [],
+    "notes": [],
+    "schedule": "every 6 hours by GitHub Actions, and on demand"
+  }
+}
