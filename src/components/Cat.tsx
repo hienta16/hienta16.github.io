@@ -48,7 +48,8 @@ export const Cat = forwardRef<HTMLDivElement, Props>(function Cat({ gaze = { x: 
 
   const gx = Math.max(-1, Math.min(1, gaze.x))
   const gy = Math.max(-1, Math.min(1, gaze.y))
-  const rig = { transform: `rotateY(${gx * 18 * turn}deg) rotateX(${-gy * 9 * turn}deg)` }
+  // A slight three-quarter turn at rest, so the paper layers show their depth even when nothing moves.
+  const rig = { transform: `rotateY(${-7 + gx * 24 * turn}deg) rotateX(${3 - gy * 11 * turn}deg)` }
   const head = { transform: `translate(${gx * 7}px, ${gy * 5}px) rotate(${gx * 5}deg)` }
   const pupils = { transform: `translate(${gx * 6}px, ${gy * 4}px)` }
   const closed = blink || mood === 'blink'
@@ -56,37 +57,51 @@ export const Cat = forwardRef<HTMLDivElement, Props>(function Cat({ gaze = { x: 
   return (
     <div ref={ref} className={`cat cat--${mood} ${className}`} style={style} role={label ? 'img' : undefined} aria-label={label}>
       <div className="cat__rig" style={rig}>
-        <Layer z={-34} className="cat__tail">
+        <Layer z={-46} className="cat__tail">
           <path d="M218 338c52 2 72-40 60-80-7-22-25-27-30-12" fill="none" stroke="var(--ink)" strokeWidth="21" strokeLinecap="round" strokeLinejoin="round" />
         </Layer>
 
         <Layer z={0}>
+          {/* cut edges: the same shapes nudged up-left in a lighter tone, the way light catches stacked paper */}
+          <g fill="#3D4062" transform="translate(-3 -3)">
+            <ellipse cx="88" cy="318" rx="32" ry="34" />
+            <path d="M98 186c-28 36-40 90-36 136 2 22 24 30 88 30s86-8 88-30c4-46-8-100-36-136z" />
+          </g>
           <ellipse cx="88" cy="318" rx="32" ry="34" fill="var(--ink)" />
           <ellipse cx="212" cy="318" rx="32" ry="34" fill="var(--ink)" />
           <path d="M98 186c-28 36-40 90-36 136 2 22 24 30 88 30s86-8 88-30c4-46-8-100-36-136z" fill="var(--ink)" />
         </Layer>
 
-        <Layer z={12}>
+        <Layer z={16}>
+          <path d="M150 200c-24 14-34 52-30 96 2 26 12 44 30 48 18-4 28-22 30-48 4-44-6-82-30-96z" fill="var(--pale)" transform="translate(-2.5 -2.5)" />
           <path d="M150 200c-24 14-34 52-30 96 2 26 12 44 30 48 18-4 28-22 30-48 4-44-6-82-30-96z" fill="var(--cream)" />
-          <path d="M108 262c-4 30-2 60 2 80h30c3-22 2-52-2-76z" fill="var(--ink)" />
+          <path d="M110 272c0-18 30-18 30 0 1 24 0 50-2 70h-28c-3-20-3-46 0-70z" fill="#3D4062" transform="translate(-2.5 -2)" />
+          <path d="M110 272c0-18 30-18 30 0 1 24 0 50-2 70h-28c-3-20-3-46 0-70z" fill="var(--ink)" />
           <rect x="105" y="328" width="37" height="20" rx="10" fill="var(--cream)" />
           <path d="M118 338v8M129 338v8" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
         </Layer>
 
-        <Layer z={16} className="cat__paw">
-          <path d="M192 262c4 30 2 60-2 80h-30c-3-22-2-52 2-76z" fill="var(--ink)" />
+        <Layer z={22} className="cat__paw">
+          <path d="M160 272c0-18 30-18 30 0 3 24 3 50 0 70h-28c-2-20-3-46-2-70z" fill="#3D4062" transform="translate(-2.5 -2)" />
+          <path d="M160 272c0-18 30-18 30 0 3 24 3 50 0 70h-28c-2-20-3-46-2-70z" fill="var(--ink)" />
           <rect x="158" y="328" width="37" height="20" rx="10" fill="var(--cream)" />
           <path d="M171 338v8M182 338v8" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
         </Layer>
 
-        <Layer z={22} className="cat__collar">
+        <Layer z={30} className="cat__collar">
+          <path d="M103 186c28 15 66 15 94 0l3 13c-30 17-70 17-100 0z" fill="#FFA477" transform="translate(-2 -2)" />
           <path d="M103 186c28 15 66 15 94 0l3 13c-30 17-70 17-100 0z" fill="var(--orange)" />
           <circle cx="150" cy="217" r="11" fill="var(--cream)" />
           <path d="M150 223l-5.5-5.5a3.2 3.2 0 1 1 5.5-3.6 3.2 3.2 0 1 1 5.5 3.6z" fill="var(--pink)" />
         </Layer>
 
         <div className="cat__head" style={head}>
-          <Layer z={30}>
+          <Layer z={40}>
+            <g fill="#3D4062" stroke="#3D4062" transform="translate(-3 -3)">
+              <path d="M84 104L76 22l58 44z" strokeWidth="8" strokeLinejoin="round" />
+              <path d="M216 104l8-82-58 44z" strokeWidth="8" strokeLinejoin="round" />
+              <path d="M78 128c0-44 32-68 72-68s72 24 72 68c0 40-30 66-72 66s-72-26-72-66z" strokeWidth="0" />
+            </g>
             <path d="M84 104L76 22l58 44z" fill="var(--ink)" stroke="var(--ink)" strokeWidth="8" strokeLinejoin="round" />
             <path d="M216 104l8-82-58 44z" fill="var(--ink)" stroke="var(--ink)" strokeWidth="8" strokeLinejoin="round" />
             <path d="M93 92l-4-46 33 24z" fill="var(--pink)" />
@@ -94,13 +109,14 @@ export const Cat = forwardRef<HTMLDivElement, Props>(function Cat({ gaze = { x: 
             <path d="M78 128c0-44 32-68 72-68s72 24 72 68c0 40-30 66-72 66s-72-26-72-66z" fill="var(--ink)" />
             <path d="M82 138l-16 12 20 6zM218 138l16 12-20 6z" fill="var(--ink)" />
           </Layer>
-          <Layer z={46} className="cat__face">
+          <Layer z={62} className="cat__face">
+            <path d="M150 96c-7 16-19 34-25 52-6 20 7 44 25 44s31-24 25-44c-6-18-18-36-25-52z" fill="var(--pale)" transform="translate(-2 -2)" />
             <path d="M150 96c-7 16-19 34-25 52-6 20 7 44 25 44s31-24 25-44c-6-18-18-36-25-52z" fill="var(--cream)" />
             <path d="M141 150q9-4 18 0-4 8-9 10-5-2-9-10z" fill="var(--pink)" />
             <path d="M150 160v7m0 0c-4 6-11 6-14 1m14-1c4 6 11 6 14 1" fill="none" stroke="var(--ink)" strokeWidth="2.6" strokeLinecap="round" />
             <path d="M131 160L52 148M131 167l-76 8M169 160l79-12M169 167l76 8" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round" />
           </Layer>
-          <Layer z={40} className="cat__eyes">
+          <Layer z={54} className="cat__eyes">
             {[116, 184].map((cx) => (
               <g key={cx}>
                 <ellipse cx={cx} cy="124" rx="16.5" ry="17.5" fill="var(--orange)" />
@@ -114,7 +130,7 @@ export const Cat = forwardRef<HTMLDivElement, Props>(function Cat({ gaze = { x: 
             ))}
           </Layer>
           {mood === 'shades' && (
-            <Layer z={54} className="cat__shades">
+            <Layer z={72} className="cat__shades">
               <path d="M132 120h36" stroke="var(--blue)" strokeWidth="5" />
               <path d="M116 142l-19-19a12 12 0 1 1 19-14 12 12 0 1 1 19 14z" fill="var(--pink)" stroke="var(--blue)" strokeWidth="4" strokeLinejoin="round" />
               <path d="M184 142l-19-19a12 12 0 1 1 19-14 12 12 0 1 1 19 14z" fill="var(--pink)" stroke="var(--blue)" strokeWidth="4" strokeLinejoin="round" />
@@ -170,8 +186,8 @@ export function RulerCat({ pose }: { pose: RulerPose }) {
           </g>
           {pose === 'play' && (
             <g className="rcat__yarn">
-              <circle cx="66" cy="38" r="6" fill="var(--pink)" />
-              <path d="M61 36c3 2 7 2 10-1M62 41c3-2 6-2 9 0" fill="none" stroke="var(--ink)" strokeWidth="1" />
+              <circle cx="66" cy="38" r="6" fill="var(--orange)" stroke="var(--ink)" strokeWidth="1" />
+              <path d="M61 36.5c3 2 7 2 10-1M61.5 40.5c3-2 6-2 9 0" fill="none" stroke="#B9440F" strokeWidth="1" />
             </g>
           )}
         </g>
@@ -199,9 +215,13 @@ export function Toy({ kind, className = '' }: { kind: 'yarn' | 'feather' | 'mous
     <svg viewBox="0 0 48 48" className={`toy toy--${kind} ${className}`} aria-hidden="true" focusable="false">
       {kind === 'yarn' && (
         <g>
-          <circle cx="24" cy="26" r="16" fill="var(--pink)" />
-          <path d="M11 20c8 4 18 4 26-2M9 28c10 6 22 6 30-2M15 37c6-6 16-14 20-24M22 41c2-8 8-18 16-22" fill="none" stroke="var(--ink)" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M38 34c4 4 6 8 4 11" fill="none" stroke="var(--pink)" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M37 37c5 4 8 7 7 10" fill="none" stroke="#C94E16" strokeWidth="2.4" strokeLinecap="round" />
+          <circle cx="24" cy="24" r="17" fill="var(--orange)" stroke="var(--ink)" strokeWidth="1.8" />
+          <g fill="none" stroke="#B9440F" strokeWidth="1.7" strokeLinecap="round">
+            <path d="M9 18c9-5 21-5 30 0M7.5 25c10-5 23-5 33 0M9.5 32c9-4 20-4 29 0" />
+            <path d="M19 8c7 6 9 20 4 32M27 7.5c6 7 7 21 2 33" />
+          </g>
+          <path d="M14 13c3-2 6-3 9-3" fill="none" stroke="var(--cream)" strokeWidth="2" strokeLinecap="round" />
         </g>
       )}
       {kind === 'feather' && (

@@ -12,6 +12,11 @@ export const profile = {
   githubUrl: 'https://github.com/hienta16',
   /** The repository whose issues feed the cat's toy box. Visitors can only open issues once it is public. */
   toyRepo: 'hienta16/hienta16.github.io',
+  /**
+   * Switch on when the repository is public AND ops/proposed-workflows/cat-toys.yml is installed in .github/workflows.
+   * Until then visitors can still toss toys (the cat plays in their browser), but no GitHub issue link is offered.
+   */
+  toysLive: false,
   /** Show the GitHub avatar (your public profile photo) in the GitHub section. */
   showGitHubAvatar: true,
   /** Optional extra contact links. Leave empty to hide. */
@@ -134,11 +139,13 @@ export const copy = {
     catLabel: 'A tuxedo cat with orange eyes, sitting on the runway and following the yarn.',
     boxTitle: 'Toy box',
     boxEmpty: 'No toys from visitors yet. Be the first.',
+    boxPreview: 'Toss one and watch the cat play.',
     boxCount: '{n} toys from visitors',
     toss: 'Toss a toy',
     toys: { yarn: 'Yarn ball', feather: 'Feather', mouse: 'Toy mouse', box: 'Box' } satisfies Record<ToyId, string>,
     keep: 'Leave it for the next visitor',
     keepNote: 'Opens a GitHub issue. Your toy joins the box once the issue is processed.',
+    notLive: 'Your toy stays in your browser for now. A shared toy box, fed by GitHub issues, opens when this site goes public.',
     yours: 'yours, just now',
     from: 'from @{login}',
   },

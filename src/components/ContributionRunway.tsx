@@ -26,11 +26,18 @@ const CAMERAS: Record<'wide' | 'tall', Camera> = {
   tall: { eye: [-9, 30, -12], target: [14, 0, 3.5] },
 }
 
+/** The month after a date, as YYYY-MM: too close to the far end to label cleanly. */
+const monthAfter = (d: string) => {
+  const [y, m] = d.split('-').map(Number)
+  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`
+}
+
 const BOX = 0.84 // footprint of a day block, out of a 1 × 1 cell
 const MAX_H = 9 // height of the busiest day, in cells
 
 /* Fill colours: a pink ramp by band, the busiest day and the hovered day in orange. */
-const TOP = ['#3B74F8', '#FFE5EE', '#F9C2D3', '#F49CB6', '#EE6F9A']
+export const ZERO = '#383B5C' // an empty day: a quiet tile on the dark runway, never a data colour
+const TOP = [ZERO, '#FFE5EE', '#F9C2D3', '#F49CB6', '#EE6F9A']
 const ORANGE = '#FF7029'
 const mix = (hex: string, k: number) => {
   // darken toward Dark Ink (#22243A) by k
@@ -54,6 +61,15 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
   const [hover, setHover] = useState<number | null>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const [tipPos, setTipPos] = useState<{ x: number; y: number } | null>(null)
+  const [renderW, setRenderW] = useState(0)
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setRenderW(el.clientWidth))
+    ro.observe(el)
+    setRenderW(el.clientWidth)
+    return () => ro.disconnect()
+  }, [])
 
   const weeks = days.at(-1)!.week + 1
   const max = Math.max(1, ...days.map((d) => d.count))
@@ -85,6 +101,13 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
       [weeks + 0.6, 0, -0.4],
       [weeks + 0.6, 0, 7.4],
       [-0.6, 0, 7.4],
+    ])
+    // Electric Blue lights the runway's far edge: the brand colour frames the stage instead of meaning "nothing".
+    const edge = poly([
+      [-0.6, 0, 7.4],
+      [weeks + 0.6, 0, 7.4],
+      [weeks + 0.6, 0, 8.1],
+      [-0.6, 0, 8.1],
     ])
     const tape = poly([
       [-0.6, 0, -1.7],
@@ -127,15 +150,30 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
     blocks.sort((a, b) => b.depth - a.depth)
 
     // Fit the view box to everything drawn.
-    const all = [floor, tape, ...blocks.flatMap((b) => b.faces.map((f) => f.pts))].join(' ').split(' ').map((p) => p.split(',').map(Number))
+    const all = [floor, tape, edge, ...blocks.flatMap((b) => b.faces.map((f) => f.pts))].join(' ').split(' ').map((p) => p.split(',').map(Number))
     const xs = all.map((p) => p[0])
     const ys = all.map((p) => p[1])
     const pad = 24
     const vb = { x: Math.min(...xs) - pad, y: Math.min(...ys) - pad - 40, w: Math.max(...xs) - Math.min(...xs) + pad * 2, h: Math.max(...ys) - Math.min(...ys) + pad * 2 + 40 }
-    return { floor, tape, ticks, months, blocks, vb, project, cell }
+    return { floor, edge, tape, ticks, months, blocks, vb, project, cell }
   }, [days, weeks, max, best.index, compact])
 
-  // Rise: blocks grow from the floor once, by scaling their projected faces toward their base. Cheap and good enough.
+  // Month labels: at least 11px on screen (more up close), skipped when they would collide with their neighbour.
+  const unit = renderW ? scene.vb.w / renderW : 1
+  const visibleMonths = useMemo(() => {
+    const out: { key: string; at: [number, number]; line: [number, number][]; size: number }[] = []
+    let lastX = -Infinity
+    for (const m of [...scene.months].sort((a, b) => a.at[0] - b.at[0]).filter((x) => x.key !== days[0].date.slice(0, 7) && x.key !== monthAfter(days[0].date))) {
+      const near = (m.at[1] - scene.vb.y) / scene.vb.h // 0 far … 1 near
+      const px = 13 + 4 * near
+      const size = px * unit
+      if ((m.at[0] - lastX) / unit < px * 3.4) continue
+      out.push({ ...m, line: m.line as [number, number][], size })
+      lastX = m.at[0]
+    }
+    return out
+  }, [scene, unit])
+
   const bestBlock = scene.blocks.find((b) => b.day.index === best.index)
 
   useEffect(() => setTipPos(null), [compact])
@@ -157,19 +195,13 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
         role="img"
         aria-label={fill(copy.github.runwayLabel, { n: num(days.reduce((a, d) => a + d.count, 0)), best: num(best.count), bestDate: weekdayDate(best.date) })}
       >
-        <polygon points={scene.floor} fill="var(--blue)" />
+        <polygon points={scene.floor} fill="#2C2F4A" />
+        <polygon points={scene.edge} fill="var(--blue)" />
         <polygon points={scene.tape} fill="var(--pink)" />
         {scene.ticks.map((t, i) => (
           <line key={i} x1={t.a[0]} y1={t.a[1]} x2={t.b[0]} y2={t.b[1]} stroke="var(--ink)" strokeWidth={1} />
         ))}
-        {scene.months.map((m) => (
-          <g key={m.key}>
-            <line x1={m.line[0][0]} y1={m.line[0][1]} x2={m.line[1][0]} y2={m.line[1][1]} stroke="var(--ink)" strokeWidth={1.6} />
-            <text x={m.at[0]} y={m.at[1]} className="runway3d__month" style={{ fontSize: Math.max(9, 15 * (m.at[1] - scene.vb.y) / scene.vb.h + 6) }}>
-              {monthShort(m.key)}
-            </text>
-          </g>
-        ))}
+
         <g style={{ ['--rise' as string]: rise }} className="runway3d__blocks">
           {scene.blocks.map((b) => (
             <g
@@ -184,7 +216,15 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
             </g>
           ))}
         </g>
-        {bestBlock && (
+        {visibleMonths.map((m) => (
+          <g key={m.key}>
+            <line x1={m.line[0][0]} y1={m.line[0][1]} x2={m.line[1][0]} y2={m.line[1][1]} stroke="var(--ink)" strokeWidth={1.6} />
+            <text x={m.at[0]} y={m.at[1]} className="runway3d__month" style={{ fontSize: m.size }}>
+              {monthShort(m.key)}
+            </text>
+          </g>
+        ))}
+        {bestBlock && !compact && (
           <g className="runway3d__peak" aria-hidden="true">
             <line x1={bestBlock.top[0]} y1={bestBlock.top[1] - 8} x2={bestBlock.top[0]} y2={bestBlock.top[1] - 46} stroke="var(--orange)" strokeWidth={2} />
             <text
@@ -192,6 +232,7 @@ export function ContributionRunway({ days, compact, rise }: { days: Day[]; compa
               y={bestBlock.top[1] - 40}
               textAnchor={bestBlock.top[0] > scene.vb.x + scene.vb.w * 0.62 ? 'end' : 'start'}
               className="runway3d__peak-text"
+              style={{ fontSize: 18 * unit }}
             >
               {fill(copy.github.peak, { n: num(best.count), date: weekdayDate(best.date) })}
             </text>

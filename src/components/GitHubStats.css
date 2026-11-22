@@ -92,6 +92,10 @@
 }
 .runway3d__month {
   fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--pink);
+  stroke-width: 5px;
+  stroke-linejoin: round;
   font-family: var(--display);
   font-weight: 800;
   font-stretch: 70%;
@@ -103,7 +107,6 @@
   font-family: var(--display);
   font-weight: 800;
   font-stretch: 86%;
-  font-size: 22px;
 }
 .runway3d__tip {
   position: absolute;
@@ -137,6 +140,28 @@
 }
 .gh__legend span:first-child {
   margin-right: 4px;
+}
+.gh__peak {
+  display: none;
+  margin-right: auto;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 86%;
+  font-size: 16px;
+  color: var(--orange);
+}
+.gh__peak i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--orange);
+}
+@media (max-width: 759px) {
+  .gh__peak {
+    display: inline-flex;
+  }
 }
 .gh__legend span:last-child {
   margin-left: 4px;

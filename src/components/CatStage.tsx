@@ -170,8 +170,12 @@ export function CatStage() {
     const r = stageRef.current!.getBoundingClientRect()
     return { x: e.clientX - r.left, y: e.clientY - r.top }
   }
+  const HOT = 16 // the ball rides below-right of the pointer, like a cursor's hotspot
   const onMove = (e: React.PointerEvent) => {
-    if (e.pointerType === 'mouse' || e.pointerType === 'pen' || dragging.current) {
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+      const p = local(e)
+      moveBall(p.x + HOT, p.y + HOT)
+    } else if (dragging.current) {
       const p = local(e)
       moveBall(p.x, p.y)
     }
@@ -273,7 +277,7 @@ export function CatStage() {
           ))}
 
           <svg className="stage__rope" aria-hidden="true" focusable="false">
-            <path ref={ropeRef} fill="none" stroke="var(--pink)" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path ref={ropeRef} fill="none" stroke="#C94E16" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <button type="button" className="yarn" ref={ballRef} aria-label={t.yarnLabel} onKeyDown={onKey}>
             <Toy kind="yarn" />
@@ -283,7 +287,7 @@ export function CatStage() {
         <div className="toybox">
           <div className="toybox__head">
             <h3 className="toybox__title">{t.boxTitle}</h3>
-            <p className="toybox__count">{community.length ? fill(t.boxCount, { n: num(community.length) }) : t.boxEmpty}</p>
+            <p className="toybox__count">{community.length ? fill(t.boxCount, { n: num(community.length) }) : profile.toysLive ? t.boxEmpty : t.boxPreview}</p>
           </div>
           <div className="toybox__toss" role="group" aria-label={t.toss}>
             <span className="toybox__toss-label">{t.toss}</span>
@@ -296,7 +300,12 @@ export function CatStage() {
               </button>
             ))}
           </div>
-          {lastToss && (
+          {lastToss && !profile.toysLive && (
+            <p className="toybox__keep" aria-live="polite">
+              <span>{t.notLive}</span>
+            </p>
+          )}
+          {lastToss && profile.toysLive && (
             <p className="toybox__keep" aria-live="polite">
               <a className="btn btn--ink" href={issueUrl(lastToss)} target="_blank" rel="noopener">
                 {t.keep}

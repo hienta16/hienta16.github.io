@@ -41,13 +41,26 @@
   right: -2%;
   bottom: 0;
   height: 56px;
-  background: var(--blue);
-  border-top: 4px solid var(--ink);
+  background-color: var(--blue);
+  /* the runway's lights */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='56'%3E%3Ccircle cx='24' cy='32' r='3' fill='%23FFF9F4'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+}
+.stage__floor::before {
+  /* the tape along the runway's edge */
+  content: '';
+  position: absolute;
+  inset: -12px 0 auto 0;
+  height: 12px;
+  background-color: var(--pink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12'%3E%3Cpath d='M.5 12V4M8.5 12V8M16.5 12V8M24.5 12V6M32.5 12V8' stroke='%2322243A' stroke-width='1'/%3E%3C/svg%3E");
+  border-top: 2px solid var(--ink);
 }
 
 /* Swing tags */
 .stage__tags {
   position: absolute;
+  z-index: 6; /* tags hang in front of the yarn, so their labels stay readable */
   inset: 0;
   pointer-events: none;
 }
@@ -121,6 +134,9 @@
   color: var(--ink);
   cursor: pointer;
   transition: background-color 180ms var(--ease-out);
+}
+.stage .swing {
+  cursor: pointer;
 }
 .swing__hole {
   width: 12px;
@@ -312,32 +328,39 @@
   .stage {
     height: 500px;
   }
+  /* Phones: one even row of tags hanging from the tape, never overlapping. */
+  .stage__tags {
+    inset: 16px 0 auto 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+  }
   .stage__tag {
+    position: relative;
+    top: 0;
+    left: auto;
+    right: auto;
+    flex: 1 1 0;
+    min-width: 0;
     rotate: 0deg;
   }
   .stage__tag--0 {
-    left: 2%;
-    --drop: 18px;
+    --drop: 14px;
   }
   .stage__tag--1 {
-    left: 27%;
-    --drop: 44px;
+    --drop: 40px;
   }
   .stage__tag--2 {
-    left: auto;
-    right: 27%;
-    --drop: 26px;
+    --drop: 22px;
   }
   .stage__tag--3 {
-    left: auto;
-    right: 2%;
-    --drop: 52px;
+    --drop: 48px;
   }
   .swing {
     min-width: 0;
-    width: clamp(76px, 22vw, 120px);
-    padding: 10px 6px 12px;
-    font-size: clamp(14px, 4vw, 18px);
+    width: 100%;
+    padding: 10px 4px 12px;
+    font-size: clamp(13px, 3.8vw, 18px);
   }
   .stage__cat {
     width: min(64vw, 280px);

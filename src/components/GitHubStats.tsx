@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { copy, profile } from '../content/site'
-import { ago, date, dayMonth, fill, monthYear, num, pct } from '../lib/format'
+import { ago, date, dayMonth, fill, monthYear, num, pct, weekdayDate } from '../lib/format'
 import { currentStreak, daysBetween, firstActive, languageShares, longestStreak, monthTotals, type Day, type GitHubData } from '../lib/stats'
 import { useGitHub, useLiveProfile, useMediaQuery, useReducedMotion, useSeen } from '../lib/stage'
 import { ContributionRunway } from './ContributionRunway'
@@ -120,8 +120,12 @@ function Stats({ data, days }: { data: GitHubData; days: Day[] }) {
         <figure className="gh__runway">
           <ContributionRunway days={days} compact={compact} rise={seen || reduced ? 1 : 0} />
           <figcaption className="gh__legend" aria-hidden="true">
+            <span className="gh__peak">
+              <i />
+              {fill(t.peak, { n: num(s.best.count), date: weekdayDate(s.best.date) })}
+            </span>
             <span>{t.less}</span>
-            {['#3B74F8', '#FFE5EE', '#F9C2D3', '#F49CB6', '#EE6F9A'].map((col) => (
+            {['#383B5C', '#FFE5EE', '#F9C2D3', '#F49CB6', '#EE6F9A'].map((col) => (
               <i key={col} style={{ background: col }} />
             ))}
             <span>{t.more}</span>

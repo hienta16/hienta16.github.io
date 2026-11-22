@@ -45,7 +45,8 @@ export function TapeHeader() {
     const tape = tapeRef.current
     if (tape) {
       const lead = tape.querySelector<HTMLElement>('.tape__brand')
-      setBox({ start: lead ? lead.offsetLeft + lead.offsetWidth + 22 : 22, end: tape.getBoundingClientRect().width - 26 })
+      const tab = document.querySelector<HTMLElement>('.tape-tab')
+      setBox({ start: lead ? lead.offsetLeft + lead.offsetWidth + 22 : 22, end: tape.getBoundingClientRect().width - (tab ? tab.offsetWidth + 30 : 26) })
     }
   }, [])
 
