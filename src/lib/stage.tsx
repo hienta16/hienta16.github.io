@@ -1,38 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import raw from '../data/github-snapshot.json'
-import { expandDays, validateSnapshot, type Day, type Snapshot, type SnapshotProblem } from './stats'
-
-/* ---------- Backstage pass: shows the method layer ---------- */
-
-interface BackstageState {
-  on: boolean
-  toggle: () => void
-}
-const BackstageContext = createContext<BackstageState>({ on: false, toggle: () => {} })
-const PASS_KEY = 'catwalk.backstage'
-
-export function BackstageProvider({ children }: { children: ReactNode }) {
-  const [on, setOn] = useState(() => {
-    try {
-      return window.localStorage.getItem(PASS_KEY) === 'on'
-    } catch {
-      return false
-    }
-  })
-  useEffect(() => {
-    document.documentElement.dataset.backstage = on ? 'on' : 'off'
-    try {
-      window.localStorage.setItem(PASS_KEY, on ? 'on' : 'off')
-    } catch {
-      /* ignore */
-    }
-  }, [on])
-  const toggle = useCallback(() => setOn((v) => !v), [])
-  const value = useMemo(() => ({ on, toggle }), [on, toggle])
-  return <BackstageContext.Provider value={value}>{children}</BackstageContext.Provider>
-}
-
-export const useBackstage = () => useContext(BackstageContext)
+import { useEffect, useState } from 'react'
+import raw from '../data/github.json'
+import { expandDays, validateSnapshot, type Day, type GitHubData, type SnapshotProblem } from './stats'
 
 /* ---------- Reduced motion ---------- */
 
@@ -47,23 +15,6 @@ export function useReducedMotion() {
   }, [])
   return reduced
 }
-
-/* ---------- The data, validated once ---------- */
-
-export interface Season {
-  ok: true
-  snapshot: Snapshot
-  days: Day[]
-}
-export type SeasonState = Season | { ok: false; problem: SnapshotProblem }
-
-const snapshot = raw as Snapshot
-const problem = validateSnapshot(snapshot)
-const season: SeasonState = problem ? { ok: false, problem } : { ok: true, snapshot, days: expandDays(snapshot) }
-
-export const useSeason = () => season
-
-/* ---------- Small shared hooks ---------- */
 
 export function useMediaQuery(query: string) {
   const [match, setMatch] = useState(() => window.matchMedia?.(query).matches ?? false)
@@ -83,10 +34,7 @@ export function useSeen<T extends Element>(ref: React.RefObject<T | null>, rootM
   useEffect(() => {
     const el = ref.current
     if (!el || seen) return
-    if (!('IntersectionObserver' in window)) {
-      setSeen(true)
-      return
-    }
+    if (!('IntersectionObserver' in window)) return setSeen(true)
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -100,4 +48,51 @@ export function useSeen<T extends Element>(ref: React.RefObject<T | null>, rootM
     return () => io.disconnect()
   }, [ref, rootMargin, seen])
   return seen
+}
+
+/** True while the element is on screen (used to run animation loops only when visible). */
+export function useOnScreen<T extends Element>(ref: React.RefObject<T | null>) {
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver((e) => setOn(e.some((x) => x.isIntersecting)))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [ref])
+  return on
+}
+
+/* ---------- GitHub data, validated once ---------- */
+
+export type GitHubState = { ok: true; data: GitHubData; days: Day[] } | { ok: false; problem: SnapshotProblem }
+
+const data = raw as unknown as GitHubData
+const problem = validateSnapshot(data?.calendar)
+const state: GitHubState = problem ? { ok: false, problem } : { ok: true, data, days: expandDays(data.calendar) }
+
+export const useGitHub = () => state
+
+/* ---------- Live public profile check (no token; falls back silently) ---------- */
+
+export interface LiveProfile {
+  avatarUrl: string
+  followers: number
+  publicRepos: number
+  checkedAt: number
+}
+
+export function useLiveProfile(login: string) {
+  const [live, setLive] = useState<LiveProfile | null>(null)
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetch(`https://api.github.com/users/${encodeURIComponent(login)}`, { signal: ctrl.signal, headers: { Accept: 'application/vnd.github+json' } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((u) => setLive({ avatarUrl: u.avatar_url, followers: u.followers, publicRepos: u.public_repos, checkedAt: Date.now() }))
+      .catch(() => {
+        /* offline, rate-limited or blocked: the snapshot stays on screen */
+      })
+    return () => ctrl.abort()
+  }, [login])
+  return live
 }

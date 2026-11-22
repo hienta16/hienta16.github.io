@@ -1,108 +1,77 @@
-.about {
-  overflow-x: clip;
-  overflow-y: visible;
-  padding-bottom: 0;
-}
 .about__grid {
   display: grid;
-  grid-template-columns: minmax(220px, 4fr) 7fr;
-  gap: clamp(32px, 6vw, 112px);
-  align-items: center;
-  padding-bottom: clamp(120px, 12vw, 180px);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-areas:
+    'intro lessons'
+    'now now';
+  gap: clamp(40px, 5vw, 72px) clamp(40px, 6vw, 112px);
+  align-items: start;
 }
-.about__form {
-  justify-self: center;
-  width: 100%;
-  max-width: 380px;
-}
-.dress-form {
-  width: 100%;
-  height: auto;
+.about__intro {
+  grid-area: intro;
 }
 .about__title {
-  max-width: 11ch;
+  max-width: 8ch;
 }
 .about__lead {
-  margin-top: 36px;
-  max-width: 28ch;
-  font-family: var(--display);
-  font-weight: 650;
-  font-stretch: 96%;
-  font-size: clamp(26px, 2.6vw, 38px);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-}
-.about__body {
   margin-top: 28px;
+  max-width: 40ch;
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.5;
   color: var(--fg-2);
+  text-wrap: pretty;
 }
 
-/* The tape dropped on the floor, crossing into the next section. */
-.floor-tape {
-  position: relative;
-  z-index: 2;
-  height: 0;
+.lessons {
+  grid-area: lessons;
+  align-self: end;
 }
-.floor-tape__strip {
-  position: absolute;
-  left: -4vw;
-  right: -4vw;
-  top: -58px;
+.lessons__row {
+  display: grid;
+  grid-template-columns: 9.4rem 1fr;
+  align-items: baseline;
+  gap: 18px;
+  padding: 18px 0;
+  border-top: 1.5px solid var(--ink);
+}
+.lessons__row:last-child {
+  border-bottom: 1.5px solid var(--ink);
+}
+.lessons__word {
+  justify-self: start;
+  font-size: clamp(20px, 1.9vw, 26px);
+}
+.lessons__line {
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.4;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.about__now {
+  grid-area: now;
   display: flex;
-  align-items: stretch;
-  height: 64px;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+
+/* A strip of tape closes the section, leading into the GitHub night. */
+.about__tape {
+  height: 22px;
   background-color: var(--pink);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='64'%3E%3Cpath d='M.5 0v14M8.5 0v7M16.5 0v7M24.5 0v10M32.5 0v7M.5 64V50M8.5 64v-7M16.5 64v-7M24.5 64V54M32.5 64v-7' stroke='%2322243A' stroke-width='1'/%3E%3C/svg%3E");
-  transform: rotate(-2.4deg);
-  transform-origin: 50% 50%;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.floor-tape__strip {
-  justify-content: space-evenly;
-  padding-inline: 4vw;
-}
-.floor-tape__strip li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 clamp(14px, 1.6vw, 28px);
-  flex: none;
-}
-/* A pin mark, not a number: the facts are notes on the tape, not scores on a scale. */
-.floor-tape__mark {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.floor-tape__fact {
-  font-family: var(--display);
-  font-weight: 700;
-  font-stretch: 84%;
-  font-size: clamp(14px, 1.15vw, 17px);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='22'%3E%3Cpath d='M.5 0v11M8.5 0v6M16.5 0v6M24.5 0v8M32.5 0v6' stroke='%2322243A' stroke-width='1'/%3E%3C/svg%3E");
 }
 
-@media (max-width: 859px) {
+@media (max-width: 899px) {
   .about__grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'intro'
+      'lessons'
+      'now';
   }
-  .about__form {
-    max-width: 230px;
-    justify-self: start;
-    order: 2;
-  }
-  .about__text {
-    order: 1;
-  }
-}
-@media (max-width: 859px) {
-  .floor-tape__strip {
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
+  .lessons__row {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }

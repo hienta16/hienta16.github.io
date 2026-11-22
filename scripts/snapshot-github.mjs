@@ -1,155 +1,198 @@
 #!/usr/bin/env node
 /**
- * Snapshot the GitHub contribution calendar into src/data/github-snapshot.json.
+ * Snapshot real GitHub data into src/data/github.json. Everything the site shows about GitHub comes from this file.
  *
- *   npm run snapshot:github                 # login from src/content/site.ts default: hienta16
- *   npm run snapshot:github -- --login someone
+ *   npm run snapshot:github                  # full refresh (fails loudly)
+ *   node scripts/snapshot-github.mjs --soft  # used before `npm run dev`: on any failure keep the old file
+ *   node scripts/snapshot-github.mjs --public-only   # counts only what an anonymous visitor could count
  *
- * Token: GITHUB_TOKEN (or GH_TOKEN) from the environment, otherwise `gh auth token`.
- * The token is only sent to api.github.com and is never written or printed.
+ * Token: GITHUB_TOKEN / GH_TOKEN, otherwise `gh auth token`. Sent only to api.github.com; never written or printed.
  *
- * Privacy guard: the script also reads the ANONYMOUS public calendar
- * (https://github.com/users/<login>/contributions) and refuses to write anything
- * unless both agree day for day. So the site can never show more than GitHub already
- * shows to a stranger (for example if "private contributions" is switched off on the
- * profile, the authenticated count would be higher, and the script stops).
- *
- * What is written: daily counts, totals and dates. No repository names, no commit data.
+ * What is stored: numbers and dates only. No repository names, no commit messages, no issue titles.
+ * - Contribution calendar: verified day by day against the ANONYMOUS public calendar, or nothing is written.
+ * - Commit / PR / issue counts, stars, repositories, languages: aggregates over repositories the token can read
+ *   (this includes private ones unless --public-only). Language bytes are kept per repository but without names,
+ *   so the site can weight languages "by code size" or "by repository".
  */
 import { execFileSync } from 'node:child_process'
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const outFile = resolve(here, '../src/data/github-snapshot.json')
-
+const outFile = resolve(here, '../src/data/github.json')
 const args = process.argv.slice(2)
-const argValue = (name) => {
-  const i = args.indexOf(name)
-  return i >= 0 ? args[i + 1] : undefined
-}
-const login = argValue('--login') ?? 'hienta16'
-const skipPublicCheck = args.includes('--skip-public-check')
+const flag = (n) => args.includes(n)
+const value = (n) => (args.indexOf(n) >= 0 ? args[args.indexOf(n) + 1] : undefined)
+const login = value('--login') ?? 'hienta16'
+const soft = flag('--soft')
+const publicOnly = flag('--public-only')
 
-function fail(message) {
-  console.error(`\n✗ ${message}\n`)
-  process.exit(1)
+class Stop extends Error {}
+const stop = (msg) => {
+  throw new Stop(msg)
 }
 
-function getToken() {
-  const fromEnv = process.env.GITHUB_TOKEN || process.env.GH_TOKEN
-  if (fromEnv) return fromEnv.trim()
+function token() {
+  const env = process.env.GITHUB_TOKEN || process.env.GH_TOKEN
+  if (env) return env.trim()
   try {
     return execFileSync('gh', ['auth', 'token'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
   } catch {
-    fail('No token. Set GITHUB_TOKEN, or sign in with the GitHub CLI (gh auth login).')
+    stop('No token. Set GITHUB_TOKEN, or sign in with the GitHub CLI (gh auth login).')
   }
 }
 
-const QUERY = `query($login: String!) {
-  user(login: $login) {
-    contributionsCollection {
-      startedAt
-      endedAt
-      restrictedContributionsCount
-      contributionCalendar {
-        totalContributions
-        weeks { contributionDays { date contributionCount } }
+const UA = { 'User-Agent': 'portfolio-github-snapshot' }
+
+async function main() {
+  const tok = token()
+  const auth = { ...UA, Authorization: `bearer ${tok}` }
+
+  const gql = async (query, variables = {}) => {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: { ...auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables }),
+    })
+    if (!res.ok) stop(`GitHub GraphQL answered ${res.status}.`)
+    const j = await res.json()
+    if (j.errors?.length) stop(`GitHub GraphQL: ${j.errors.map((e) => e.message).join('; ')}`)
+    return j.data
+  }
+  const rest = async (path, useAuth = !publicOnly) => {
+    const res = await fetch(`https://api.github.com/${path}`, {
+      headers: { ...(useAuth ? auth : UA), Accept: 'application/vnd.github+json' },
+    })
+    if (!res.ok) stop(`GitHub REST ${path.split('?')[0]} answered ${res.status}.`)
+    return res.json()
+  }
+
+  /* 1. Profile and calendar */
+  const d = await gql(
+    `query($login: String!) {
+      user(login: $login) {
+        login name avatarUrl url createdAt
+        followers { totalCount }
+        contributionsCollection {
+          contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } }
+          restrictedContributionsCount
+        }
+        repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) { totalCount }
+        repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+          totalCount
+          nodes {
+            isPrivate stargazerCount
+            languages(first: 20, orderBy: { field: SIZE, direction: DESC }) { edges { size node { name } } }
+          }
+        }
       }
-    }
+    }`,
+    { login },
+  )
+  const u = d.user
+  if (!u) stop(`No GitHub user "${login}".`)
+  const days = u.contributionsCollection.contributionCalendar.weeks.flatMap((w) => w.contributionDays)
+  if (days.reduce((a, x) => a + x.contributionCount, 0) !== u.contributionsCollection.contributionCalendar.totalContributions)
+    stop('Calendar days do not add up to the total.')
+  for (let i = 1; i < days.length; i++) {
+    if (Date.parse(`${days[i].date}T00:00:00Z`) - Date.parse(`${days[i - 1].date}T00:00:00Z`) !== 86_400_000)
+      stop(`Calendar gap after ${days[i - 1].date}.`)
   }
-}`
 
-async function fetchCalendar(token) {
-  const res = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: {
-      Authorization: `bearer ${token}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'portfolio-contribution-snapshot',
-    },
-    body: JSON.stringify({ query: QUERY, variables: { login } }),
-  })
-  if (!res.ok) fail(`GitHub API answered ${res.status} ${res.statusText}.`)
-  const json = await res.json()
-  if (json.errors?.length) fail(`GitHub API error: ${json.errors.map((e) => e.message).join('; ')}`)
-  const collection = json.data?.user?.contributionsCollection
-  if (!collection) fail(`No contribution data for "${login}".`)
-  const days = collection.contributionCalendar.weeks.flatMap((w) => w.contributionDays)
-  return { collection, days }
-}
-
-/** Parse the anonymous public calendar page into { 'YYYY-MM-DD': count }. */
-async function fetchPublicCalendar() {
-  const res = await fetch(`https://github.com/users/${encodeURIComponent(login)}/contributions`, {
-    headers: { 'User-Agent': 'portfolio-contribution-snapshot' },
-  })
-  if (!res.ok) fail(`Public calendar answered ${res.status}.`)
-  const html = (await res.text()).replace(/\s+/g, ' ')
+  /* 2. Privacy guard: the calendar must equal what a stranger sees */
+  const pub = await fetch(`https://github.com/users/${encodeURIComponent(login)}/contributions`, { headers: UA })
+  if (!pub.ok) stop(`Public calendar answered ${pub.status}.`)
+  const html = (await pub.text()).replace(/\s+/g, ' ')
   const idToDate = {}
   for (const m of html.matchAll(/<td[^>]*>/g)) {
-    const tag = m[0]
-    const id = tag.match(/id="(contribution-day-component-\d+-\d+)"/)?.[1]
-    const date = tag.match(/data-date="(\d{4}-\d{2}-\d{2})"/)?.[1]
+    const id = m[0].match(/id="(contribution-day-component-\d+-\d+)"/)?.[1]
+    const date = m[0].match(/data-date="(\d{4}-\d{2}-\d{2})"/)?.[1]
     if (id && date) idToDate[id] = date
   }
-  const counts = {}
+  const pubCounts = {}
   for (const m of html.matchAll(/for="(contribution-day-component-\d+-\d+)"[^>]*>([^<]*)</g)) {
     const date = idToDate[m[1]]
     if (!date) continue
     const text = m[2].trim()
     const lead = text.match(/^([\d,.]+)\s+contribution/i)
-    counts[date] = /^No contributions/i.test(text) ? 0 : lead ? Number.parseInt(lead[1].replace(/[,.]/g, ''), 10) : NaN
+    pubCounts[date] = /^No contributions/i.test(text) ? 0 : lead ? Number.parseInt(lead[1].replace(/[,.]/g, ''), 10) : NaN
   }
-  const heading = html.match(/id="js-contribution-activity-description"[^>]*>([^<]*)</)?.[1]?.trim() ?? ''
-  return { counts, heading }
-}
-
-const token = getToken()
-const { collection, days } = await fetchCalendar(token)
-const total = collection.contributionCalendar.totalContributions
-const sum = days.reduce((a, d) => a + d.contributionCount, 0)
-if (sum !== total) fail(`Calendar days add up to ${sum}, but GitHub reports ${total}.`)
-
-// Days must be consecutive.
-for (let i = 1; i < days.length; i++) {
-  const prev = Date.parse(`${days[i - 1].date}T00:00:00Z`)
-  const cur = Date.parse(`${days[i].date}T00:00:00Z`)
-  if (cur - prev !== 86_400_000) fail(`Calendar has a gap between ${days[i - 1].date} and ${days[i].date}.`)
-}
-
-let publicCheck
-if (skipPublicCheck) {
-  console.warn('! Public calendar check skipped. Only publish this if your profile shows private contributions.')
-  publicCheck = { matched: null, checkedAt: null }
-} else {
-  const pub = await fetchPublicCalendar()
-  const mismatches = days.filter((d) => pub.counts[d.date] !== d.contributionCount)
-  if (Object.keys(pub.counts).length < days.length - 7) {
-    fail('Could not read the public calendar (GitHub may have changed its markup). Nothing was written.')
+  if (Object.keys(pubCounts).length < days.length - 7) stop('Could not read the public calendar (markup changed?).')
+  // Today can lag on the cached public page while contributions are still arriving. Any earlier difference means the
+  // profile hides something, so nothing is written. For today, the public value wins: never show more than a stranger sees.
+  const last = days.at(-1)
+  const mismatch = days.filter((x) => x !== last && pubCounts[x.date] !== x.contributionCount)
+  if (mismatch.length)
+    stop(`Public calendar differs on ${mismatch.length} day(s) (e.g. ${mismatch[0].date}); the profile may hide private contributions.`)
+  if (Number.isInteger(pubCounts[last.date]) && pubCounts[last.date] !== last.contributionCount) {
+    console.warn(`! Today's count is still settling (API ${last.contributionCount}, public page ${pubCounts[last.date]}); using the public value.`)
+    last.contributionCount = Math.min(last.contributionCount, pubCounts[last.date])
   }
-  if (mismatches.length) {
-    fail(
-      `The public calendar differs from the API on ${mismatches.length} day(s), e.g. ${mismatches[0].date}. ` +
-        'Your profile probably hides private contributions; publishing would reveal more than GitHub shows. Nothing was written.',
-    )
+
+  const total = days.reduce((a, x) => a + x.contributionCount, 0)
+
+  /* 3. Counts over the same window as the calendar */
+  const from = days[0].date
+  const q = (s) => encodeURIComponent(s)
+  const searchCount = async (kind, query) => (await rest(`search/${kind}?q=${q(query)}&per_page=1`)).total_count
+  const commitsLastYear = await searchCount('commits', `author:${login} author-date:>=${from}`)
+  const prsLastYear = await searchCount('issues', `author:${login} type:pr created:>=${from}`)
+  const issuesLastYear = await searchCount('issues', `author:${login} type:issue created:>=${from}`)
+  const prsAllTime = await searchCount('issues', `author:${login} type:pr`)
+  const issuesAllTime = await searchCount('issues', `author:${login} type:issue`)
+
+  /* 4. Repositories, stars, languages (no names kept) */
+  const repos = u.repositories.nodes.filter((r) => !publicOnly || !r.isPrivate)
+  const stars = repos.reduce((a, r) => a + r.stargazerCount, 0)
+  const langRepos = repos
+    .map((r) => Object.fromEntries(r.languages.edges.map((e) => [e.node.name, e.size])))
+    .filter((m) => Object.keys(m).length > 0)
+
+  const snapshot = {
+    login: u.login,
+    name: u.name,
+    profileUrl: u.url,
+    avatarUrl: u.avatarUrl,
+    joined: u.createdAt.slice(0, 10),
+    generatedAt: new Date().toISOString(),
+    scope: publicOnly ? 'public' : 'public-and-private',
+    calendar: {
+      from,
+      to: days.at(-1).date,
+      total,
+      privateContributions: u.contributionsCollection.restrictedContributionsCount,
+      verifiedAgainstPublicProfile: true,
+      days: days.map((x) => x.contributionCount),
+    },
+    counts: {
+      commitsLastYear,
+      pullRequestsLastYear: prsLastYear,
+      issuesLastYear,
+      pullRequestsAllTime: prsAllTime,
+      issuesAllTime,
+      stars,
+      repositories: { total: repos.length, public: repos.filter((r) => !r.isPrivate).length, private: repos.filter((r) => r.isPrivate).length },
+      contributedToLastYear: u.repositoriesContributedTo.totalCount,
+      followers: u.followers.totalCount,
+    },
+    languageBytesByRepository: langRepos,
   }
-  publicCheck = { matched: true, checkedAt: new Date().toISOString(), publicHeading: pub.heading }
+
+  mkdirSync(dirname(outFile), { recursive: true })
+  const json = JSON.stringify(snapshot, null, 2).replace(/"days": \[\n\s+([\d,\s]+?)\n\s+\]/, (_, inner) => `"days": [${inner.replace(/\s+/g, ' ').trim()}]`)
+  writeFileSync(outFile, `${json}\n`)
+  console.log(
+    `✓ GitHub snapshot: ${total} contributions (${from} → ${snapshot.calendar.to}), ${commitsLastYear} commits, ${prsLastYear} PRs, ${issuesLastYear} issues, ${repos.length} repos.`,
+  )
 }
 
-const snapshot = {
-  login,
-  source: 'GitHub contribution calendar (GraphQL contributionsCollection), verified against the public profile calendar',
-  generatedAt: new Date().toISOString(),
-  from: days[0].date,
-  to: days.at(-1).date,
-  total,
-  privateContributions: collection.restrictedContributionsCount,
-  publicCheck,
-  days: days.map((d) => d.contributionCount),
-}
-
-mkdirSync(dirname(outFile), { recursive: true })
-writeFileSync(outFile, `${JSON.stringify(snapshot, null, 2).replace(/\[\n\s+([\d,\s]+)\n\s+\]/, (_, inner) => `[${inner.replace(/\s+/g, ' ').trim()}]`)}\n`)
-console.log(`✓ ${total} contributions, ${snapshot.from} → ${snapshot.to}, written to src/data/github-snapshot.json`)
+main().catch((e) => {
+  const msg = e instanceof Stop ? e.message : `Unexpected error: ${e?.message ?? e}`
+  if (soft && existsSync(outFile)) {
+    console.warn(`! GitHub snapshot not refreshed (${msg}). Keeping the existing data.`)
+    process.exit(0)
+  }
+  console.error(`✗ ${msg} Nothing was written.`)
+  process.exit(1)
+})

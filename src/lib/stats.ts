@@ -5,15 +5,41 @@
  * so the visitor's own time zone can never shift a day.
  */
 
-export interface Snapshot {
+export interface GitHubData {
   login: string
-  source: string
+  name: string
+  profileUrl: string
+  avatarUrl: string
+  joined: string
   generatedAt: string
+  scope: 'public' | 'public-and-private'
+  calendar: {
+    from: string
+    to: string
+    total: number
+    privateContributions: number
+    verifiedAgainstPublicProfile: boolean
+    days: number[]
+  }
+  counts: {
+    commitsLastYear: number
+    pullRequestsLastYear: number
+    issuesLastYear: number
+    pullRequestsAllTime: number
+    issuesAllTime: number
+    stars: number
+    repositories: { total: number; public: number; private: number }
+    contributedToLastYear: number
+    followers: number
+  }
+  languageBytesByRepository: Record<string, number>[]
+}
+
+/** The calendar part, as the generic helpers below expect it. */
+export interface Snapshot {
   from: string
   to: string
   total: number
-  privateContributions: number
-  publicCheck: { matched: boolean | null; checkedAt: string | null; publicHeading?: string }
   days: number[]
 }
 
@@ -41,7 +67,7 @@ export const weekdayOf = (date: string) => new Date(toTime(date)).getUTCDay()
 
 export type SnapshotProblem = 'missing' | 'length' | 'total' | 'negative'
 
-/** Returns null when the snapshot is usable, otherwise what is wrong with it. */
+/** Returns null when the calendar is usable, otherwise what is wrong with it. */
 export function validateSnapshot(s: Partial<Snapshot> | null | undefined): SnapshotProblem | null {
   if (!s || !Array.isArray(s.days) || !s.from || !s.to || typeof s.total !== 'number') return 'missing'
   const expected = Math.round((toTime(s.to) - toTime(s.from)) / DAY_MS) + 1
@@ -231,30 +257,45 @@ export function daysBetween(a: string, b: string) {
   return Math.round((toTime(b) - toTime(a)) / DAY_MS)
 }
 
-/* ---------- Proportions, for the simulated outreach case ---------- */
+/* ---------- Streaks the way GitHub counts them ---------- */
 
-/** Wilson score interval for k successes out of n (z = 1.96 for 95%). */
-export function wilson(k: number, n: number, z = 1.959964): [number, number] {
-  if (n === 0) return [0, 1]
-  const p = k / n
-  const z2 = z * z
-  const centre = (p + z2 / (2 * n)) / (1 + z2 / n)
-  const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / (1 + z2 / n)
-  return [Math.max(0, centre - half), Math.min(1, centre + half)]
+/**
+ * Current streak: consecutive active days ending today. Like GitHub's streak cards, a day that has had no
+ * contribution yet does not break it: if today is still empty, the streak is counted up to yesterday.
+ */
+export function currentStreak(days: Day[]): { length: number; start?: string; end?: string; todayPending: boolean } {
+  if (!days.length) return { length: 0, todayPending: false }
+  let i = days.length - 1
+  const todayPending = days[i].count === 0
+  if (todayPending) i--
+  let n = 0
+  while (i - n >= 0 && days[i - n].count > 0) n++
+  return n ? { length: n, start: days[i - n + 1].date, end: days[i].date, todayPending } : { length: 0, todayPending }
 }
 
-/** Standard normal CDF (Abramowitz and Stegun 7.1.26 via erf). */
-export function normalCdf(x: number) {
-  const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2)
-  const y = 1 - (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t) * Math.exp(-(x * x) / 2)
-  return x >= 0 ? (1 + y) / 2 : (1 - y) / 2
+/* ---------- Languages ---------- */
+
+export interface LanguageShare {
+  name: string
+  share: number
 }
 
-/** Two-sided p-value of a pooled two-proportion z-test. */
-export function twoProportionP(k1: number, n1: number, k2: number, n2: number) {
-  const p = (k1 + k2) / (n1 + n2)
-  const se = Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2))
-  if (se === 0) return 1
-  const z = Math.abs(k1 / n1 - k2 / n2) / se
-  return 2 * (1 - normalCdf(z))
+/**
+ * Language shares two honest ways. "bytes": GitHub's own measure, all code pooled. "repos": every repository counts
+ * once, split by its own language mix, so one large codebase cannot drown the rest. Top `limit` kept, the rest pooled.
+ */
+export function languageShares(repos: Record<string, number>[], mode: 'bytes' | 'repos', limit = 5): LanguageShare[] {
+  const totals = new Map<string, number>()
+  for (const r of repos) {
+    const sum = Object.values(r).reduce((a, b) => a + b, 0)
+    if (!sum) continue
+    for (const [lang, bytes] of Object.entries(r)) totals.set(lang, (totals.get(lang) ?? 0) + (mode === 'bytes' ? bytes : bytes / sum))
+  }
+  const all = [...totals.values()].reduce((a, b) => a + b, 0)
+  if (!all) return []
+  const sorted = [...totals.entries()].map(([name, v]) => ({ name, share: v / all })).sort((a, b) => b.share - a.share)
+  if (sorted.length <= limit) return sorted
+  const head = sorted.slice(0, limit)
+  const rest = sorted.slice(limit).reduce((a, b) => a + b.share, 0)
+  return [...head, { name: 'Other', share: rest }]
 }

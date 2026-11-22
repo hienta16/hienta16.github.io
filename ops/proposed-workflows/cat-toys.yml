@@ -1,0 +1,38 @@
+# PROPOSED, NOT ACTIVE. Copy to .github/workflows/ only when the repository is public and you want the toy box live.
+# When a visitor opens an issue titled "[cat-toy] <yarn|feather|mouse|box>", this collects every toy issue into
+# src/data/cat-toys.json, commits it, thanks the visitor and closes the issue.
+name: Cat toy box
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: cat-toys
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: startsWith(github.event.issue.title, '[cat-toy]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/collect-cat-toys.mjs --repo "${{ github.repository }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit the toy box
+        run: |
+          git config user.name "cat-toy-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/cat-toys.json
+          git diff --cached --quiet || git commit -m "chore: a new toy for the cat"
+          git push
+      - name: Thank and close
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --body "The cat pounced on it. Thank you! It will appear in the toy box after the next deploy."
+          gh issue close "${{ github.event.issue.number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

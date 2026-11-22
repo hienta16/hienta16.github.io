@@ -1,102 +1,247 @@
-.cat-front {
+/* ───────── The 2.5D cat ───────── */
+.cat {
+  position: relative;
+  aspect-ratio: 300 / 360;
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+}
+.cat__rig,
+.cat__head {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 240ms var(--ease-out);
+}
+.cat__head {
+  transform-origin: 50% 52%;
+}
+.cat__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cat__layer svg {
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
-.cat-front .cat-head,
-.cat-front .cat-tail,
-.cat-front .cat-paw,
-.cat-front .cat-body {
+.cat__pupil {
+  transition: transform 140ms var(--ease-out);
+}
+.cat__lid {
   transform-box: fill-box;
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+  transition: transform 70ms linear;
 }
-.cat-front .cat-head {
-  transform-origin: 50% 90%;
-  transition: transform 320ms var(--ease-out);
+.cat__lid.is-closed {
+  transform: scaleY(1);
 }
-.cat-front .cat-tail {
-  transform-origin: 0% 100%;
-  animation: tail-idle 4.8s var(--ease-in-out) infinite;
-}
-.cat-front .cat-pupils {
-  transition: transform 160ms var(--ease-out);
-}
-.cat-front .cat-look {
-  animation: look-on 420ms var(--ease-out) both;
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
+.cat--blink .cat__pupil {
+  opacity: 0;
 }
 
-@keyframes tail-idle {
+/* Tail: a slow swish, always */
+.cat__tail svg {
+  transform-origin: 72% 92%;
+  animation: tail-swish 5.2s var(--ease-in-out) infinite;
+}
+@keyframes tail-swish {
   0%,
-  70%,
+  60%,
   100% {
-    transform: rotate(0deg);
+    transform: rotate(0);
   }
-  80% {
-    transform: rotate(-7deg);
+  72% {
+    transform: rotate(-8deg);
   }
-  90% {
-    transform: rotate(4deg);
+  86% {
+    transform: rotate(5deg);
   }
 }
-@keyframes look-on {
+
+/* Moods */
+.cat__paw svg {
+  transform-origin: 59% 73%;
+  transition: transform 160ms var(--ease-out);
+}
+.cat--swat .cat__paw svg {
+  transform: rotate(-62deg) translateY(-6%);
+}
+.cat--bob .cat__head {
+  animation: head-bob 480ms var(--ease-in-out) infinite;
+}
+@keyframes head-bob {
+  50% {
+    translate: 0 6px;
+    rotate: -3deg;
+  }
+}
+.cat--sway .cat__rig {
+  animation: sway 1.9s var(--ease-in-out) 1;
+}
+@keyframes sway {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -4% 0;
+    rotate: -5deg;
+  }
+  50% {
+    translate: 0 -5%;
+  }
+  75% {
+    translate: 4% 0;
+    rotate: 5deg;
+  }
+}
+.cat__shades svg {
+  animation: shades-on 360ms var(--ease-out) both;
+}
+@keyframes shades-on {
   from {
-    transform: scale(0.6) translateY(-6px);
+    transform: translateY(-14%);
     opacity: 0;
   }
 }
+.cat--bow .cat__head {
+  transform: translateY(5%) rotate(0deg) !important;
+  transition-duration: 600ms;
+}
 
-/* Side cat on the tape */
-.cat-side .cs-leg {
+/* ───────── Ruler cat ───────── */
+.rcat {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.rcat__leg {
   transform-box: fill-box;
   transform-origin: 50% 0%;
 }
-.cat-side .cs-tail {
+.rcat--walk .rcat__leg--a {
+  animation: rleg 380ms linear infinite;
+}
+.rcat--walk .rcat__leg--b {
+  animation: rleg 380ms linear infinite reverse;
+}
+.rcat--run .rcat__leg--a {
+  animation: rleg-run 190ms linear infinite;
+}
+.rcat--run .rcat__leg--b {
+  animation: rleg-run 190ms linear infinite reverse;
+}
+.rcat--run .rcat__tail {
+  transform: rotate(48deg);
   transform-box: fill-box;
   transform-origin: 100% 100%;
 }
-.cat-side.is-walking .cs-leg--a {
-  animation: leg 360ms linear infinite;
+.rcat--walk .rcat__head {
+  animation: rhead 380ms var(--ease-in-out) infinite;
 }
-.cat-side.is-walking .cs-leg--b {
-  animation: leg 360ms linear infinite reverse;
-}
-.cat-side.is-walking .cs-head {
-  animation: head-bob 360ms var(--ease-in-out) infinite;
-}
-.cat-side .cs-tail {
-  animation: tail-flick 3.2s var(--ease-in-out) infinite;
-}
-@keyframes leg {
+@keyframes rleg {
   0%,
   100% {
-    transform: rotate(-22deg);
+    transform: rotate(-24deg);
   }
   50% {
-    transform: rotate(22deg);
+    transform: rotate(24deg);
   }
 }
-@keyframes head-bob {
+@keyframes rleg-run {
+  0%,
+  100% {
+    transform: rotate(-40deg);
+  }
+  50% {
+    transform: rotate(40deg);
+  }
+}
+@keyframes rhead {
   50% {
     transform: translateY(1px);
   }
 }
-@keyframes tail-flick {
+.rcat__tail {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+}
+.rcat--sit .rcat__tail {
+  animation: rtail 2.8s var(--ease-in-out) infinite;
+}
+@keyframes rtail {
   0%,
-  80%,
+  70%,
   100% {
     transform: rotate(0);
   }
-  88% {
-    transform: rotate(14deg);
+  80% {
+    transform: rotate(-18deg);
+  }
+}
+.rcat__z {
+  fill: var(--ink);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 9px;
+  animation: zfloat 2.4s var(--ease-out) infinite;
+}
+.rcat__z--2 {
+  font-size: 7px;
+  animation-delay: 1.2s;
+}
+@keyframes zfloat {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.rcat__yarn {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: yarn-bat 900ms var(--ease-in-out) infinite;
+}
+@keyframes yarn-bat {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  40% {
+    transform: translateX(4px) rotate(80deg);
   }
 }
 
+/* Toys */
+.toy {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cat-front .cat-tail,
-  .cat-side .cs-tail,
-  .cat-side.is-walking .cs-leg--a,
-  .cat-side.is-walking .cs-leg--b,
-  .cat-side.is-walking .cs-head,
-  .cat-front .cat-look {
-    animation: none;
+  .cat__tail svg,
+  .cat--bob .cat__head,
+  .cat--sway .cat__rig,
+  .cat__shades svg,
+  .rcat__leg,
+  .rcat__head,
+  .rcat__tail,
+  .rcat__z,
+  .rcat__yarn {
+    animation: none !important;
+  }
+  .cat__rig,
+  .cat__head,
+  .cat__pupil {
+    transition: none;
   }
 }

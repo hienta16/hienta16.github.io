@@ -2,15 +2,17 @@
   "name": "catwalk-of-curiosity",
   "private": true,
   "version": "1.0.0",
-  "description": "Personal portfolio of Tạ Minh Hiền: Catwalk of Curiosity",
+  "description": "Hien Ta, Data Analyst: a creative GitHub companion site",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "node scripts/snapshot-github.mjs --soft",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc",
-    "snapshot:github": "node scripts/snapshot-github.mjs"
+    "snapshot:github": "node scripts/snapshot-github.mjs",
+    "toys:collect": "node scripts/collect-cat-toys.mjs"
   },
   "dependencies": {
     "@fontsource-variable/anybody": "^5.3.0",

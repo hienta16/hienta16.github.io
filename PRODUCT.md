@@ -17,16 +17,15 @@ Delegated: the brief allows React + Vite + TypeScript. Chosen: Vite + React + Ty
 
 ## Users
 
-- **Primary:** recruiters, hiring managers and mentors looking at an early-career Data Analyst candidate, usually from a
-  CV link or a GitHub profile, on a laptop or a phone, deciding in a minute or two whether to read further *(inferred)*.
-- **Secondary:** classmates, collaborators and people in the Vietnamese data community *(inferred)*.
+- **Primary:** people who find Hien on GitHub and click through to the linked site: recruiters, mentors, classmates,
+  other developers. The site is a creative GitHub companion, not a formal portfolio (owner, 23/11/2026).
 - The owner reads it as a statement of who they are becoming.
 
 ## Product Purpose
 
-A personal portfolio for Tạ Minh Hiền that shows an aspiring Data Analyst who is curious, analytical, creative and still
-learning. Success: a visitor leaves knowing the person's direction (data analysis, business analytics, data
-visualization), sees honest evidence of real learning and real activity, and remembers the site.
+A creative personal site that complements the GitHub profile @hienta16: identity line "Data Analyst" (never
+"aspiring"), real and current GitHub data, an interactive cat personality, and witty, light copy linking data with cats,
+music, dance and fashion. Success: it feels related to the GitHub profile, alive with real data, and clearly Hien's.
 
 ## Positioning
 
@@ -41,26 +40,27 @@ show with a backstage, so the method (sources, definitions, caveats) is part of 
 
 ## Capabilities and Constraints
 
-- Bilingual: the previous site was Vietnamese; the redesign serves English and Vietnamese *(inferred: keeps the existing
-  Vietnamese voice while opening to international readers)*.
-- GitHub activity comes from a build-time snapshot of the contribution calendar. The snapshot script refuses to write
-  data that differs from the anonymous public calendar, so the site never shows more than GitHub shows publicly.
+- **English only** (owner, 23/11/2026). Display name "Hien Ta"; GitHub name "Hien Minh Ta".
+- GitHub data comes from `scripts/snapshot-github.mjs` (run before every `npm run dev`, and by a scheduled Action once
+  published). The calendar must match the anonymous public calendar; counts (commits, PRs, issues, stars, repositories,
+  languages) include private repositories as numbers only, never names. Live public profile data is fetched in the
+  browser with a graceful fallback.
+- Community toys: visitors leave a toy for the cat by opening a GitHub issue; an Action turns issues into
+  `src/data/cat-toys.json`. Needs a public repository and the proposed workflow (`ops/proposed-workflows/`).
 - No API credentials in the frontend. No contact form. No autoplay audio.
 
 ## Brand Commitments
 
-- Name: **Tạ Minh Hiền** (GitHub display name "Hien Minh Ta"). Vietnamese diacritics must render correctly.
+- Name on the site: **Hien Ta** ("Hi, I'm Hien Ta!"); GitHub display name "Hien Minh Ta". The name is never the giant headline.
 - Concept name: **Catwalk of Curiosity** (Data Runway + Backstage Pass), pinned by the owner.
 - Palette **Electric Baby Pop**, pinned: Warm Cream #FFF9F4, Baby Pink #F49CB6, Electric Blue #2463F6, Vivid Orange
   #FF7029, Pale Pink #FFE5EE, Dark Ink #22243A.
-- Primary identity: aspiring Data Analyst. Supporting identity: fashion, music, dancing, cats.
+- Primary identity: **Data Analyst** (never "aspiring"). Supporting identity: cats, music, dance, fashion.
 
 ## Evidence on Hand
 
 - Education: Management Information Systems, National Economics University (NEU) (owner's brief).
-- Previous site's case study (commit `2b8c5d7`, `index.html`): simulated B2B outreach, 100 hypothetical businesses,
-  one contact each. Email 50 contacted / 8 replies (16%); WhatsApp 25 / 6 (24%); LinkedIn 25 / 5 (20%). Lesson: the
-  count and the rate crown different winners. **Simulated data**; label it so everywhere.
+- The simulated B2B outreach case from the first site is **not the owner's work** and must never appear again.
 - GitHub contribution calendar, 23/11/2025 to 22/11/2026: 1,469 contributions on 75 active days, all from September
   2026 (Sep 293, Oct 622, Nov 554 to the 22nd); 1,467 are private-repository contributions GitHub shows as counts only.
   Matches the anonymous public calendar day for day (checked 22/11/2026).
@@ -68,6 +68,8 @@ show with a backstage, so the method (sources, definitions, caveats) is part of 
   log (private repo `neu-python-programming`, Oct 2026); NEU C++ OOP coursework; an online Data Analyst course with
   Python scripts and CSV labs, partly unfinished; Excel / Power Query drills (group by, conditional columns, merging
   columns, pulling data across workbooks).
+- GitHub (23/11/2026): 1,471 contributions in the last year, 1,366 commits, 83 PRs, 111 issues, 4 repositories
+  (all private), 0 stars, contributed to 2; public avatar is a personal photo (shown small, can be switched off).
 - **Absent, never fabricate:** employers, internships, job titles, clients, metrics of impact, SQL experience (no
   evidence found), public projects, testimonials, email address or other social accounts, specifics about the owner's
   cats, music or dance (not supplied).

@@ -1,0 +1,29 @@
+# PROPOSED, NOT ACTIVE. Copy to .github/workflows/ when you publish.
+# Refreshes src/data/github.json a few times a day. Counts that include private repositories need a token that can
+# read them: create a fine-grained or classic personal access token with read access, store it as the repository
+# secret GH_STATS_TOKEN. Without it the script falls back to the default token and only public data is counted.
+name: Refresh GitHub data
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/snapshot-github.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_STATS_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Commit the snapshot
+        run: |
+          git config user.name "stats-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/github.json
+          git diff --cached --quiet || git commit -m "chore: refresh GitHub data"
+          git push
