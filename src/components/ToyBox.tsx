@@ -288,7 +288,7 @@ function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; total
         await beat(1100)
         set({ look: null, inBox: 'up' })
         if (n % 2 === 0) {
-          set({ mood: 'sleep', zz: true, inBox: 'peek' })
+          set({ mood: 'sleep', zz: true, inBox: 'up' })
           await beat(4200)
           set({ mood: 'blink', zz: false })
           await beat(300)
