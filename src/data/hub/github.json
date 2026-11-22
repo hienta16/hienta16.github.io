@@ -1,47 +1,47 @@
 {
   "schema": 2,
   "login": "hienta16",
-  "generatedAt": "2026-11-22T21:42:13Z",
+  "generatedAt": "2026-11-22T22:35:41Z",
   "profile": {
     "name": "Hien Minh Ta",
     "url": "https://github.com/hienta16",
     "avatarUrl": "https://avatars.githubusercontent.com/u/210944667?u=a13f7ad76de3189d72d2ee814b9aaa7b5bb67561&v=4",
     "joined": "2025-05-09",
     "followers": 0,
-    "asOf": "2026-11-22T21:42:13Z"
+    "asOf": "2026-11-22T22:35:41Z"
   },
   "calendar": {
     "from": "2025-11-23",
-    "to": "2026-11-23",
-    "total": 1473,
-    "days": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 6, 23, 0, 6, 3, 1, 0, 1, 3, 17, 41, 7, 15, 3, 22, 24, 10, 40, 47, 2, 15, 18, 16, 7, 23, 20, 15, 15, 12, 36, 10, 9, 10, 11, 1, 17, 3, 47, 20, 23, 94, 60, 10, 19, 1, 29, 13, 12, 23, 7, 31, 10, 12, 17, 14, 31, 8, 9, 35, 32, 32, 6, 35, 29, 19, 120, 84, 16, 2, 3, 9, 6, 1, 36, 2],
-    "privateContributions": 1471,
+    "to": "2026-11-22",
+    "total": 1530,
+    "days": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 6, 23, 0, 6, 3, 1, 0, 1, 3, 17, 41, 7, 15, 3, 22, 24, 10, 40, 47, 2, 15, 18, 16, 7, 23, 20, 15, 15, 12, 36, 10, 9, 10, 11, 1, 17, 3, 47, 20, 23, 94, 60, 10, 19, 1, 29, 17, 12, 23, 7, 31, 10, 12, 17, 14, 39, 11, 9, 35, 32, 32, 6, 37, 29, 19, 123, 106, 16, 2, 3, 13, 6, 2, 48],
+    "privateContributions": 1527,
     "verifiedAgainstPublicProfile": true,
-    "asOf": "2026-11-22T21:42:13Z"
+    "asOf": "2026-11-22T22:35:41Z"
   },
   "metrics": {
-    "activeDays": 76,
+    "activeDays": 75,
     "firstContribution": "2026-09-06",
-    "daysSinceFirst": 79,
-    "activeShareSinceFirst": 0.962,
+    "daysSinceFirst": 78,
+    "activeShareSinceFirst": 0.9615,
     "longestStreak": {
-      "length": 68,
+      "length": 67,
       "start": "2026-09-17",
-      "end": "2026-11-23",
+      "end": "2026-11-22",
       "running": true
     },
     "currentStreak": {
-      "length": 68,
+      "length": 67,
       "start": "2026-09-17",
-      "end": "2026-11-23",
+      "end": "2026-11-22",
       "todayPending": false
     },
     "bestDay": {
       "date": "2026-11-14",
-      "count": 120
+      "count": 123
     },
-    "meanPerActiveDay": 19.4,
-    "medianPerActiveDay": 14.5,
+    "meanPerActiveDay": 20.4,
+    "medianPerActiveDay": 15,
     "months": [
       {
         "month": "2025-11",
@@ -122,23 +122,23 @@
       },
       {
         "month": "2026-10",
-        "total": 622,
+        "total": 626,
         "activeDays": 31,
         "days": 31,
         "partial": false
       },
       {
         "month": "2026-11",
-        "total": 558,
-        "activeDays": 23,
-        "days": 23,
+        "total": 611,
+        "activeDays": 22,
+        "days": 22,
         "partial": true
       }
     ],
     "weekdays": [
       {
         "day": "Mon",
-        "total": 192
+        "total": 194
       },
       {
         "day": "Tue",
@@ -146,11 +146,11 @@
       },
       {
         "day": "Wed",
-        "total": 186
+        "total": 196
       },
       {
         "day": "Thu",
-        "total": 139
+        "total": 146
       },
       {
         "day": "Fri",
@@ -158,11 +158,11 @@
       },
       {
         "day": "Sat",
-        "total": 258
+        "total": 262
       },
       {
         "day": "Sun",
-        "total": 335
+        "total": 369
       }
     ],
     "levels": [
@@ -174,12 +174,12 @@
       {
         "min": 1,
         "max": 5,
-        "days": 16
+        "days": 15
       },
       {
         "min": 6,
         "max": 15,
-        "days": 26
+        "days": 25
       },
       {
         "min": 16,
@@ -189,26 +189,26 @@
       {
         "min": 41,
         "max": null,
-        "days": 7
+        "days": 8
       }
     ]
   },
   "counts": {
     "scope": "public-and-private",
-    "asOf": "2026-11-22T21:42:13Z",
-    "commitsLastYear": 1366,
-    "pullRequestsLastYear": 85,
+    "asOf": "2026-11-22T22:32:55Z",
+    "commitsLastYear": 1432,
+    "pullRequestsLastYear": 87,
     "issuesLastYear": 111,
-    "pullRequestsAllTime": 85,
+    "pullRequestsAllTime": 87,
     "issuesAllTime": 111,
     "contributedToLastYear": 2
   },
   "repositories": {
     "scope": "public-and-private",
-    "asOf": "2026-11-22T21:42:13Z",
-    "total": 4,
+    "asOf": "2026-11-22T22:32:55Z",
+    "total": 5,
     "public": 0,
-    "private": 4,
+    "private": 5,
     "stars": 0,
     "withLanguages": 4,
     "languages": {
@@ -267,10 +267,13 @@
     }
   },
   "refresh": {
-    "attemptedAt": "2026-11-22T21:42:13Z",
-    "ok": true,
-    "lastCompleteAt": "2026-11-22T21:42:13Z",
-    "problems": [],
+    "attemptedAt": "2026-11-22T22:35:41Z",
+    "ok": false,
+    "lastCompleteAt": "2026-11-22T22:32:55Z",
+    "problems": [
+      "counts: this run can only see public repositories (no CATWALK_STATS_TOKEN); kept the complete numbers from 2026-11-22T22:32:55Z",
+      "repositories: this run can only see public repositories (no CATWALK_STATS_TOKEN); kept the complete numbers from 2026-11-22T22:32:55Z"
+    ],
     "notes": [],
     "schedule": "every 6 hours by GitHub Actions, and on demand"
   }

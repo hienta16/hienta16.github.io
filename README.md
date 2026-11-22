@@ -4,8 +4,8 @@
 GitHub profile README, lives in [`hienta16/hienta16`](https://github.com/hienta16/hienta16) (the "hub"). Both show
 the same numbers, the same tortoiseshell cat and the same Electric Baby Pop palette.
 
-> Status: **not published.** This repository is private and GitHub Pages is not enabled. The branch
-> `feature/python-catwalk-cat-toys` is a review branch; nothing deploys from it.
+> Status: **live** at https://hienta16.github.io (published 23/11/2026 with Hien's approval). Every push to `main`
+> runs `.github/workflows/pages.yml`: it pulls the newest hub data, runs the tests, builds and deploys.
 
 ## How the two repositories fit together
 
@@ -67,13 +67,12 @@ exactly what the server enforces.
 - **After going live**, "Give on GitHub" opens a pre-filled issue on the hub; the page then checks the hub for the
   new toy every 20 seconds for a few minutes.
 
-## Going live (not done; needs Hien's approval)
+## Deployment
 
-The full checklist is in the hub's `docs/ACTIVATION.md`. For this site:
-
-1. Make the hub public and set `hub_public` (and later `toys_live`) in its `config/catwalk.json`; run `npm run data`.
-2. Decide whether this repository becomes public (free GitHub Pages needs a public repository).
-3. Enable Pages with "GitHub Actions" as the source, and copy `ops/activation/pages.yml` into `.github/workflows/`.
+GitHub Pages, source "GitHub Actions", workflow `.github/workflows/pages.yml` (push to `main` or run it by hand).
+The hub is public and switched on (`hub_public`, `toys_live`), so the live site reads `data/github.json`,
+`data/toys.json` and the 3D year straight from it. To take the site down: Settings → Pages → Unpublish.
+The hub's switches and how to turn them off are in its `docs/ACTIVATION.md`.
 
 Earlier versions: the first one-page site is on `main` (tag `baseline/pre-catwalk-2026-11-22`); v1 is tag
 `checkpoint/catwalk-v1`, v2 tag `checkpoint/companion-v2`.
