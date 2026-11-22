@@ -79,7 +79,7 @@ show with a backstage, so the method (sources, definitions, caveats) is part of 
   2026 (Sep 293, Oct 622, Nov 554 to the 22nd); 1,467 are private-repository contributions GitHub shows as counts only.
   Matches the anonymous public calendar day for day (checked 22/11/2026).
 - Learning evidence on disk (names only, not published): NEU Python course notebooks and a 30-prompt Python practice
-  log (private repo `neu-python-programming`, Oct 2026); NEU C++ OOP coursework; an online Data Analyst course with
+  log (kept in a private repository, Oct 2026); NEU C++ OOP coursework; an online Data Analyst course with
   Python scripts and CSV labs, partly unfinished; Excel / Power Query drills (group by, conditional columns, merging
   columns, pulling data across workbooks).
 - GitHub (23/11/2026, Python refresh): 1,473 contributions in the last year, 1,366 commits authored, 85 PRs, 111
