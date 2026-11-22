@@ -38,12 +38,10 @@ show with a backstage, so the method (sources, definitions, caveats) is part of 
 
 ## Operating Context
 
-- Repository `hienta16/hienta16.github.io`, **PRIVATE**. GitHub Pages is not enabled. Nothing is deployed without
-  the owner's decision. Pushing review branches was approved on 23/11/2026 (`feature/python-catwalk-cat-toys`).
-- Hub `hienta16/hienta16` created **PRIVATE** as a staging repository on 23/11/2026 (it did not exist). A private
-  special repository does not show on the profile; making it public is the owner's separate decision.
-- All workflows are inert until the owner sets the repository variables `CATWALK_AUTOMATION` / `CATWALK_TOYS` to `on`
-  (hub `docs/ACTIVATION.md`).
+- **Live since 23/11/2026, approved by the owner:** both repositories are public; the site is on GitHub Pages
+  (https://hienta16.github.io, deployed by `.github/workflows/pages.yml` on push to `main`); the hub
+  `hienta16/hienta16` (created 23/11/2026) shows the profile README; its workflows are on
+  (`CATWALK_AUTOMATION`, `CATWALK_TOYS`). How to switch parts off: hub `docs/ACTIVATION.md`.
 - GitHub account `hienta16`, created 09/05/2025. **0 public repositories** (4 private) on 22/11/2026.
 
 ## Capabilities and Constraints
