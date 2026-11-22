@@ -1,82 +1,79 @@
 # hienta16.github.io · Catwalk of Curiosity
 
-**Hien Ta, Data Analyst.** A creative companion to the GitHub profile [@hienta16](https://github.com/hienta16):
-real GitHub stats, a 3D runway of the contribution year, and a tuxedo cat who chases your cursor.
+**Hien Ta, Data Analyst.** The website half of one identity system. The other half, the Python automation and the
+GitHub profile README, lives in [`hienta16/hienta16`](https://github.com/hienta16/hienta16) (the "hub"). Both show
+the same numbers, the same tortoiseshell cat and the same Electric Baby Pop palette.
 
-> Status: **local preview only.** The repository is private, GitHub Pages is not enabled, and this clone has pushing
-> disabled on purpose (see "Publishing later").
+> Status: **not published.** This repository is private and GitHub Pages is not enabled. The branch
+> `feature/python-catwalk-cat-toys` is a review branch; nothing deploys from it.
+
+## How the two repositories fit together
+
+```
+hienta16/hienta16 (hub, Python)                         hienta16.github.io (this repo, React)
+  catwalk.stats  GitHub API -> data/github.json  ───┐     scripts/sync_hub.py copies the hub's output into
+  catwalk.toys   issues     -> data/toys.json    ───┼──►  src/data/hub/ (committed, so the site always builds)
+  catwalk.render data       -> SVGs + README     ───┘     and, once the hub is public, reads the JSON live
+```
+
+Python does everything that runs on a schedule or touches GitHub: fetching and verifying stats, computing every
+metric, drawing the 3D contribution year, and running the toy box rules. TypeScript does only what needs a browser:
+the moving cat, the playable beat, hover details. Every number on this site comes from `src/data/hub/github.json`.
 
 ## Run it
 
 ```bash
 npm install
-npm run dev          # refreshes GitHub data first, then http://127.0.0.1:5173/
+npm run dev          # copies the hub's data first (../hienta16, or $CATWALK_HUB), then http://127.0.0.1:5173/
 ```
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Refresh `src/data/github.json` from GitHub (keeps the old file if offline), then start the dev server |
-| `npm run build` | Type-check and build the static site into `dist/` |
-| `npm run preview` | Serve the built `dist/` at http://127.0.0.1:4173/ |
-| `npm test` | Unit tests for every statistic the page shows |
-| `npm run snapshot:github` | Refresh GitHub data and fail loudly if anything is wrong |
-| `npm run toys:collect` | Rebuild the cat's toy box from GitHub issues |
+| `npm run dev` | Sync data from the hub checkout (keeps the bundled copy if there is none), start the dev server |
+| `npm run data` | Sync from the hub checkout and fail loudly if a file is missing or malformed |
+| `npm run data:remote` | Sync from the public hub on GitHub (after it is public) |
+| `npm run export:art` | Render the cat and toy drawings to static SVGs in the hub (`assets/art/`) for the README |
+| `npm run build` / `npm run preview` | Type-check and build into `dist/`; serve it at http://127.0.0.1:4173/ |
+| `npm test` | Unit tests for the data layer (validation, expiry, issue links) |
+
+Preview the toy box with sample gifts: run `python -m catwalk toys demo --write` in the hub, `npm run data`, then open
+http://127.0.0.1:5173/?toys=demo (development only, labelled "Demo data").
 
 ## Edit the words
 
-Everything a visitor reads is in **`src/content/site.ts`** (English only). Numbers never appear in the copy: they come
-from the data files. `profile` holds the GitHub login, the toy-box repository, `showGitHubAvatar`, and optional `email`
-and `linkedin` links (empty = hidden).
+Everything a visitor reads is in **`src/content/site.ts`** (English only). Toy lifetimes, the cooldown, the toy limit
+and the go-live switches come from the hub's `config/toys.json` and `config/catwalk.json`, so the site always says
+exactly what the server enforces.
 
-## GitHub data: what is real, and how it stays current
+## The sections
 
-`scripts/snapshot-github.mjs` writes `src/data/github.json`. It runs before every `npm run dev`, and once published it
-can run on a schedule (`ops/proposed-workflows/refresh-github-data.yml`). In the browser, the page also checks your
-public profile live (avatar, public repositories) and falls back silently if GitHub can't be reached.
-
-| Shown on the site | Where it comes from |
+| Section | Built from |
 |---|---|
-| Contribution calendar, total, streaks, best day | GraphQL contribution calendar, **verified day by day against the anonymous public calendar**: the script refuses to write if they differ (today may lag; the public value wins) |
-| Commits, pull requests, issues (last year) | GitHub search, authenticated: includes private repositories you can read |
-| Stars, repositories, contributed to, languages | GraphQL, your own non-fork repositories, including private ones |
+| Hello | Name, role, the tortoiseshell cat (`TortieCat.tsx`): eyes and head follow the pointer, pupils widen when it moves fast |
+| About | `site.ts` |
+| GitHub stats | The hub's `iso-site.svg` inlined (hover a block for its day), plus activity, streaks, languages and weekly rhythm from `github.json` |
+| Contribution beat | Every day since the first contribution as one step; Web Audio plays a high pentatonic bell only when you press play |
+| The cat's toy box | Persisted toys from the hub's `toys.json`; a local preview while the box is not live; the cat chases yarn, swats at the feather, naps in the box |
+| Backstage | Empty, honest placeholders |
+| Contact | GitHub and LinkedIn |
 
-Stored: numbers and dates only. No repository names, no commit messages, no issue text. To count only public data, run
-`node scripts/snapshot-github.mjs --public-only`. The avatar is your public GitHub photo; set `showGitHubAvatar: false`
-to hide it.
+## The toy box: preview vs. real
 
-Languages can be read two honest ways, and the card lets visitors switch: **by repository** (each repository counts
-once) or **by code size** (GitHub's byte count, where one large codebase dominates).
+- **Real gifts** appear only after the hub's GitHub Action has accepted them (one per account every 24 hours; yarn
+  stays 7 days, a feather 48 hours, a box 14 days; at most 9 at once). The site hides a toy the moment its
+  `expiresAt` passes, on the visitor's own clock.
+- **Before going live** (`toys_live: false`), "Give to cat" only previews the toy in the visitor's browser, tagged
+  "Preview", never saved and never counted.
+- **After going live**, "Give on GitHub" opens a pre-filled issue on the hub; the page then checks the hub for the
+  new toy every 20 seconds for a few minutes.
 
-## The cat's toy box (community)
+## Going live (not done; needs Hien's approval)
 
-Visitors toss a toy: the cat plays with it at once (only in their browser). To leave it for everyone, they open a GitHub
-issue titled `[cat-toy] yarn` (or `feather`, `mouse`, `box`). `scripts/collect-cat-toys.mjs` reads only the title, the
-author's login and the date, keeps one toy per person per day, and writes `src/data/cat-toys.json`.
+The full checklist is in the hub's `docs/ACTIVATION.md`. For this site:
 
-To make it live: the repository must be **public** (visitors cannot open issues on a private one), then copy
-`ops/proposed-workflows/cat-toys.yml` into `.github/workflows/`. Until then the box honestly says it is empty.
+1. Make the hub public and set `hub_public` (and later `toys_live`) in its `config/catwalk.json`; run `npm run data`.
+2. Decide whether this repository becomes public (free GitHub Pages needs a public repository).
+3. Enable Pages with "GitHub Actions" as the source, and copy `ops/activation/pages.yml` into `.github/workflows/`.
 
-## How it is built
-
-- Vite + React + TypeScript; no UI, animation or 3D libraries. Fonts self-hosted (Anybody, Be Vietnam Pro; SIL OFL).
-- The cat (`src/components/Cat.tsx`) is drawn for this site as paper-cut SVG layers in a CSS 3D rig, so it turns in
-  depth toward what it watches. The 3D contribution runway is a small perspective projection into SVG.
-- `prefers-reduced-motion` stops the walk cycles, rope physics and entrances; everything stays usable by keyboard and
-  touch (the yarn moves with the arrow keys).
-- Design records: `PRODUCT.md`, `DESIGN.md`; review captures in `.impeccable/` (git-ignored).
-
-## GitHub profile README (draft)
-
-`profile-readme/` holds a draft README and banner in the same visual language for the profile repository
-`hienta16/hienta16`. Nothing is published.
-
-## Publishing later (not done)
-
-1. Re-enable pushing from this clone: `git remote set-url --push origin https://github.com/hienta16/hienta16.github.io.git`
-2. Read `PRODUCT.md`, `src/content/site.ts` and `src/data/github.json`: they become public with the repository.
-3. GitHub Pages needs the built `dist/` (for example a workflow that runs `npm ci && npm run build` and deploys with
-   `actions/deploy-pages`). Pages from a private repository needs a paid plan.
-4. Optional: install the two workflows in `ops/proposed-workflows/` (add a `GH_STATS_TOKEN` secret for private counts).
-
-Earlier versions: the first one-page site is on `main` (tag `baseline/pre-catwalk-2026-11-22`); the first Catwalk
-version is at tag `checkpoint/catwalk-v1`.
+Earlier versions: the first one-page site is on `main` (tag `baseline/pre-catwalk-2026-11-22`); v1 is tag
+`checkpoint/catwalk-v1`, v2 tag `checkpoint/companion-v2`.
