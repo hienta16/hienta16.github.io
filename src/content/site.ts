@@ -1,39 +1,33 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- *  EDIT THE SITE HERE. Every word a visitor reads lives in this file.
- *  Words in {braces} are filled in from GitHub data; keep the braces.
- *  Numbers are never typed into the copy: they come from src/data/github.json.
+ *  EDIT THE SITE HERE. Every word a visitor reads lives in this file (English only).
+ *  Words in {braces} are filled in from data; keep the braces.
+ *  Numbers are never typed into the copy: they come from the profile hub's Python (src/data/hub/, `npm run data`).
+ *  Toy lifetimes, the cooldown and the go-live switches also come from the hub (config/toys.json, config/catwalk.json),
+ *  so the site always shows exactly what the server enforces.
  * ─────────────────────────────────────────────────────────────────────────────
  */
+import { hub } from '../lib/hub'
 
 export const profile = {
-  displayName: 'Hien Ta',
-  githubLogin: 'hienta16',
-  githubUrl: 'https://github.com/hienta16',
-  /** The repository whose issues feed the cat's toy box. Visitors can only open issues once it is public. */
-  toyRepo: 'hienta16/hienta16.github.io',
-  /**
-   * Switch on when the repository is public AND ops/proposed-workflows/cat-toys.yml is installed in .github/workflows.
-   * Until then visitors can still toss toys (the cat plays in their browser), but no GitHub issue link is offered.
-   */
-  toysLive: false,
-  /** Show the GitHub avatar (your public profile photo) in the GitHub section. */
-  showGitHubAvatar: true,
-  /** Optional extra contact links. Leave empty to hide. */
+  displayName: hub.display_name,
+  githubLogin: hub.login,
+  githubUrl: `https://github.com/${hub.login}`,
+  linkedin: hub.linkedin_url,
+  siteUrl: hub.site_url,
+  /** Optional. Leave empty to hide. */
   email: '',
-  linkedin: '',
 }
 
-export type SectionId = 'hello' | 'about' | 'github' | 'runway' | 'backstage' | 'contact'
-export type TagId = 'cats' | 'music' | 'dance' | 'fashion'
-export type ToyId = 'yarn' | 'feather' | 'mouse' | 'box'
+export type SectionId = 'hello' | 'about' | 'github' | 'beat' | 'cat' | 'backstage' | 'contact'
 
-export const sectionOrder: SectionId[] = ['hello', 'about', 'github', 'runway', 'backstage', 'contact']
+export const sectionOrder: SectionId[] = ['hello', 'about', 'github', 'beat', 'cat', 'backstage', 'contact']
 
 export const copy = {
   meta: {
     title: 'Hien Ta · Data Analyst',
-    description: 'Hien Ta, Data Analyst. Real GitHub stats, a 3D runway of the year, and a cat who chases your cursor.',
+    description:
+      'Hien Ta, Data Analyst. Real GitHub stats, a 3D contribution year, a contribution beat you can play, and a tortoiseshell cat you can give toys to.',
   },
   skip: 'Skip to content',
   nav: {
@@ -44,9 +38,10 @@ export const copy = {
       hello: 'Hello',
       about: 'About',
       github: 'GitHub',
-      runway: 'Off the runway',
+      beat: 'Beat',
+      cat: 'Toy box',
       backstage: 'Backstage',
-      contact: 'Say hi',
+      contact: 'Contact',
     } satisfies Record<SectionId, string>,
     tape: 'Page progress. The cat walks to where you are.',
     github: 'GitHub profile',
@@ -54,24 +49,23 @@ export const copy = {
   hero: {
     hello: "Hi, I'm Hien Ta!",
     role: 'Data Analyst',
-    roleKey: 'role',
     lines: [
-      'I like finding patterns: in datasets, in playlists, and in the way a cat studies a room before it moves.',
+      'I find patterns: in datasets, in playlists, and in the way a cat studies a room before it moves.',
       'Part numbers, part instinct, part style.',
     ],
     ctaGithub: 'See my GitHub',
-    ctaCat: 'Meet the cat',
+    ctaLinkedIn: 'LinkedIn',
     status: 'Untangling a dataset',
-    catLabel: 'A tuxedo cat with orange eyes, peeking out of a blue circle and watching your pointer.',
+    catLabel: 'A tortoiseshell cat with big yellow-green eyes, sitting in a blue circle and watching your pointer. Click to say hello.',
   },
   about: {
-    title: 'Curious by design',
-    lead: 'I study Management Information Systems at the National Economics University in Hanoi. I read data the way a dancer reads music: find the count first, then find the feeling.',
-    lessons: [
-      { word: 'Cats', line: 'taught me to watch the whole room before I pounce.' },
-      { word: 'Music', line: 'taught me that rhythm is just a pattern you can feel.' },
-      { word: 'Dance', line: 'taught me to count to eight, then do it again, better.' },
-      { word: 'Fashion', line: 'taught me that the same data tells a new story in every outfit.' },
+    title: 'About',
+    lead: "I'm Hien, a data analyst studying Management Information Systems at the National Economics University in Hanoi.",
+    body: [
+      'MIS taught me that every business runs on systems, and every system leaves a trail of data. I like following that trail until it turns into something a person can decide with: a clean table, an honest chart, one sentence that changes a plan.',
+      "Most of how I work, I learned away from the keyboard. Dance taught me to find the count before adding style, so I clean the data and check its rhythm before I decorate anything. Music taught me to hear the pattern, and the one note that doesn't belong. That odd note is usually where the story is.",
+      'My tortoiseshell cat taught me observation: a long, still look at the whole room before any move. I try to give every dataset the same look before I touch it. Fashion taught me the last step. A good chart is a well-cut outfit: it fits the story it tells, and nothing on it is there by accident.',
+      'Curiosity does the rest. It is why this page has a beat you can play and a cat you can give toys to: data is more fun when you can touch it.',
     ],
     now: [
       { key: 'studying', value: 'MIS @ NEU' },
@@ -82,87 +76,110 @@ export const copy = {
   },
   github: {
     title: 'GitHub stats',
-    joined: 'Joined {date}',
-    updated: 'Updated {when}',
-    live: 'Live profile check',
+    updated: 'Refreshed {when}',
     viewProfile: 'View on GitHub',
-    totalLine: '{n} contributions in the last year',
-    runwayLabel:
-      'The last year of GitHub contributions as a 3D runway: one block per day, the oldest week at the far end. {n} contributions in total; the busiest day was {best} on {bestDate}.',
-    peak: '{n} on {date}',
+    total: 'contributions in the last year',
+    span: '{from} – {to}',
+    calendarLabel:
+      'The last year of GitHub contributions as an isometric calendar: one block per day, taller and warmer on busier days. {n} contributions in total.',
+    tip: '{n} on {date}',
+    tipNone: 'No contributions on {date}',
     less: 'Less',
     more: 'More',
-    tip: '{n} on {date}',
-    statsTitle: "{name}'s GitHub stats",
-    stars: 'Total stars earned',
-    commits: 'Commits (last year)',
-    prs: 'Pull requests (last year)',
-    issues: 'Issues (last year)',
-    contributed: 'Contributed to (last year)',
-    repos: 'Repositories',
-    reposValue: '{n} · {pub} public',
-    showingUp: 'showing up',
-    showingUpNote: '{a} of {b} days since the first contribution',
-    streakTitle: 'Streaks',
-    total: 'Total contributions',
-    present: 'Present',
+    activity: 'Activity, last 12 months',
+    rows: {
+      contributions: 'Contributions',
+      commits: 'Commits I authored',
+      prs: 'Pull requests',
+      issues: 'Issues opened',
+      contributed: 'Repos contributed to',
+      stars: 'Stars earned',
+    },
+    notAvailable: 'n/a',
+    contribNote: 'A contribution is any commit, pull request, issue or review on my calendar, so it is not the same as a commit.',
+    streaks: 'Streaks',
     current: 'Current streak',
     longest: 'Longest streak',
     days: 'days',
-    best: 'Best day',
-    average: 'Per active day',
     todayPending: 'today still counts',
-    langTitle: 'Most used languages',
+    activeDays: '{a} active days of {b} since my first contribution',
+    langTitle: 'Top languages',
     bySize: 'By code size',
     byRepo: 'By repository',
-    note: 'Counts include private repositories, as numbers only. Source: GitHub API.',
-    stale: 'This data is {n} days old.',
-    unavailable: 'GitHub data is unavailable right now, so nothing is shown rather than a guess.',
+    langNote: 'Shares of code across {n} repositories. Names of private repositories are never stored.',
+    rhythm: 'Weekly rhythm',
+    rhythmNote: 'Contributions by weekday',
     table: 'Show the numbers',
     hideTable: 'Hide the numbers',
     tableCaption: 'Contributions by month',
     month: 'Month',
     contributions: 'Contributions',
-    activeDays: 'Active days',
+    active: 'Active days',
+    note: 'Numbers come from the GitHub API through Python in my profile repository, refreshed every 6 hours once it is live. Private repositories are counted as numbers only, and commits made by bots are not mine, so they are not counted.',
+    stale: 'These numbers are {n} days old.',
+    unavailable: 'GitHub data is unavailable right now, so nothing is shown rather than a guess.',
   },
-  runway: {
-    title: 'Off the runway',
-    hintPointer: 'Your cursor is yarn now. Go on.',
-    hintTouch: 'Drag the yarn. Tap a tag.',
-    yarnLabel: 'Ball of yarn. Use the arrow keys to move it.',
-    tags: {
-      cats: { label: 'Cats', line: 'Watch first. Pounce later.' },
-      music: { label: 'Music', line: 'Every dataset has a beat. Find the one.' },
-      dance: { label: 'Dance', line: 'Five, six, seven, eight. Again, until it’s yours.' },
-      fashion: { label: 'Fashion', line: 'Same data, new outfit, different story.' },
-    } satisfies Record<TagId, { label: string; line: string }>,
-    catLabel: 'A tuxedo cat with orange eyes, sitting on the runway and following the yarn.',
-    boxTitle: 'Toy box',
-    boxEmpty: 'No toys from visitors yet. Be the first.',
-    boxPreview: 'Toss one and watch the cat play.',
-    boxCount: '{n} toys from visitors',
-    toss: 'Toss a toy',
-    toys: { yarn: 'Yarn ball', feather: 'Feather', mouse: 'Toy mouse', box: 'Box' } satisfies Record<ToyId, string>,
-    keep: 'Leave it for the next visitor',
-    keepNote: 'Opens a GitHub issue. Your toy joins the box once the issue is processed.',
-    notLive: 'Your toy stays in your browser for now. A shared toy box, fed by GitHub issues, opens when this site goes public.',
-    yours: 'yours, just now',
+  beat: {
+    title: 'Contribution beat',
+    line: 'Every day since my first contribution, played as a beat. Busier days hit harder; quiet days rest.',
+    play: 'Play the beat',
+    stop: 'Stop',
+    range: '{from} – {to} · {days} steps',
+    now: '{date} · {n}',
+    silent: 'rest',
+    noAudio: 'Sound is not available in this browser; the beat still plays visually.',
+  },
+  toys: {
+    title: "The cat's toy box",
+    line: 'Leave a toy for my tortoiseshell. Real gifts travel through a GitHub issue, and Python checks every one before the cat gets it.',
+    pick: 'Pick a toy',
+    stays: 'Stays {time}',
+    give: 'Give to cat',
+    giveLive: 'Give on GitHub',
+    tryIt: 'Try it here',
+    previewTag: 'Preview',
+    previewNote: 'A preview: this toy lives in your browser only. The shared toy box opens when this site goes public.',
+    sentNote: 'GitHub opened in a new tab. Press Create there; your toy appears here after the check, usually within a few minutes.',
+    arrived: 'A new toy just arrived. Is it yours?',
+    inBox: 'In the box now',
+    given: 'Given so far',
+    empty: 'The box is empty. Be the first.',
+    emptyNotLive: 'No gifts yet: the shared box opens when this site goes public.',
     from: 'from @{login}',
+    left: '{time} left',
+    rules: 'One gift per GitHub account every {cooldown}. Up to {max} toys at once; the oldest goes back on the shelf first.',
+    how: 'How it works',
+    steps: [
+      'Pick a toy and press Give. GitHub opens an issue with the title filled in, like "{example}".',
+      'A GitHub Action runs Python that reads only who opened the issue, when, and which toy. The issue text is never read.',
+      'If the gift passes the checks, the cat gets it here and on my GitHub profile, and the bot replies on your issue.',
+    ],
+    demo: 'Demo data from python -m catwalk toys demo: made-up visitors, not real gifts.',
+    sceneLabel: "Hien's tortoiseshell cat on a rug with {n} toy(s).",
+    catLabel: 'Pet the cat',
+    cursorHint: 'Your cursor is yarn here. Click the rug and the cat pounces.',
+    shelf: 'The shelf: {n} gifts given so far, counted by toy.',
+    shelfLabel: 'The shelf · every gift so far',
+    tapHint: 'Tap the rug and the cat pounces.',
   },
   backstage: {
-    title: 'Backstage notes',
-    line: 'The rail is up. The looks are still being stitched.',
-    slot: 'Soon',
+    title: 'Backstage',
+    line: 'Case studies, notebooks and dashboards are being prepared. They land here when they are ready to be public.',
+    slots: [
+      { kind: 'Case study', note: 'Coming soon' },
+      { kind: 'Notebook', note: 'Not public yet' },
+      { kind: 'Dashboard', note: 'Coming soon' },
+    ],
     follow: 'Follow along on GitHub',
   },
   contact: {
-    title: "That's a wrap.",
-    line: 'Come say hi where the work happens.',
-    github: 'github.com/{login}',
-    email: 'Email',
+    title: "Let's talk data.",
+    line: 'Questions, ideas, or a dataset that needs a second pair of eyes.',
+    github: 'GitHub',
     linkedin: 'LinkedIn',
+    email: 'Email',
     back: 'Back to the top',
-    footer: '© {year} Hien Ta · Made with curiosity and one very patient cat.',
+    footer: '© {year} Hien Ta · Made with curiosity and one very patient tortoiseshell cat.',
     bow: 'The cat takes a bow',
   },
 }

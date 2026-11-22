@@ -3,15 +3,17 @@ import { copy, profile, sectionOrder, type SectionId } from '../content/site'
 import { useMediaQuery, useReducedMotion } from '../lib/stage'
 import { RulerCat, type RulerPose } from './Cat'
 import { GitHubMark } from './icons'
+import './Cat.css'
 import './TapeHeader.css'
 
 export const sectionDomId: Record<SectionId, string> = {
   hello: 'hello',
   about: 'about',
   github: 'github',
-  runway: 'off-the-runway',
+  beat: 'beat',
+  cat: 'cat',
   backstage: 'backstage',
-  contact: 'say-hi',
+  contact: 'contact',
 }
 
 export function TapeHeader() {

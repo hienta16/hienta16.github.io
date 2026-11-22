@@ -1,10 +1,11 @@
 import { About } from './components/About'
 import { Backstage } from './components/Backstage'
-import { CatStage } from './components/CatStage'
+import { Beat } from './components/Beat'
 import { Contact } from './components/Contact'
 import { GitHubStats } from './components/GitHubStats'
 import { Hero } from './components/Hero'
 import { TapeHeader } from './components/TapeHeader'
+import { ToyBox } from './components/ToyBox'
 import { copy } from './content/site'
 
 export function App() {
@@ -18,7 +19,8 @@ export function App() {
         <Hero />
         <About />
         <GitHubStats />
-        <CatStage />
+        <Beat />
+        <ToyBox />
         <Backstage />
         <Contact />
       </main>

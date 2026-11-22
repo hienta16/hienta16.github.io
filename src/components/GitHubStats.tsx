@@ -1,12 +1,15 @@
 import { useMemo, useRef, useState } from 'react'
+import isoCompactRaw from '../data/hub/iso-compact.svg?raw'
+import isoFullRaw from '../data/hub/iso.svg?raw'
 import { copy, profile } from '../content/site'
-import { ago, date, dayMonth, fill, monthYear, num, pct, weekdayDate } from '../lib/format'
-import { currentStreak, daysBetween, firstActive, languageShares, longestStreak, monthTotals, type Day, type GitHubData } from '../lib/stats'
-import { useGitHub, useLiveProfile, useMediaQuery, useReducedMotion, useSeen } from '../lib/stage'
-import { ContributionRunway } from './ContributionRunway'
-import { GitHubMark, IconArrow, IconCommit, IconIssue, IconPR, IconPeople, IconRepo, IconStar } from './icons'
+import { ago, dayMonth, fill, monthYear, num, pct, weekdayDate } from '../lib/format'
+import { useLiveSnapshot, useLiveSvg, type Snapshot } from '../lib/hub'
+import { useGitHub, useMediaQuery, useReducedMotion, useSeen } from '../lib/stage'
+import { LEVEL_COLORS, LEVELS } from '../lib/stats'
+import { GitHubMark, IconArrow, IconCommit, IconIssue, IconPR, IconRepo, IconStar } from './icons'
 import './GitHubStats.css'
 
+/** GitHub stats. Every number was computed by the hub's Python (catwalk/stats); this component only lays them out. */
 export function GitHubStats() {
   const gh = useGitHub()
   const t = copy.github
@@ -17,266 +20,239 @@ export function GitHubStats() {
           <h2 id="gh-title" className="title">
             {t.title}
           </h2>
-          <p className="sub">{t.unavailable}</p>
+          <p className="gh__note">{t.unavailable}</p>
         </div>
       </section>
     )
-  return <Stats data={gh.data} days={gh.days} />
+  return <Stats initial={gh.data} />
 }
 
-function Ring({ value, size = 112, stroke = 10, track, color, children }: { value: number; size?: number; stroke?: number; track: string; color: string; children: React.ReactNode }) {
-  const r = (size - stroke) / 2
-  const c = 2 * Math.PI * r
+function Stats({ initial }: { initial: Snapshot }) {
+  const t = copy.github
+  const snap = useLiveSnapshot(initial)
+  const { calendar: cal, metrics: m, counts, repositories: repos } = snap
+  const ref = useRef<HTMLElement>(null)
+  const seen = useSeen(ref)
+  const staleDays = Math.floor((Date.now() - Date.parse(cal.asOf)) / 86_400_000)
+
   return (
-    <div className="ring" style={{ width: size, height: size }}>
-      <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true" focusable="false">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={stroke} />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${c * Math.min(1, value)} ${c}`}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          className="ring__arc"
-        />
-      </svg>
-      <div className="ring__inner">{children}</div>
+    <section id="github" ref={ref} className="gh field field--ink" aria-labelledby="gh-title">
+      <div className="wrap section">
+        <header className="gh__head">
+          <h2 id="gh-title" className="title">
+            {t.title}
+          </h2>
+          <p className="gh__meta">
+            <span>{fill(t.updated, { when: ago(cal.asOf) })}</span>
+            <a href={profile.githubUrl} rel="noopener" className="gh__profile">
+              <GitHubMark />
+              {t.viewProfile}
+              <IconArrow />
+            </a>
+          </p>
+        </header>
+
+        <Year snap={snap} seen={seen} />
+
+        <div className="gh__cards">
+          <article className="gh-card gh-card--activity">
+            <h3 className="gh-card__title">{t.activity}</h3>
+            <dl className="gh-rows">
+              <Row icon={<span className="gh-rows__dot" />} label={t.rows.contributions} value={cal.total} strong />
+              <Row icon={<IconCommit />} label={t.rows.commits} value={counts?.commitsLastYear} />
+              <Row icon={<IconPR />} label={t.rows.prs} value={counts?.pullRequestsLastYear} />
+              <Row icon={<IconIssue />} label={t.rows.issues} value={counts?.issuesLastYear} />
+              <Row icon={<IconRepo />} label={t.rows.contributed} value={counts?.contributedToLastYear} />
+              <Row icon={<IconStar />} label={t.rows.stars} value={repos?.stars} />
+            </dl>
+            <p className="gh-card__note">{t.contribNote}</p>
+          </article>
+
+          <article className="gh-card gh-card--streaks">
+            <h3 className="gh-card__title">{t.streaks}</h3>
+            <p className="gh-streak">
+              <span className="gh-streak__n">{num(m.currentStreak.length)}</span>
+              <span className="gh-streak__unit">{t.days}</span>
+            </p>
+            <p className="gh-streak__label">
+              {t.current}
+              {m.currentStreak.start && m.currentStreak.end && ` · ${dayMonth(m.currentStreak.start)} – ${dayMonth(m.currentStreak.end)}`}
+              {m.currentStreak.todayPending && ` · ${t.todayPending}`}
+            </p>
+            <p className="gh-streak__second">
+              <strong>{num(m.longestStreak.length)}</strong> {t.days} · {t.longest}
+            </p>
+            {m.firstContribution && (
+              <>
+                <div className="gh-meter" aria-hidden="true">
+                  <span style={{ width: pct(m.activeShareSinceFirst ?? 0) }} />
+                </div>
+                <p className="gh-card__note">{fill(t.activeDays, { a: num(m.activeDays), b: num(m.daysSinceFirst) })}</p>
+              </>
+            )}
+          </article>
+
+          <Languages snap={snap} />
+
+          <article className="gh-card gh-card--rhythm">
+            <h3 className="gh-card__title">{t.rhythm}</h3>
+            <p className="gh-card__sub">{t.rhythmNote}</p>
+            <Rhythm week={m.weekdays} />
+          </article>
+        </div>
+
+        <details className="gh__table">
+          <summary>
+            <span className="when-closed">{t.table}</span>
+            <span className="when-open">{t.hideTable}</span>
+          </summary>
+          <table className="data-table">
+            <caption>{t.tableCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.month}</th>
+                <th scope="col">{t.contributions}</th>
+                <th scope="col">{t.active}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {m.months.map((mo) => (
+                <tr key={mo.month}>
+                  <th scope="row">{monthYear(mo.month)}</th>
+                  <td>{num(mo.total)}</td>
+                  <td>{num(mo.activeDays)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+
+        <p className="gh__note">
+          {t.note}
+          {staleDays >= 3 && ` ${fill(t.stale, { n: staleDays })}`}
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function Row({ icon, label, value, strong }: { icon: React.ReactNode; label: string; value: number | undefined | null; strong?: boolean }) {
+  return (
+    <div className={`gh-rows__row ${strong ? 'is-strong' : ''}`}>
+      <dt>
+        {icon}
+        {label}
+      </dt>
+      <dd>{typeof value === 'number' ? num(value) : copy.github.notAvailable}</dd>
     </div>
   )
 }
 
-function Stats({ data, days }: { data: GitHubData; days: Day[] }) {
+/** The 3D year: the hub's Python drew it; here it gets a headline, a legend, hover details and a rise-in. */
+function Year({ snap, seen }: { snap: Snapshot; seen: boolean }) {
   const t = copy.github
   const reduced = useReducedMotion()
-  const compact = !useMediaQuery('(min-width: 760px)')
-  const live = useLiveProfile(data.login)
-  const sectionRef = useRef<HTMLElement>(null)
-  const seen = useSeen(sectionRef, '0px 0px -25% 0px')
-  const [langMode, setLangMode] = useState<'repos' | 'bytes'>('repos')
-  const [showTable, setShowTable] = useState(false)
+  const narrow = useMediaQuery('(max-width: 759px)')
+  const full = useLiveSvg('assets/generated/iso-site.svg', isoFullRaw)
+  const compact = useLiveSvg('assets/generated/iso-site-compact.svg', isoCompactRaw)
+  const wrap = useRef<HTMLDivElement>(null)
+  const [tip, setTip] = useState<{ x: number; y: number; date: string; n: number } | null>(null)
+  const markup = useMemo(() => ({ __html: narrow ? compact : full }), [narrow, compact, full])
+  const year = (d: string) => `${dayMonth(d)}, ${d.slice(0, 4)}`
 
-  const s = useMemo(() => {
-    const first = firstActive(days)
-    const cur = currentStreak(days)
-    const longest = longestStreak(days)
-    const active = days.filter((d) => d.count > 0).length
-    const best = days.reduce((b, d) => (d.count > b.count ? d : b), days[0])
-    // "Showing up": active days since the first contribution, up to the last day that has had a chance.
-    const lastCounted = cur.todayPending ? days.length - 2 : days.length - 1
-    const span = first ? lastCounted - first.index + 1 : 0
-    return { first, cur, longest, active, best, span, months: monthTotals(days) }
-  }, [days])
-
-  const langs = useMemo(() => languageShares(data.languageBytesByRepository, langMode, 5), [data, langMode])
-  const langMax = Math.max(...langs.map((l) => l.share), 0.01)
-  const c = data.counts
-  const total = data.calendar.total
-  const stale = daysBetween(data.generatedAt.slice(0, 10), new Date().toISOString().slice(0, 10))
-
-  const rows = [
-    { icon: <IconStar />, label: t.stars, value: num(c.stars) },
-    { icon: <IconCommit />, label: t.commits, value: num(c.commitsLastYear) },
-    { icon: <IconPR />, label: t.prs, value: num(c.pullRequestsLastYear) },
-    { icon: <IconIssue />, label: t.issues, value: num(c.issuesLastYear) },
-    { icon: <IconPeople />, label: t.contributed, value: num(c.contributedToLastYear) },
-    { icon: <IconRepo />, label: t.repos, value: fill(t.reposValue, { n: num(c.repositories.total), pub: num(live?.publicRepos ?? c.repositories.public) }) },
-  ]
+  const over = (e: React.PointerEvent) => {
+    const block = (e.target as Element).closest?.('.iso-b')
+    const box = wrap.current?.getBoundingClientRect()
+    if (!block || !box) return setTip(null)
+    const r = block.getBoundingClientRect()
+    setTip({ x: r.left + r.width / 2 - box.left, y: r.top - box.top, date: block.getAttribute('data-date') ?? '', n: Number(block.getAttribute('data-count')) })
+  }
 
   return (
-    <section id="github" ref={sectionRef} className={`gh field field--ink ${seen || reduced ? 'is-seen' : ''}`} aria-labelledby="gh-title">
-      <div className="wrap section">
-        <div className="gh__head">
-          <h2 id="gh-title" className="title">
-            {t.title}
-          </h2>
-          <div className="gh__id">
-            {profile.showGitHubAvatar && <img className="gh__avatar" src={live?.avatarUrl ?? data.avatarUrl} alt="" width="64" height="64" loading="lazy" decoding="async" />}
-            <div className="gh__who">
-              <p className="gh__name">{data.name}</p>
-              <p className="gh__meta">
-                <span>@{data.login}</span>
-                <span>{fill(t.joined, { date: monthYear(data.joined) })}</span>
-                <span className="gh__updated">
-                  <span className={`gh__dot ${live ? 'is-live' : ''}`} aria-hidden="true" />
-                  {fill(t.updated, { when: ago(data.generatedAt) })}
-                </span>
-              </p>
-            </div>
-            <a className="btn btn--orange gh__view" href={data.profileUrl} rel="noopener">
-              <GitHubMark />
-              {t.viewProfile}
-            </a>
-          </div>
-        </div>
-
-        <p className="gh__total">
-          <span className="gh__total-num">{num(total)}</span> {fill(t.totalLine, { n: '' }).trim()}
+    <figure className="year">
+      <div className="year__head">
+        <p className="year__total">
+          <strong>{num(snap.calendar.total)}</strong> {t.total}
         </p>
-
-        <figure className="gh__runway">
-          <ContributionRunway days={days} compact={compact} rise={seen || reduced ? 1 : 0} />
-          <figcaption className="gh__legend" aria-hidden="true">
-            <span className="gh__peak">
-              <i />
-              {fill(t.peak, { n: num(s.best.count), date: weekdayDate(s.best.date) })}
-            </span>
-            <span>{t.less}</span>
-            {['#383B5C', '#FFE5EE', '#F9C2D3', '#F49CB6', '#EE6F9A'].map((col) => (
-              <i key={col} style={{ background: col }} />
-            ))}
-            <span>{t.more}</span>
-          </figcaption>
-        </figure>
-
-        <div className="gh__cards">
-          {/* Stats, in the shape GitHub stats cards made familiar */}
-          <article className="card card--cream" aria-labelledby="card-stats">
-            <h3 id="card-stats" className="card__title">
-              {fill(t.statsTitle, { name: profile.displayName.split(' ')[0] })}
-            </h3>
-            <div className="card__stats">
-              <dl className="statlist">
-                {rows.map((r) => (
-                  <div key={r.label} className="statlist__row">
-                    <dt>
-                      {r.icon}
-                      {r.label}
-                    </dt>
-                    <dd>{r.value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="card__ring">
-                <Ring value={s.span ? s.active / s.span : 0} track="var(--pale)" color="var(--orange)">
-                  <strong>{pct(s.span ? s.active / s.span : 0)}</strong>
-                </Ring>
-                <p className="card__ring-label">{t.showingUp}</p>
-                <p className="card__ring-note">{fill(t.showingUpNote, { a: num(s.active), b: num(s.span) })}</p>
-              </div>
-            </div>
-          </article>
-
-          {/* Streaks */}
-          <article className="card card--orange" aria-labelledby="card-streak">
-            <h3 id="card-streak" className="card__title">
-              {t.streakTitle}
-            </h3>
-            <div className="streak">
-              <div className="streak__side">
-                <strong>{num(total)}</strong>
-                <span>{t.total}</span>
-                <small>
-                  {date(data.calendar.from)} – {t.present}
-                </small>
-              </div>
-              <div className="streak__main">
-                <Ring value={s.longest.length ? s.cur.length / s.longest.length : 0} size={132} stroke={11} track="rgba(34,36,58,.18)" color="var(--ink)">
-                  <strong>{num(s.cur.length)}</strong>
-                  <span>{t.days}</span>
-                </Ring>
-                <span className="streak__label">{t.current}</span>
-                {s.cur.start && (
-                  <small>
-                    {dayMonth(s.cur.start)} – {dayMonth(s.cur.end!)}
-                    {s.cur.todayPending ? ` · ${t.todayPending}` : ''}
-                  </small>
-                )}
-              </div>
-              <div className="streak__side">
-                <strong>{num(s.longest.length)}</strong>
-                <span>{t.longest}</span>
-                {s.longest.start && (
-                  <small>
-                    {dayMonth(s.longest.start)} – {dayMonth(s.longest.end!)}
-                  </small>
-                )}
-              </div>
-            </div>
-            <dl className="streak__foot">
-              <div>
-                <dt>{t.best}</dt>
-                <dd>
-                  {num(s.best.count)} · {dayMonth(s.best.date)}
-                </dd>
-              </div>
-              <div>
-                <dt>{t.average}</dt>
-                <dd>{s.active ? (total / s.active).toFixed(1) : '0'}</dd>
-              </div>
-            </dl>
-          </article>
-
-          {/* Languages: one series, ranked */}
-          <article className="card card--pink" aria-labelledby="card-langs">
-            <div className="card__top">
-              <h3 id="card-langs" className="card__title">
-                {t.langTitle}
-              </h3>
-              <div className="seg" role="group" aria-label={t.langTitle}>
-                {(['repos', 'bytes'] as const).map((m) => (
-                  <button key={m} type="button" className="seg__btn" aria-pressed={langMode === m} onClick={() => setLangMode(m)}>
-                    {m === 'repos' ? t.byRepo : t.bySize}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <ol className="langs">
-              {langs.map((l) => (
-                <li key={l.name} className="langs__row">
-                  <span className="langs__name">{l.name}</span>
-                  <span className="langs__track">
-                    <span className="langs__bar" style={{ ['--w' as string]: l.share / langMax }} />
-                  </span>
-                  <span className="langs__pct">{pct(l.share, 1)}</span>
-                </li>
-              ))}
-            </ol>
-          </article>
+        <p className="year__span">{fill(t.span, { from: year(snap.calendar.from), to: year(snap.calendar.to) })}</p>
+        <div className="year__legend" aria-hidden="true">
+          <span>{t.less}</span>
+          {LEVEL_COLORS.map((c, i) => (
+            <i key={c} style={{ background: c }} title={LEVELS[i].max === Infinity ? `${LEVELS[i].min}+` : `${LEVELS[i].min}–${LEVELS[i].max}`} />
+          ))}
+          <span>{t.more}</span>
         </div>
-
-        <div className="gh__foot">
-          <p>
-            {t.note} {stale > 2 && fill(t.stale, { n: num(stale) })}
-          </p>
-          <button type="button" className="text-btn" aria-expanded={showTable} onClick={() => setShowTable((v) => !v)}>
-            {showTable ? t.hideTable : t.table}
-          </button>
-        </div>
-        {showTable && (
-          <div className="gh__table-wrap">
-            <table className="data-table">
-              <caption>{t.tableCaption}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{t.month}</th>
-                  <th scope="col">{t.contributions}</th>
-                  <th scope="col">{t.activeDays}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {s.months.map((m) => (
-                  <tr key={m.key}>
-                    <th scope="row">
-                      {monthYear(m.key)}
-                      {m.partial ? ` (${date(days[m.firstIndex].date)} – ${date(days[m.lastIndex].date)})` : ''}
-                    </th>
-                    <td>{num(m.total)}</td>
-                    <td>{num(m.active)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      </div>
+      <div
+        ref={wrap}
+        className={`year__iso ${seen || reduced ? 'is-in' : ''}`}
+        role="img"
+        aria-label={fill(t.calendarLabel, { n: num(snap.calendar.total) })}
+        onPointerMove={over}
+        onPointerLeave={() => setTip(null)}
+      >
+        <div className="year__svg" dangerouslySetInnerHTML={markup} />
+        {tip && (
+          <div className="year__tip" style={{ left: tip.x, top: tip.y }} aria-hidden="true">
+            <strong>{num(tip.n)}</strong>
+            <span>{weekdayDate(tip.date)}</span>
           </div>
         )}
-        <a className="gh__more" href={data.profileUrl} rel="noopener">
-          github.com/{data.login}
-          <IconArrow />
-        </a>
       </div>
-    </section>
+    </figure>
+  )
+}
+
+function Languages({ snap }: { snap: Snapshot }) {
+  const t = copy.github
+  const [mode, setMode] = useState<'byBytes' | 'byRepos'>('byBytes')
+  const list = snap.repositories?.languages[mode] ?? []
+  const top = Math.max(0.0001, ...list.map((l) => l.share))
+  return (
+    <article className="gh-card gh-card--langs">
+      <div className="gh-card__row">
+        <h3 className="gh-card__title">{t.langTitle}</h3>
+        <div className="seg" role="group" aria-label={t.langTitle}>
+          {(['byBytes', 'byRepos'] as const).map((k) => (
+            <button key={k} type="button" className="seg__btn" aria-pressed={mode === k} onClick={() => setMode(k)}>
+              {k === 'byBytes' ? t.bySize : t.byRepo}
+            </button>
+          ))}
+        </div>
+      </div>
+      {list.length ? (
+        <ol className="langs">
+          {list.map((l) => (
+            <li key={l.name} className={l.name === 'Other' ? 'is-other' : undefined}>
+              <span className="langs__name">{l.name}</span>
+              <span className="langs__bar">
+                <span style={{ width: `${(l.share / top) * 100}%` }} />
+              </span>
+              <span className="langs__pct">{pct(l.share)}</span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="gh-card__note">{t.unavailable}</p>
+      )}
+      <p className="gh-card__note">{fill(t.langNote, { n: snap.repositories?.withLanguages ?? 0 })}</p>
+    </article>
+  )
+}
+
+function Rhythm({ week }: { week: { day: string; total: number }[] }) {
+  const top = Math.max(1, ...week.map((d) => d.total))
+  return (
+    <ol className="rhythm">
+      {week.map((d) => (
+        <li key={d.day}>
+          <span className="rhythm__n">{num(d.total)}</span>
+          <span className="rhythm__track">
+            <span className="rhythm__bar" style={{ height: `${Math.max(3, (d.total / top) * 100)}%` }} />
+          </span>
+          <span className="rhythm__day">{d.day}</span>
+        </li>
+      ))}
+    </ol>
   )
 }

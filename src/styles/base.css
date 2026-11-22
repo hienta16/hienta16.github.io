@@ -163,6 +163,14 @@ a {
   --fg-2: var(--ink);
   --rule: rgba(34, 36, 58, 0.32);
 }
+/* Electric Blue: the beat. White text on blue is 5.0:1. */
+.field--blue {
+  --bg: var(--blue);
+  --fg: var(--white);
+  --fg-2: var(--white);
+  --rule: rgba(255, 255, 255, 0.35);
+  --focus: var(--cream);
+}
 /* GitHub night: the data lives on Dark Ink. */
 .field--ink {
   --bg: var(--ink);

@@ -49,3 +49,34 @@ export function useGaze<T extends Element>(anchor: React.RefObject<T | null>, { 
 
   return gaze
 }
+
+/**
+ * How excited the pointer is, 0 … 1: rises with pointer speed, settles back over a second or two.
+ * The cats' pupils widen with it (cats' pupils really do dilate when something moves fast).
+ */
+export function useExcitement(active = true, reduced = false) {
+  const [level, setLevel] = useState(0.3)
+  useEffect(() => {
+    if (!active || reduced) return
+    let last: { x: number; y: number; t: number } | null = null
+    let value = 0.3
+    const onMove = (e: PointerEvent) => {
+      const t = performance.now()
+      if (last) {
+        const v = Math.hypot(e.clientX - last.x, e.clientY - last.y) / Math.max(8, t - last.t)
+        value = Math.min(1, Math.max(value, 0.3 + v * 0.35))
+      }
+      last = { x: e.clientX, y: e.clientY, t }
+    }
+    const decay = window.setInterval(() => {
+      value = Math.max(0.3, value - 0.06)
+      setLevel((prev) => (Math.abs(prev - value) > 0.02 ? value : prev))
+    }, 120)
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.clearInterval(decay)
+    }
+  }, [active, reduced])
+  return level
+}

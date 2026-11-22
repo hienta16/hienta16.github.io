@@ -71,3 +71,15 @@ export const IconYarn = (p: P) => (
     <path d="M4.5 9.5c4 2 9 2 13-1M4 14c4 2.5 10 2.5 14-.5M8 19c2-4 6-9 8-12M18 16c2 1.5 3 3 2.5 5" />
   </S>
 )
+/** A plain "in" mark for the LinkedIn link. */
+export const IconLinkedIn = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className ?? 'icon'} aria-hidden="true" focusable="false">
+    <rect x="2" y="2" width="20" height="20" rx="4.5" fill="currentColor" />
+    <path d="M7.2 10v7.2M7.2 6.9v.1M11.3 17.2V10M11.3 13.4c0-2.2 1.3-3.5 3-3.5s2.7 1.1 2.7 3.3v4" fill="none" stroke="var(--icon-cut, #fff)" strokeWidth="2.1" strokeLinecap="round" />
+  </svg>
+)
+export const IconPlay = (p: P) => (
+  <S {...p}>
+    <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+  </S>
+)

@@ -3,8 +3,8 @@ import { copy, profile } from '../content/site'
 import { fill } from '../lib/format'
 import { useGaze } from '../lib/gaze'
 import { useOnScreen, useReducedMotion, useSeen } from '../lib/stage'
-import { Cat, type CatMood } from './Cat'
-import { GitHubMark, IconArrow, IconUp } from './icons'
+import { GitHubMark, IconArrow, IconLinkedIn, IconUp } from './icons'
+import { TortieCat, type CatMood } from './TortieCat'
 import './Contact.css'
 
 export function Contact() {
@@ -19,14 +19,15 @@ export function Contact() {
 
   const bow = () => {
     setMood('bow')
-    window.setTimeout(() => setMood('idle'), 1300)
+    window.setTimeout(() => setMood('happy'), 900)
+    window.setTimeout(() => setMood('idle'), 1700)
   }
   useEffect(() => {
     if (seen && !reduced) bow()
   }, [seen, reduced])
 
   return (
-    <section id="say-hi" ref={ref} className="contact field field--orange" aria-labelledby="contact-title">
+    <section id="contact" ref={ref} className="contact field field--orange" aria-labelledby="contact-title">
       <div className="wrap section contact__wrap">
         <div className="contact__main">
           <h2 id="contact-title" className="contact__title">
@@ -34,19 +35,19 @@ export function Contact() {
           </h2>
           <p className="contact__line">{t.line}</p>
           <div className="contact__links">
-            <a className="contact__gh" href={profile.githubUrl} rel="noopener">
+            <a className="btn btn--ink" href={profile.githubUrl} rel="noopener">
               <GitHubMark />
-              <span>{fill(t.github, { login: profile.githubLogin })}</span>
+              {t.github}
+              <IconArrow />
+            </a>
+            <a className="btn btn--ink" href={profile.linkedin} rel="noopener">
+              <IconLinkedIn />
+              {t.linkedin}
               <IconArrow />
             </a>
             {profile.email && (
               <a className="btn btn--ghost" href={`mailto:${profile.email}`}>
                 {t.email}
-              </a>
-            )}
-            {profile.linkedin && (
-              <a className="btn btn--ghost" href={profile.linkedin} rel="noopener">
-                {t.linkedin}
               </a>
             )}
           </div>
@@ -56,7 +57,7 @@ export function Contact() {
           </a>
         </div>
         <button type="button" className="contact__cat" onClick={bow} aria-label={t.bow}>
-          <Cat ref={catRef} gaze={gaze} mood={mood} turn={0.6} />
+          <TortieCat ref={catRef} gaze={gaze} mood={mood} alive={!reduced} />
         </button>
       </div>
       <p className="wrap contact__footer">{fill(t.footer, { year: new Date().getFullYear() })}</p>

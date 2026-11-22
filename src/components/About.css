@@ -1,58 +1,49 @@
 .about__grid {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  grid-template-areas:
-    'intro lessons'
-    'now now';
   gap: clamp(40px, 5vw, 72px) clamp(40px, 6vw, 112px);
   align-items: start;
-}
-.about__intro {
-  grid-area: intro;
 }
 .about__title {
   max-width: 8ch;
 }
 .about__lead {
   margin-top: 28px;
-  max-width: 40ch;
-  font-size: clamp(18px, 1.5vw, 21px);
-  line-height: 1.5;
-  color: var(--fg-2);
-  text-wrap: pretty;
+  max-width: 34ch;
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 94%;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.22;
+  text-wrap: balance;
 }
-
-.lessons {
-  grid-area: lessons;
-  align-self: end;
-}
-.lessons__row {
-  display: grid;
-  grid-template-columns: 9.4rem 1fr;
-  align-items: baseline;
-  gap: 18px;
-  padding: 18px 0;
-  border-top: 1.5px solid var(--ink);
-}
-.lessons__row:last-child {
-  border-bottom: 1.5px solid var(--ink);
-}
-.lessons__word {
-  justify-self: start;
-  font-size: clamp(20px, 1.9vw, 26px);
-}
-.lessons__line {
-  font-size: clamp(17px, 1.4vw, 20px);
-  line-height: 1.4;
-  font-weight: 500;
-  text-wrap: pretty;
-}
-
 .about__now {
-  grid-area: now;
   display: flex;
   flex-wrap: wrap;
   gap: 10px 12px;
+  margin-top: clamp(28px, 3vw, 44px);
+}
+
+/* The story: a measured column, with the first paragraph a step louder. */
+.about__body {
+  max-width: 60ch;
+}
+.about__body p {
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.65;
+  color: var(--fg-2);
+  text-wrap: pretty;
+}
+.about__body p + p {
+  margin-top: 1.1em;
+}
+.about__body .about__first {
+  font-size: clamp(19px, 1.5vw, 22px);
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--fg);
+  padding-left: 18px;
+  border-left: 6px solid var(--orange);
 }
 
 /* A strip of tape closes the section, leading into the GitHub night. */
@@ -65,13 +56,5 @@
 @media (max-width: 899px) {
   .about__grid {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      'intro'
-      'lessons'
-      'now';
-  }
-  .lessons__row {
-    grid-template-columns: 1fr;
-    gap: 10px;
   }
 }
