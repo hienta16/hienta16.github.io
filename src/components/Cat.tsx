@@ -1,151 +1,17 @@
-import { forwardRef, useEffect, useState, type CSSProperties } from 'react'
-import './Cat.css'
+import { useId } from 'react'
+import { TORTIE } from './TortieCat'
 
-/**
- * The tuxedo cat, drawn for this site as flat paper-cut layers. Each layer is its own SVG at its own depth inside a
- * CSS 3D rig, so the cat turns toward what it is watching (the pointer, the yarn) and reads as a pop-up papercraft.
- * One viewBox (300 × 360) for every layer; the hero shows the same cat cropped to a bust.
- */
-
-export type CatMood = 'idle' | 'swat' | 'bob' | 'sway' | 'blink' | 'shades' | 'bow'
-
-interface Props {
-  /** Where the cat is looking, each axis -1 … 1 */
-  gaze?: { x: number; y: number }
-  mood?: CatMood
-  /** 0 … 1: how much the whole rig turns toward the gaze */
-  turn?: number
-  className?: string
-  style?: CSSProperties
-  label?: string
-}
-
-const VB = '0 0 300 360'
-const Layer = ({ z, className = '', children }: { z: number; className?: string; children: React.ReactNode }) => (
-  <div className={`cat__layer ${className}`} style={{ transform: `translateZ(${z}px)` }}>
-    <svg viewBox={VB} aria-hidden="true" focusable="false">
-      {children}
-    </svg>
-  </div>
-)
-
-export const Cat = forwardRef<HTMLDivElement, Props>(function Cat({ gaze = { x: 0, y: 0 }, mood = 'idle', turn = 1, className = '', style, label }, ref) {
-  const [blink, setBlink] = useState(false)
-
-  // A natural blink every few seconds.
-  useEffect(() => {
-    let t: number
-    const loop = () => {
-      t = window.setTimeout(() => {
-        setBlink(true)
-        window.setTimeout(() => setBlink(false), 140)
-        loop()
-      }, 2600 + Math.random() * 3600)
-    }
-    loop()
-    return () => window.clearTimeout(t)
-  }, [])
-
-  const gx = Math.max(-1, Math.min(1, gaze.x))
-  const gy = Math.max(-1, Math.min(1, gaze.y))
-  // A slight three-quarter turn at rest, so the paper layers show their depth even when nothing moves.
-  const rig = { transform: `rotateY(${-7 + gx * 24 * turn}deg) rotateX(${3 - gy * 11 * turn}deg)` }
-  const head = { transform: `translate(${gx * 7}px, ${gy * 5}px) rotate(${gx * 5}deg)` }
-  const pupils = { transform: `translate(${gx * 6}px, ${gy * 4}px)` }
-  const closed = blink || mood === 'blink'
-
-  return (
-    <div ref={ref} className={`cat cat--${mood} ${className}`} style={style} role={label ? 'img' : undefined} aria-label={label}>
-      <div className="cat__rig" style={rig}>
-        <Layer z={-46} className="cat__tail">
-          <path d="M218 338c52 2 72-40 60-80-7-22-25-27-30-12" fill="none" stroke="var(--ink)" strokeWidth="21" strokeLinecap="round" strokeLinejoin="round" />
-        </Layer>
-
-        <Layer z={0}>
-          {/* cut edges: the same shapes nudged up-left in a lighter tone, the way light catches stacked paper */}
-          <g fill="#3D4062" transform="translate(-3 -3)">
-            <ellipse cx="88" cy="318" rx="32" ry="34" />
-            <path d="M98 186c-28 36-40 90-36 136 2 22 24 30 88 30s86-8 88-30c4-46-8-100-36-136z" />
-          </g>
-          <ellipse cx="88" cy="318" rx="32" ry="34" fill="var(--ink)" />
-          <ellipse cx="212" cy="318" rx="32" ry="34" fill="var(--ink)" />
-          <path d="M98 186c-28 36-40 90-36 136 2 22 24 30 88 30s86-8 88-30c4-46-8-100-36-136z" fill="var(--ink)" />
-        </Layer>
-
-        <Layer z={16}>
-          <path d="M150 200c-24 14-34 52-30 96 2 26 12 44 30 48 18-4 28-22 30-48 4-44-6-82-30-96z" fill="var(--pale)" transform="translate(-2.5 -2.5)" />
-          <path d="M150 200c-24 14-34 52-30 96 2 26 12 44 30 48 18-4 28-22 30-48 4-44-6-82-30-96z" fill="var(--cream)" />
-          <path d="M110 272c0-18 30-18 30 0 1 24 0 50-2 70h-28c-3-20-3-46 0-70z" fill="#3D4062" transform="translate(-2.5 -2)" />
-          <path d="M110 272c0-18 30-18 30 0 1 24 0 50-2 70h-28c-3-20-3-46 0-70z" fill="var(--ink)" />
-          <rect x="105" y="328" width="37" height="20" rx="10" fill="var(--cream)" />
-          <path d="M118 338v8M129 338v8" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-        </Layer>
-
-        <Layer z={22} className="cat__paw">
-          <path d="M160 272c0-18 30-18 30 0 3 24 3 50 0 70h-28c-2-20-3-46-2-70z" fill="#3D4062" transform="translate(-2.5 -2)" />
-          <path d="M160 272c0-18 30-18 30 0 3 24 3 50 0 70h-28c-2-20-3-46-2-70z" fill="var(--ink)" />
-          <rect x="158" y="328" width="37" height="20" rx="10" fill="var(--cream)" />
-          <path d="M171 338v8M182 338v8" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-        </Layer>
-
-        <Layer z={30} className="cat__collar">
-          <path d="M103 186c28 15 66 15 94 0l3 13c-30 17-70 17-100 0z" fill="#FFA477" transform="translate(-2 -2)" />
-          <path d="M103 186c28 15 66 15 94 0l3 13c-30 17-70 17-100 0z" fill="var(--orange)" />
-          <circle cx="150" cy="217" r="11" fill="var(--cream)" />
-          <path d="M150 223l-5.5-5.5a3.2 3.2 0 1 1 5.5-3.6 3.2 3.2 0 1 1 5.5 3.6z" fill="var(--pink)" />
-        </Layer>
-
-        <div className="cat__head" style={head}>
-          <Layer z={40}>
-            <g fill="#3D4062" stroke="#3D4062" transform="translate(-3 -3)">
-              <path d="M84 104L76 22l58 44z" strokeWidth="8" strokeLinejoin="round" />
-              <path d="M216 104l8-82-58 44z" strokeWidth="8" strokeLinejoin="round" />
-              <path d="M78 128c0-44 32-68 72-68s72 24 72 68c0 40-30 66-72 66s-72-26-72-66z" strokeWidth="0" />
-            </g>
-            <path d="M84 104L76 22l58 44z" fill="var(--ink)" stroke="var(--ink)" strokeWidth="8" strokeLinejoin="round" />
-            <path d="M216 104l8-82-58 44z" fill="var(--ink)" stroke="var(--ink)" strokeWidth="8" strokeLinejoin="round" />
-            <path d="M93 92l-4-46 33 24z" fill="var(--pink)" />
-            <path d="M207 92l4-46-33 24z" fill="var(--pink)" />
-            <path d="M78 128c0-44 32-68 72-68s72 24 72 68c0 40-30 66-72 66s-72-26-72-66z" fill="var(--ink)" />
-            <path d="M82 138l-16 12 20 6zM218 138l16 12-20 6z" fill="var(--ink)" />
-          </Layer>
-          <Layer z={62} className="cat__face">
-            <path d="M150 96c-7 16-19 34-25 52-6 20 7 44 25 44s31-24 25-44c-6-18-18-36-25-52z" fill="var(--pale)" transform="translate(-2 -2)" />
-            <path d="M150 96c-7 16-19 34-25 52-6 20 7 44 25 44s31-24 25-44c-6-18-18-36-25-52z" fill="var(--cream)" />
-            <path d="M141 150q9-4 18 0-4 8-9 10-5-2-9-10z" fill="var(--pink)" />
-            <path d="M150 160v7m0 0c-4 6-11 6-14 1m14-1c4 6 11 6 14 1" fill="none" stroke="var(--ink)" strokeWidth="2.6" strokeLinecap="round" />
-            <path d="M131 160L52 148M131 167l-76 8M169 160l79-12M169 167l76 8" stroke="var(--ink)" strokeWidth="2.2" strokeLinecap="round" />
-          </Layer>
-          <Layer z={54} className="cat__eyes">
-            {[116, 184].map((cx) => (
-              <g key={cx}>
-                <ellipse cx={cx} cy="124" rx="16.5" ry="17.5" fill="var(--orange)" />
-                <g style={pupils} className="cat__pupil">
-                  <ellipse cx={cx} cy="124" rx="5" ry="12.5" fill="var(--ink)" />
-                </g>
-                <circle cx={cx - 5} cy="117" r="3.4" fill="var(--cream)" />
-                <rect x={cx - 19} y="105" width="38" height="38" fill="var(--ink)" className={`cat__lid ${closed ? 'is-closed' : ''}`} />
-                {mood === 'blink' && <path d={`M${cx - 15} 124q15 9 30 0`} fill="none" stroke="var(--orange)" strokeWidth="3" strokeLinecap="round" />}
-              </g>
-            ))}
-          </Layer>
-          {mood === 'shades' && (
-            <Layer z={72} className="cat__shades">
-              <path d="M132 120h36" stroke="var(--blue)" strokeWidth="5" />
-              <path d="M116 142l-19-19a12 12 0 1 1 19-14 12 12 0 1 1 19 14z" fill="var(--pink)" stroke="var(--blue)" strokeWidth="4" strokeLinejoin="round" />
-              <path d="M184 142l-19-19a12 12 0 1 1 19-14 12 12 0 1 1 19 14z" fill="var(--pink)" stroke="var(--blue)" strokeWidth="4" strokeLinejoin="round" />
-              <path d="M97 114l-20-6M203 114l20-6" stroke="var(--blue)" strokeWidth="4" strokeLinecap="round" />
-            </Layer>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-})
-
-/* ───────── The ruler cat: side view, four poses ───────── */
+/* ───────── The ruler cat: the same tortoiseshell, side view, five poses ───────── */
 
 export type RulerPose = 'walk' | 'run' | 'sit' | 'sleep' | 'play'
+
+const Patches = ({ d }: { d: string[] }) => (
+  <g>
+    {d.map((p, i) => (
+      <path key={i} d={p} fill={i % 2 ? TORTIE.rust : TORTIE.ginger} opacity=".95" />
+    ))}
+  </g>
+)
 
 export function RulerCat({ pose }: { pose: RulerPose }) {
   const moving = pose === 'walk' || pose === 'run'
@@ -153,40 +19,44 @@ export function RulerCat({ pose }: { pose: RulerPose }) {
     <svg viewBox="0 0 76 46" className={`rcat rcat--${pose}`} aria-hidden="true" focusable="false">
       {moving && (
         <g>
-          <path className="rcat__tail" d="M16 24C8 22 4 15 8 6" fill="none" stroke="var(--ink)" strokeWidth="3.6" strokeLinecap="round" />
+          <path className="rcat__tail" d="M16 24C8 22 4 15 8 6" fill="none" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
           <g strokeWidth="3.8" strokeLinecap="round">
-            <path className="rcat__leg rcat__leg--a" d="M21 30v11" stroke="var(--ink)" />
-            <path className="rcat__leg rcat__leg--b" d="M27 30v11" stroke="var(--ink)" />
-            <path className="rcat__leg rcat__leg--b" d="M47 30v11" stroke="var(--ink)" />
-            <path className="rcat__leg rcat__leg--a" d="M53 30v11" stroke="var(--ink)" />
+            <path className="rcat__leg rcat__leg--a" d="M21 30v11" stroke={TORTIE.base} />
+            <path className="rcat__leg rcat__leg--b" d="M27 30v11" stroke={TORTIE.base} />
+            <path className="rcat__leg rcat__leg--b" d="M47 30v11" stroke={TORTIE.base} />
+            <path className="rcat__leg rcat__leg--a" d="M53 30v11" stroke={TORTIE.base} />
           </g>
-          <path d="M14 25c0-8 10-10 20-10h14c8 0 12 4 12 10s-4 8-10 8H23c-6 0-9-3-9-8z" fill="var(--ink)" />
-          <path d="M51 21c6 2 8 8 4 11h-5z" fill="var(--cream)" />
+          <path d="M14 25c0-8 10-10 20-10h14c8 0 12 4 12 10s-4 8-10 8H23c-6 0-9-3-9-8z" fill={TORTIE.base} />
+          <Patches d={['M22 17c5-2 10 0 10 4s-5 6-10 5c-3-3-3-7 0-9z', 'M38 26c4-1 8 1 8 3h-9z', 'M42 16c3 0 6 1 7 3-3 1-6 1-8-1z']} />
+          <path d="M51 22c5 2 7 7 4 10h-5z" fill={TORTIE.peach} />
           <g className="rcat__head">
-            <path d="M54 9l1-8 6 6zM65 7l5-6 1 9z" fill="var(--ink)" />
-            <circle cx="62" cy="14" r="9" fill="var(--ink)" />
-            <ellipse cx="67.5" cy="18.5" rx="4.5" ry="3.2" fill="var(--cream)" />
-            <circle cx="65" cy="12" r="1.9" fill="var(--orange)" />
-            <path d="M55 21l-2 7" stroke="var(--orange)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M54 9l1-8 6 6zM65 7l5-6 1 9z" fill={TORTIE.base} />
+            <circle cx="62" cy="14" r="9" fill={TORTIE.base} />
+            <path d="M56 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
+            <ellipse cx="67.5" cy="19" rx="3.6" ry="2.4" fill={TORTIE.peach} opacity=".9" />
+            <circle cx="65" cy="12.5" r="2.4" fill={TORTIE.iris} />
+            <circle cx="65.5" cy="12.6" r="1.1" fill="#110c0f" />
           </g>
         </g>
       )}
       {(pose === 'sit' || pose === 'play') && (
         <g>
-          <path className="rcat__tail" d="M24 42c-10 0-14-6-9-11" fill="none" stroke="var(--ink)" strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M24 42c-4-12 2-24 12-26s16 6 16 16v10z" fill="var(--ink)" />
-          <path d="M44 22c5 4 6 12 3 19h-5z" fill="var(--cream)" />
-          <rect x="40" y="38" width="10" height="5" rx="2.5" fill="var(--cream)" />
+          <path className="rcat__tail" d="M24 42c-10 0-14-6-9-11" fill="none" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M24 42c-4-12 2-24 12-26s16 6 16 16v10z" fill={TORTIE.base} />
+          <Patches d={['M27 30c3-4 8-4 9 0 0 4-4 7-8 6-2-2-2-4-1-6z', 'M30 20c3-1 6 0 7 2-2 2-5 2-7 1z']} />
+          <path d="M44 22c5 4 6 12 3 19h-5z" fill={TORTIE.peach} />
+          <ellipse cx="45" cy="40.5" rx="5" ry="2.6" fill={TORTIE.base} />
           <g className="rcat__head">
-            <path d="M40 9l1-8 6 6zM51 7l5-6 1 9z" fill="var(--ink)" />
-            <circle cx="48" cy="14" r="9" fill="var(--ink)" />
-            <ellipse cx="53" cy="18.5" rx="4.5" ry="3.2" fill="var(--cream)" />
-            <circle cx="51" cy="12" r="1.9" fill="var(--orange)" />
-            <path d="M42 22l-1 6" stroke="var(--orange)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M40 9l1-8 6 6zM51 7l5-6 1 9z" fill={TORTIE.base} />
+            <circle cx="48" cy="14" r="9" fill={TORTIE.base} />
+            <path d="M42 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
+            <ellipse cx="53" cy="19" rx="3.6" ry="2.4" fill={TORTIE.peach} opacity=".9" />
+            <circle cx="51" cy="12.5" r="2.4" fill={TORTIE.iris} />
+            <circle cx="51.5" cy="12.6" r="1.1" fill="#110c0f" />
           </g>
           {pose === 'play' && (
             <g className="rcat__yarn">
-              <circle cx="66" cy="38" r="6" fill="var(--orange)" stroke="var(--ink)" strokeWidth="1" />
+              <circle cx="66" cy="38" r="6" fill="#FF7029" stroke="#22243A" strokeWidth="1" />
               <path d="M61 36.5c3 2 7 2 10-1M61.5 40.5c3-2 6-2 9 0" fill="none" stroke="#B9440F" strokeWidth="1" />
             </g>
           )}
@@ -194,12 +64,13 @@ export function RulerCat({ pose }: { pose: RulerPose }) {
       )}
       {pose === 'sleep' && (
         <g>
-          <path d="M14 42c-2-11 9-18 24-18s26 6 26 18z" fill="var(--ink)" />
-          <path d="M16 42c8 2 22 2 30 0" stroke="var(--ink)" strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M48 26l1-8 6 6zM59 24l5-6 1 9z" fill="var(--ink)" />
-          <circle cx="56" cy="32" r="9" fill="var(--ink)" />
-          <ellipse cx="61" cy="36" rx="4.5" ry="3" fill="var(--cream)" />
-          <path d="M55 30.5q2.5 2 5 0" fill="none" stroke="var(--orange)" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M14 42c-2-11 9-18 24-18s26 6 26 18z" fill={TORTIE.base} />
+          <Patches d={['M22 34c4-5 10-5 12 0-2 4-8 6-12 4z', 'M36 28c4-2 9-1 10 2-3 2-7 2-10 0z']} />
+          <path d="M16 42c8 2 22 2 30 0" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M48 26l1-8 6 6zM59 24l5-6 1 9z" fill={TORTIE.base} />
+          <circle cx="56" cy="32" r="9" fill={TORTIE.base} />
+          <ellipse cx="61" cy="36.5" rx="3.6" ry="2.3" fill={TORTIE.peach} opacity=".9" />
+          <path d="M55 30.5q2.5 2 5 0" fill="none" stroke={TORTIE.irisLo} strokeWidth="1.6" strokeLinecap="round" />
           <text x="66" y="14" className="rcat__z">z</text>
           <text x="71" y="7" className="rcat__z rcat__z--2">z</text>
         </g>
@@ -208,44 +79,144 @@ export function RulerCat({ pose }: { pose: RulerPose }) {
   )
 }
 
-/* ───────── Toys ───────── */
+/* ───────── Toys: soft 2.5D, the same light as the cat (from the top left) ───────── */
 
-export function Toy({ kind, className = '' }: { kind: 'yarn' | 'feather' | 'mouse' | 'box'; className?: string }) {
+export type ToyKind = 'yarn' | 'feather' | 'box'
+export type YarnColor = 'pink' | 'blue'
+
+export const TOY_COLORS = {
+  yarn: {
+    pink: { base: '#F49CB6', deep: '#C95F80', lit: '#FFE5EE' },
+    blue: { base: '#2463F6', deep: '#163A9E', lit: '#9BBBFF' },
+  },
+  feather: { base: '#FF7029', deep: '#C94E16', lit: '#FFC09C' },
+  box: { front: '#D49A5E', side: '#B07738', inside: '#5E3D1E', flap: '#E8B77E', tape: '#F3D9AE', line: '#8A5A2B' },
+}
+
+function useToyId(prefix: string) {
+  return `${prefix}-${useId().replace(/[^a-zA-Z0-9]/g, '')}`
+}
+
+/** A wound ball of yarn with a loose end. Strands wrap the sphere at three angles, shaded like the cat. */
+export function YarnBall({ color = 'pink', className = '' }: { color?: YarnColor; className?: string }) {
+  const c = TOY_COLORS.yarn[color]
+  const id = useToyId('yarn')
+  const strands = [
+    { r: -28, ry: 9 },
+    { r: -28, ry: 21 },
+    { r: 32, ry: 13 },
+    { r: 32, ry: 26 },
+    { r: 84, ry: 17 },
+  ]
   return (
-    <svg viewBox="0 0 48 48" className={`toy toy--${kind} ${className}`} aria-hidden="true" focusable="false">
-      {kind === 'yarn' && (
+    <svg viewBox="0 0 100 100" className={`toy toy--yarn ${className}`} aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id={`${id}-s`} cx="36%" cy="30%" r="74%">
+          <stop offset="0" stopColor={c.lit} />
+          <stop offset=".45" stopColor={c.base} />
+          <stop offset="1" stopColor={c.deep} />
+        </radialGradient>
+        <clipPath id={`${id}-c`}>
+          <circle cx="50" cy="52" r="33" />
+        </clipPath>
+      </defs>
+      <ellipse cx="52" cy="89" rx="30" ry="6" fill="#22243A" opacity=".18" />
+      <path d="M74 74c8 6 14 10 22 9" fill="none" stroke={c.deep} strokeWidth="3" strokeLinecap="round" />
+      <circle cx="50" cy="52" r="33" fill={`url(#${id}-s)`} />
+      <g clipPath={`url(#${id}-c)`} fill="none" strokeLinecap="round">
+        {strands.map((s, i) => (
+          <ellipse key={i} cx="50" cy="52" rx="35" ry={s.ry} transform={`rotate(${s.r} 50 52)`} stroke={c.deep} strokeWidth="2.6" opacity=".55" />
+        ))}
+        {strands.slice(0, 3).map((s, i) => (
+          <ellipse key={`h${i}`} cx="50" cy="52" rx="35" ry={s.ry + 2} transform={`rotate(${s.r} 50 52)`} stroke={c.lit} strokeWidth="1.4" opacity=".55" strokeDasharray="18 70" />
+        ))}
+      </g>
+      <path d="M30 34c5-6 12-9 20-9" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" opacity=".6" />
+    </svg>
+  )
+}
+
+/** A bright orange feather (two plumes on a short cord), as hung from a wand. */
+export function Feather({ className = '' }: { className?: string }) {
+  const c = TOY_COLORS.feather
+  const id = useToyId('feather')
+  return (
+    <svg viewBox="0 0 100 100" className={`toy toy--feather ${className}`} aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={c.base} />
+          <stop offset="1" stopColor={c.lit} />
+        </linearGradient>
+      </defs>
+      <ellipse cx="50" cy="93" rx="20" ry="4" fill="#22243A" opacity=".14" />
+      <path d="M50 4v14" stroke="#22243A" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="50" cy="19" r="4" fill="#22243A" />
+      <path d="M50 22c-14 8-24 30-20 52 2 8 6 12 10 14 2-22 6-44 10-66z" fill={c.deep} opacity=".55" transform="rotate(-14 50 22)" />
+      <path d="M50 22c14 10 22 32 16 54-2 8-8 12-12 14-2-22-4-46-4-68z" fill={`url(#${id}-g)`} />
+      <path d="M50 22c-12 10-18 32-14 54 2 8 8 12 14 14V22z" fill={`url(#${id}-g)`} />
+      <path d="M50 24v66" stroke={c.deep} strokeWidth="1.8" strokeLinecap="round" />
+      <g stroke={c.deep} strokeWidth="1.1" opacity=".55" strokeLinecap="round">
+        <path d="M50 40l-9 6M50 52l-11 7M50 64l-10 7M50 76l-7 6M50 40l9 5M50 52l11 6M50 64l10 6M50 76l7 6" />
+      </g>
+      <path d="M44 30c-4 8-6 18-5 28" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".55" fill="none" />
+    </svg>
+  )
+}
+
+/**
+ * A small open cardboard box. `part` splits it so the cat can sit inside: render 'back' behind the cat and 'front'
+ * in front of it. 'whole' is both at once (toy cards, README).
+ */
+export function CardboardBox({ part = 'whole', className = '' }: { part?: 'whole' | 'back' | 'front'; className?: string }) {
+  const c = TOY_COLORS.box
+  const id = useToyId('box')
+  const back = part !== 'front'
+  const front = part !== 'back'
+  return (
+    <svg viewBox="0 0 120 100" className={`toy toy--box toy--box-${part} ${className}`} aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={`${id}-f`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={c.flap} />
+          <stop offset=".25" stopColor={c.front} />
+          <stop offset="1" stopColor={c.side} />
+        </linearGradient>
+        <linearGradient id={`${id}-i`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={c.inside} />
+          <stop offset="1" stopColor="#3A2512" />
+        </linearGradient>
+      </defs>
+      {back && (
         <g>
-          <path d="M37 37c5 4 8 7 7 10" fill="none" stroke="#C94E16" strokeWidth="2.4" strokeLinecap="round" />
-          <circle cx="24" cy="24" r="17" fill="var(--orange)" stroke="var(--ink)" strokeWidth="1.8" />
-          <g fill="none" stroke="#B9440F" strokeWidth="1.7" strokeLinecap="round">
-            <path d="M9 18c9-5 21-5 30 0M7.5 25c10-5 23-5 33 0M9.5 32c9-4 20-4 29 0" />
-            <path d="M19 8c7 6 9 20 4 32M27 7.5c6 7 7 21 2 33" />
-          </g>
-          <path d="M14 13c3-2 6-3 9-3" fill="none" stroke="var(--cream)" strokeWidth="2" strokeLinecap="round" />
+          <ellipse cx="62" cy="94" rx="54" ry="6" fill="#22243A" opacity=".18" />
+          {/* back flap, leaning away */}
+          <path d="M18 40L30 20H96L104 40Z" fill={c.side} />
+          <path d="M18 40H104L112 34V40Z" fill={c.side} opacity=".6" />
+          {/* the dark inside */}
+          <path d="M18 40H104L112 34H26Z" fill={`url(#${id}-i)`} />
         </g>
       )}
-      {kind === 'feather' && (
+      {front && (
         <g>
-          <path d="M10 42L36 8" stroke="var(--ink)" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M36 6c6 8 2 20-10 26l-6 2c-2-12 4-24 16-28z" fill="var(--blue)" />
-          <path d="M33 12l-8 18" stroke="var(--cream)" strokeWidth="1.6" strokeLinecap="round" />
-        </g>
-      )}
-      {kind === 'mouse' && (
-        <g>
-          <path d="M6 34c6 4 10 2 12-2" fill="none" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 34c0-10 8-16 18-16s10 8 10 12-4 6-10 6H18c-2 0-2-1-2-2z" fill="var(--orange)" />
-          <circle cx="30" cy="18" r="5" fill="var(--orange)" />
-          <circle cx="38" cy="28" r="1.8" fill="var(--ink)" />
-        </g>
-      )}
-      {kind === 'box' && (
-        <g>
-          <path d="M8 18l16-6 16 6v20l-16 6-16-6z" fill="var(--cream)" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M8 18l16 6 16-6M24 24v20" fill="none" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M8 18l-4 7 16 6 4-7" fill="var(--pale)" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" />
+          {/* side wall */}
+          <path d="M104 40L112 34V82L104 90Z" fill={c.side} />
+          {/* front wall */}
+          <path d="M18 40H104V90H18Z" fill={`url(#${id}-f)`} />
+          <path d="M54 40h14v50H54z" fill={c.tape} opacity=".75" />
+          <path d="M18 40h86" stroke={c.line} strokeWidth="1.4" />
+          {/* front flaps, folded open toward us */}
+          <path d="M18 40L6 54L56 54L61 40Z" fill={c.flap} />
+          <path d="M61 40L66 54L116 54L104 40Z" fill={c.flap} opacity=".92" />
+          <path d="M6 54H56M66 54H116" stroke={c.line} strokeWidth="1.2" opacity=".5" />
+          <path d="M26 70c8 3 18 3 26 0" fill="none" stroke={c.line} strokeWidth="1.6" strokeLinecap="round" opacity=".5" />
         </g>
       )}
     </svg>
   )
+}
+
+/** One entry point for lists of toys. */
+export function Toy({ kind, color = 'pink', className = '' }: { kind: ToyKind; color?: YarnColor; className?: string }) {
+  if (kind === 'yarn') return <YarnBall color={color} className={className} />
+  if (kind === 'feather') return <Feather className={className} />
+  return <CardboardBox className={className} />
 }
