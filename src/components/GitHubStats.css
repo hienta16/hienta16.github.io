@@ -1,0 +1,527 @@
+/* GitHub activity: one compact dashboard on the ink field. 3D year + streaks (left ~58%), stats + languages (right). */
+.gh__wrap {
+  padding-block: clamp(56px, 6vw, 88px);
+}
+.gh__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+.gh__title {
+  font-family: var(--display);
+  font-weight: 850;
+  font-stretch: 92%;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.gh__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  color: var(--night-2);
+  font-size: 14px;
+}
+.gh__profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cream);
+  font-weight: 600;
+  text-decoration: none;
+}
+.gh__profile:hover {
+  color: var(--orange);
+}
+.gh__profile .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.gh__dash {
+  display: grid;
+  grid-template-columns: minmax(0, 60fr) minmax(0, 40fr);
+  gap: 16px;
+  margin-top: 22px;
+  align-items: stretch;
+}
+.gh__side {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+/* ───────── Shared card ───────── */
+.gh-year,
+.gh-card {
+  margin: 0;
+  border-radius: 20px;
+  background: var(--ink-3);
+}
+.gh-card {
+  padding: 16px 20px 14px;
+}
+.gh-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 92%;
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--cream);
+}
+.gh-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.gh-card__note {
+  margin-top: 10px;
+  color: var(--night-2);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* ───────── The 3D year (drawn by the hub's Python) ───────── */
+.gh-year {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 20px 12px;
+}
+.gh-year__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.gh-year__total {
+  color: var(--night-2);
+  font-size: 14px;
+}
+.gh-year__total strong {
+  margin-right: 4px;
+  font-family: var(--display);
+  font-weight: 850;
+  font-size: 24px;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.gh-year__span {
+  color: var(--night-2);
+  font-size: 12.5px;
+}
+.gh-year__stage {
+  display: grid;
+  gap: 10px;
+}
+.gh-year__iso {
+  position: relative;
+}
+.gh-year__svg svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.iso-month {
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 76%;
+  letter-spacing: 0.06em;
+}
+.iso-b {
+  transition: transform 700ms var(--ease-out), filter 120ms linear;
+  transition-delay: calc(var(--w) * 11ms);
+}
+.gh-year__iso:not(.is-in) .iso-b:not(.iso-l0) {
+  transform: scaleY(0.04);
+}
+.iso-b:hover {
+  filter: brightness(1.12) saturate(1.1);
+  transition-delay: 0ms;
+}
+.gh-year__tip {
+  position: absolute;
+  z-index: 3;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 12.5px;
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 8px));
+  pointer-events: none;
+}
+.gh-year__tip strong {
+  font-family: var(--display);
+  font-weight: 850;
+}
+
+/* Streaks: a slim row of three right under the chart, like a caption */
+.gh-streaks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.gh-streaks > div {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 249, 244, 0.05);
+}
+.gh-streaks dt {
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--night-2);
+}
+.gh-streaks dd {
+  margin: 1px 0 0;
+  color: var(--cream);
+  font-size: 13px;
+}
+.gh-streaks strong {
+  font-family: var(--display);
+  font-weight: 850;
+  font-size: 22px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.gh-streaks div:nth-child(1) strong {
+  color: var(--orange);
+}
+.gh-streaks div:nth-child(2) strong {
+  color: var(--pink);
+}
+.gh-streaks div:nth-child(3) strong {
+  color: #8db0ff;
+}
+.gh-streaks small {
+  display: block;
+  color: var(--night-2);
+  font-size: 11.5px;
+}
+
+.gh-year__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 6px;
+}
+.gh-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--night-2);
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 76%;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.gh-legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+}
+.gh-legend span:first-child {
+  margin-right: 3px;
+}
+.gh-legend span:last-child {
+  margin-left: 3px;
+}
+.gh-more {
+  font-size: 13px;
+}
+.gh-more summary {
+  cursor: pointer;
+  color: var(--cream);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+.gh-more[open] {
+  flex-basis: 100%;
+}
+.gh-more__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 12px;
+}
+.gh-more__label {
+  margin-bottom: 8px;
+  color: var(--night-2);
+  font-size: 12.5px;
+}
+.gh-more .data-table {
+  font-size: 13px;
+}
+.gh-more .data-table caption {
+  margin-bottom: 6px;
+  font-size: 12.5px;
+}
+.gh-more .data-table th,
+.gh-more .data-table td {
+  padding: 3px 8px;
+  line-height: 1.35;
+}
+.gh-more .data-table thead th {
+  font-size: 11px;
+  vertical-align: bottom;
+}
+
+/* Weekly rhythm, small */
+.rhythm {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  height: 120px;
+}
+.rhythm li {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  justify-items: center;
+  gap: 3px;
+}
+.rhythm__track {
+  display: flex;
+  align-items: end;
+  width: 100%;
+  max-width: 26px;
+  height: 100%;
+}
+.rhythm__bar {
+  width: 100%;
+  border-radius: 4px 4px 2px 2px;
+  background: var(--blue);
+}
+.rhythm__day,
+.rhythm__n {
+  font-size: 11px;
+  color: var(--night-2);
+}
+.rhythm__n {
+  color: var(--cream);
+  font-weight: 600;
+}
+
+/* ───────── GitHub stats rows ───────── */
+.gh-rows {
+  margin: 8px 0 0;
+}
+.gh-rows__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 249, 244, 0.09);
+}
+.gh-rows__row:last-child {
+  border-bottom: 0;
+}
+.gh-rows dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--night-2);
+  font-size: 14px;
+}
+.gh-rows dt .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--pink);
+}
+.gh-rows__row:nth-child(3n + 1) dt .icon {
+  color: var(--orange);
+}
+.gh-rows__row:nth-child(3n) dt .icon {
+  color: #8db0ff;
+}
+.gh-rows__dot {
+  width: 11px;
+  height: 11px;
+  margin: 2.5px;
+  border-radius: 3px;
+  background: var(--orange);
+}
+.gh-rows dd {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 92%;
+  font-size: 16px;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.gh-rows__row.is-strong dt {
+  color: var(--cream);
+  font-weight: 600;
+}
+.gh-rows__row.is-strong dd {
+  color: var(--orange);
+  font-size: 18px;
+}
+
+/* The "i" tooltip */
+.tip {
+  position: relative;
+  display: inline-flex;
+}
+.tip__btn {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1.5px solid var(--night-2);
+  border-radius: 50%;
+  background: none;
+  color: var(--night-2);
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1;
+  cursor: help;
+  --focus: var(--orange);
+}
+.tip__text {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: calc(100% + 8px);
+  width: min(280px, 70vw);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--text);
+  font-weight: 500;
+  font-stretch: 100%;
+  font-size: 12.5px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+  transform: translateX(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms linear;
+}
+.tip:hover .tip__text,
+.tip:focus-within .tip__text {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ───────── Top languages: one stacked bar and a key ───────── */
+.seg--sm {
+  padding: 2px;
+}
+.seg--sm .seg__btn {
+  padding: 3px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.gh .seg__btn {
+  color: var(--cream);
+}
+.langbar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  margin-top: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.langbar span {
+  min-width: 3px;
+  transition: flex-grow 420ms var(--ease-out);
+}
+.langkey {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  margin-top: 12px;
+}
+.langkey li {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.langkey i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.langkey__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cream);
+}
+.langkey__pct {
+  color: var(--night-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.gh__note {
+  margin-top: 14px;
+  color: var(--night-2);
+  font-size: 12.5px;
+}
+
+@media (max-width: 999px) {
+  .gh__dash {
+    grid-template-columns: 1fr;
+  }
+  .gh__side {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+}
+@media (max-width: 759px) {
+  .gh__side {
+    grid-template-columns: 1fr;
+  }
+  .gh-year {
+    padding: 14px 14px 10px;
+  }
+  .gh-streaks {
+    gap: 6px;
+  }
+  .gh-streaks > div {
+    padding: 6px 8px;
+  }
+  .gh-streaks small {
+    display: none;
+  }
+  .gh-more__body {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso-b,
+  .langbar span {
+    transition: none;
+  }
+}

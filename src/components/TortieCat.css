@@ -1,0 +1,124 @@
+.tortie {
+  position: relative;
+  aspect-ratio: 320 / 380;
+}
+.tortie svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.tortie__head,
+.tortie__face,
+.tortie__pupil,
+.tortie__ear {
+  transition: transform 260ms var(--ease-out);
+}
+.tortie__lid {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  transition: transform 80ms linear;
+}
+.tortie__tail,
+.tortie__body,
+.tortie__paw,
+.tortie__ear {
+  transform-box: fill-box;
+}
+
+/* Life */
+.tortie.is-alive .tortie__body {
+  transform-origin: 50% 100%;
+  animation: tortie-breathe 3.8s var(--ease-in-out) infinite;
+}
+.tortie.is-alive .tortie__tail {
+  transform-origin: 0% 90%;
+  animation: tortie-tail 5.4s var(--ease-in-out) infinite;
+}
+.tortie__ear--l {
+  transform-origin: 80% 90%;
+}
+.tortie__ear--r {
+  transform-origin: 20% 90%;
+}
+.tortie__ear.is-twitch {
+  animation: tortie-twitch 380ms var(--ease-out);
+}
+@keyframes tortie-breathe {
+  50% {
+    transform: scale(1.012, 1.018);
+  }
+}
+@keyframes tortie-tail {
+  0%,
+  55%,
+  100% {
+    transform: rotate(0deg);
+  }
+  70% {
+    transform: rotate(-9deg);
+  }
+  85% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes tortie-twitch {
+  30% {
+    rotate: -9deg;
+  }
+  60% {
+    rotate: 4deg;
+  }
+}
+
+/* Moods */
+.tortie__paw {
+  transform-origin: 70% 4%;
+  transition: transform 170ms var(--ease-out);
+}
+.tortie--swat .tortie__paw {
+  transform: rotate(-64deg) translate(6px, -14px);
+}
+.tortie--bob .tortie__head {
+  animation: tortie-bob 300ms var(--ease-in-out) infinite;
+}
+@keyframes tortie-bob {
+  50% {
+    translate: 0 5px;
+  }
+}
+.tortie--bow .tortie__head {
+  translate: 0 14px;
+  transition: translate 500ms var(--ease-out);
+}
+
+.tortie--crouch .tortie__body {
+  scale: 1.04 0.92;
+  transform-origin: 50% 100%;
+  transition: scale 220ms var(--ease-out);
+}
+.tortie--crouch .tortie__head {
+  translate: 0 18px;
+  transition: translate 220ms var(--ease-out);
+}
+.tortie--sleep.is-alive .tortie__body {
+  animation-duration: 6.4s;
+}
+.tortie--sleep .tortie__head {
+  translate: 0 10px;
+  transition: translate 900ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tortie.is-alive .tortie__body,
+  .tortie.is-alive .tortie__tail,
+  .tortie__ear.is-twitch,
+  .tortie--bob .tortie__head {
+    animation: none;
+  }
+  .tortie__head,
+  .tortie__face,
+  .tortie__pupil,
+  .tortie__ear {
+    transition: none;
+  }
+}

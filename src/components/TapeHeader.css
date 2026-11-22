@@ -1,0 +1,305 @@
+.tape-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--header-h);
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 26px 1fr;
+  pointer-events: none;
+}
+.tape-header > * {
+  pointer-events: auto;
+}
+.tape-header__lane {
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--cream);
+}
+
+.tape {
+  --p: 0;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+.tape::before {
+  content: '';
+  position: absolute;
+  inset: 26px 0 0 0;
+  background: var(--pink);
+}
+/* Progress: the tape turns orange behind the cat. */
+.tape__fill {
+  position: absolute;
+  left: 0;
+  top: 26px;
+  height: 5px;
+  width: calc(var(--tape-start) + var(--p) * (var(--tape-end) - var(--tape-start)));
+  background: var(--orange);
+  pointer-events: none;
+}
+
+.tape__brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: calc(var(--header-h) - 26px);
+  padding-right: 4px;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tape__brand .label {
+  font-size: 14px;
+  font-stretch: 74%;
+  letter-spacing: 0.04em;
+}
+.tape__tip {
+  width: 10px;
+  height: 100%;
+  background: var(--ink);
+}
+.tape__ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 12px;
+  pointer-events: none;
+}
+
+.tape__nav {
+  position: absolute;
+  inset: 26px 0 0 0;
+}
+.tape__nav li {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tape__mark {
+  position: absolute;
+  left: var(--mark);
+  top: 0;
+  width: 2px;
+  height: 10px;
+  background: var(--ink);
+}
+.tape__link {
+  position: absolute;
+  left: var(--x);
+  top: 6px;
+  padding: 3px 2px 6px;
+  font-size: 14px;
+  font-stretch: 72%;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.tape__link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+}
+.tape__link[aria-current] {
+  font-weight: 900;
+}
+
+/* The ruler cat walks the top of the tape. */
+.tape__cat {
+  position: absolute;
+  z-index: 4;
+  top: 1px;
+  left: calc(var(--tape-start) + var(--p) * (var(--tape-end) - var(--tape-start)));
+  width: 46px;
+  height: 28px;
+  margin-left: -38px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  --focus: var(--ink);
+}
+.tape__cat.is-back .tape__cat-body {
+  transform: scaleX(-1);
+}
+.tape__cat-body {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 180ms var(--ease-out);
+}
+.tape__meow {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  transform: translateX(-50%);
+  padding: 3px 8px 4px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 999px;
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 90%;
+  font-size: 12px;
+  white-space: nowrap;
+  animation: meow 1300ms var(--ease-out) both;
+}
+@keyframes meow {
+  0% {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  15%,
+  80% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The tape's end: GitHub, sitting on the tape itself */
+.tape-tab {
+  position: absolute;
+  z-index: 5;
+  right: 10px;
+  top: 26px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  --focus: var(--ink);
+}
+.tape-tab__gh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  padding: 0 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 84%;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: transform 180ms var(--ease-out);
+  --focus: var(--ink);
+}
+.tape-tab__gh .icon {
+  width: 16px;
+  height: 16px;
+}
+.tape-tab__gh:hover {
+  transform: translateY(-1px);
+}
+.tape-tab__menu {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--cream);
+}
+
+/* Sections sheet (phones) */
+.sheet {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: var(--cream);
+  --focus: var(--cream);
+}
+.sheet::backdrop {
+  background: rgba(34, 36, 58, 0.6);
+}
+.sheet[open] {
+  animation: sheet-in 360ms var(--ease-out);
+}
+@keyframes sheet-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.sheet__inner {
+  min-height: 100%;
+  padding: 18px var(--gutter) 40px calc(var(--gutter) + 26px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='8'%3E%3Cpath d='M0 .5h12M0 4.5h6' stroke='%23F49CB6' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+}
+.sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.sheet__close {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--cream);
+  background: transparent;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  text-transform: uppercase;
+}
+.sheet__list {
+  display: grid;
+  gap: 6px;
+}
+.sheet__list a {
+  display: block;
+  padding: 6px 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: clamp(34px, 10vw, 52px);
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.sheet__list a[aria-current] {
+  color: var(--orange);
+}
+
+@media (max-width: 759px) {
+  .tape-tab {
+    right: 6px;
+    gap: 6px;
+  }
+  .tape-tab__gh {
+    padding: 0 10px;
+  }
+  .tape-tab__gh-text {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open],
+  .tape__meow {
+    animation: none;
+  }
+}

@@ -1,0 +1,505 @@
+.toybox__head {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 16px 64px;
+  align-items: end;
+}
+.toybox__line {
+  max-width: 44ch;
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.45;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+.toybox__demo {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 8px 14px;
+  border: 2px dashed var(--ink);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.toybox__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(300px, 4fr);
+  gap: clamp(20px, 2.6vw, 40px);
+  margin-top: clamp(32px, 4vw, 56px);
+  align-items: start;
+}
+
+/* ───────── The scene: a room, a rug, a cat ───────── */
+.scene {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  border-radius: 28px;
+  background: linear-gradient(var(--pale) 0 58%, var(--cream) 58% 100%);
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.scene.is-fine,
+.scene.is-fine button {
+  cursor: none;
+}
+.scene__rug {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 70%;
+  height: 34%;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: inset 0 0 0 10px var(--pink), inset 0 0 0 13px rgba(255, 249, 244, 0.75);
+}
+.scene__rug::after {
+  content: '';
+  position: absolute;
+  inset: 22% 14%;
+  border-radius: 50%;
+  border: 3px dashed rgba(255, 249, 244, 0.7);
+}
+.scene__hint {
+  position: absolute;
+  left: 22px;
+  top: 18px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* The shelf on the wall: the gift history, by toy */
+.shelf {
+  position: absolute;
+  right: 6%;
+  top: 16%;
+  width: 40%;
+}
+.shelf__items {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 0 6%;
+}
+.shelf__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.shelf__item svg {
+  width: clamp(30px, 4.2vw, 54px);
+  height: auto;
+  opacity: 0.85;
+}
+.shelf__item--box svg {
+  width: clamp(40px, 5.4vw, 70px);
+}
+.shelf__item b {
+  position: absolute;
+  right: -14px;
+  top: -6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.shelf__plank {
+  display: block;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--ink);
+  box-shadow: 0 10px 0 -4px rgba(34, 36, 58, 0.18);
+}
+.shelf__label {
+  display: block;
+  margin-top: 12px;
+  text-align: right;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* The cat */
+.scene__cat {
+  position: absolute;
+  transition: left 720ms var(--ease-in-out), top 420ms var(--ease-out), width 420ms var(--ease-out);
+  pointer-events: none;
+}
+.scene__cat .tortie {
+  width: 100%;
+}
+.scene__cat-body {
+  transform-origin: 50% 100%;
+}
+.scene__cat.is-trot .scene__cat-body {
+  animation: cat-trot 240ms var(--ease-in-out) 3;
+}
+.scene__cat.is-jump .scene__cat-body {
+  animation: cat-jump 420ms var(--ease-out);
+}
+@keyframes cat-trot {
+  50% {
+    transform: translateY(-7%) rotate(-2deg);
+  }
+}
+@keyframes cat-jump {
+  0% {
+    transform: translateY(0) scale(1.04, 0.94);
+  }
+  45% {
+    transform: translateY(-42%) scale(0.97, 1.04);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.scene__zz {
+  position: absolute;
+  right: 4%;
+  top: 8%;
+  font-family: var(--display);
+  font-weight: 850;
+  font-size: clamp(16px, 1.6vw, 22px);
+  color: var(--blue);
+  animation: zz 2.2s var(--ease-out) infinite;
+}
+.scene__zz span {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.75em;
+  transform: translateY(-60%);
+}
+@keyframes zz {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Toys */
+.scene__toy {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: left 620ms var(--ease-out), top 420ms var(--ease-out), width 420ms var(--ease-out);
+  --focus: var(--ink);
+}
+.scene__toy svg {
+  width: 100%;
+  height: auto;
+}
+.scene__spin {
+  display: block;
+  transition: transform 640ms var(--ease-out);
+}
+.scene__toy--feather:not(.scene__toy--ghost) .scene__spin {
+  rotate: 72deg;
+  translate: 0 22%;
+}
+.scene__toy--ghost {
+  width: 12%;
+  height: 10%;
+  transform: translateX(-50%);
+}
+.scene__tag {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 4px);
+  translate: -50% 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 160ms linear;
+  pointer-events: none;
+}
+.scene__toy:hover .scene__tag,
+.scene__toy:focus-visible .scene__tag,
+.scene__toy.is-preview .scene__tag {
+  opacity: 1;
+}
+.scene__toy.is-preview .scene__tag {
+  background: var(--cream);
+  color: var(--ink);
+  outline: 2px dashed var(--ink);
+  outline-offset: -2px;
+}
+.scene__toy--ghost .scene__tag {
+  top: 0;
+}
+.scene__boxback {
+  position: absolute;
+  pointer-events: none;
+}
+.scene__boxback svg {
+  width: 100%;
+  height: auto;
+}
+
+/* The feather wand hangs from the top of the room and swings */
+.wand {
+  position: absolute;
+  top: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.wand__swing {
+  position: relative;
+  width: 2px;
+  transform-origin: 50% 0;
+}
+.wand__string {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  border-radius: 2px;
+}
+.wand__feather {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: clamp(48px, 7vw, 84px);
+  translate: -50% -18%;
+}
+.wand__feather svg {
+  width: 100%;
+  height: auto;
+}
+
+/* A ripple where you tapped */
+.scene__ping {
+  position: absolute;
+  z-index: 8;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  border: 3px solid var(--orange);
+  animation: ping 600ms var(--ease-out) forwards;
+  pointer-events: none;
+}
+@keyframes ping {
+  from {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* The yarn cursor */
+.scene__cursor {
+  position: absolute;
+  z-index: 9;
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms linear;
+}
+.scene.has-yarn .scene__cursor {
+  opacity: 1;
+}
+.scene__cursor svg {
+  width: 100%;
+  height: auto;
+}
+
+/* ───────── The gift panel ───────── */
+.toybox__panel {
+  padding: clamp(20px, 2.2vw, 28px);
+  border-radius: 28px;
+  background: var(--cream);
+}
+.gifts {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 10px;
+}
+.gifts__legend {
+  margin-bottom: 12px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.gift {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  background: var(--pale);
+  cursor: pointer;
+  transition: border-color 140ms linear, background-color 140ms linear;
+}
+.gift:hover {
+  border-color: rgba(34, 36, 58, 0.25);
+}
+.gift.is-on {
+  border-color: var(--ink);
+  background: var(--white);
+  box-shadow: inset 6px 0 0 var(--orange);
+}
+.gift input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.gift:has(input:focus-visible) {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+.gift__art svg {
+  width: 56px;
+  height: auto;
+}
+.gift__name {
+  display: block;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 92%;
+  font-size: 19px;
+  line-height: 1.15;
+}
+.gift__meta {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.toybox__give {
+  width: 100%;
+  justify-content: center;
+  margin-top: 16px;
+  background: var(--orange);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.toybox__status {
+  min-height: 1.5em;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.toybox__counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1.5px solid rgba(34, 36, 58, 0.15);
+}
+.toybox__counts dt {
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.toybox__counts dd {
+  margin: 2px 0 0;
+  font-family: var(--display);
+  font-weight: 850;
+  font-size: 40px;
+  line-height: 1;
+}
+.toybox__empty {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.toybox__how {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.toybox__how summary {
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+.toybox__how ol {
+  margin: 10px 0 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 6px;
+}
+.toybox__how p {
+  margin-top: 10px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 999px) {
+  .toybox__head,
+  .toybox__grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 759px) {
+  .scene {
+    aspect-ratio: 1 / 1.02;
+  }
+  .scene__rug {
+    left: 2%;
+    right: 2%;
+  }
+  .shelf {
+    width: 58%;
+    top: 12%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene__cat,
+  .scene__toy,
+  .scene__spin {
+    transition: none;
+  }
+  .scene__cat-body,
+  .scene__zz,
+  .scene__ping {
+    animation: none !important;
+  }
+}

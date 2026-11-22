@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-11-22T18:50:58Z",
+  "active": [
+    {
+      "id": "gift-1",
+      "toy": "yarn",
+      "variant": "blue",
+      "issue": 1,
+      "giver": {
+        "login": "example-visitor-1",
+        "id": 9000001
+      },
+      "createdAt": "2026-11-16T15:49:58Z",
+      "expiresAt": "2026-11-23T15:49:58Z",
+      "source": "github-issue"
+    },
+    {
+      "id": "gift-4",
+      "toy": "box",
+      "variant": "kraft",
+      "issue": 4,
+      "giver": {
+        "login": "example-visitor-3",
+        "id": 9000003
+      },
+      "createdAt": "2026-11-21T05:49:58Z",
+      "expiresAt": "2026-12-05T05:49:58Z",
+      "source": "github-issue"
+    },
+    {
+      "id": "gift-8",
+      "toy": "yarn",
+      "variant": "pink",
+      "issue": 8,
+      "giver": {
+        "login": "example-visitor-4",
+        "id": 9000004
+      },
+      "createdAt": "2026-11-22T18:49:58Z",
+      "expiresAt": "2026-11-29T18:49:58Z",
+      "source": "github-issue"
+    }
+  ],
+  "totals": {
+    "box": 1,
+    "feather": 1,
+    "yarn": 2
+  },
+  "giftsTotal": 4,
+  "demo": true
+}

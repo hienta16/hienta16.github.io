@@ -1,0 +1,125 @@
+/* ───────── Ruler cat ───────── */
+.rcat {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.rcat__leg {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+.rcat--walk .rcat__leg--a {
+  animation: rleg 380ms linear infinite;
+}
+.rcat--walk .rcat__leg--b {
+  animation: rleg 380ms linear infinite reverse;
+}
+.rcat--run .rcat__leg--a {
+  animation: rleg-run 190ms linear infinite;
+}
+.rcat--run .rcat__leg--b {
+  animation: rleg-run 190ms linear infinite reverse;
+}
+.rcat--run .rcat__tail {
+  transform: rotate(48deg);
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+}
+.rcat--walk .rcat__head {
+  animation: rhead 380ms var(--ease-in-out) infinite;
+}
+@keyframes rleg {
+  0%,
+  100% {
+    transform: rotate(-24deg);
+  }
+  50% {
+    transform: rotate(24deg);
+  }
+}
+@keyframes rleg-run {
+  0%,
+  100% {
+    transform: rotate(-40deg);
+  }
+  50% {
+    transform: rotate(40deg);
+  }
+}
+@keyframes rhead {
+  50% {
+    transform: translateY(1px);
+  }
+}
+.rcat__tail {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+}
+.rcat--sit .rcat__tail {
+  animation: rtail 2.8s var(--ease-in-out) infinite;
+}
+@keyframes rtail {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-18deg);
+  }
+}
+.rcat__z {
+  fill: var(--ink);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 9px;
+  animation: zfloat 2.4s var(--ease-out) infinite;
+}
+.rcat__z--2 {
+  font-size: 7px;
+  animation-delay: 1.2s;
+}
+@keyframes zfloat {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.rcat__yarn {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: yarn-bat 900ms var(--ease-in-out) infinite;
+}
+@keyframes yarn-bat {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  40% {
+    transform: translateX(4px) rotate(80deg);
+  }
+}
+
+/* Toys */
+.toy {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rcat__leg,
+  .rcat__head,
+  .rcat__tail,
+  .rcat__z,
+  .rcat__yarn {
+    animation: none !important;
+  }
+}
