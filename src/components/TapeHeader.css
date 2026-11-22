@@ -1,0 +1,325 @@
+.tape-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--header-h);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: 24px 1fr;
+  pointer-events: none;
+}
+.tape-header > * {
+  pointer-events: auto;
+}
+
+/* The cat's lane: a cream strip above the tape. */
+.tape-header__lane {
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--cream);
+}
+
+.tape {
+  --p: 0;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+.tape::before {
+  /* the tape itself */
+  content: '';
+  position: absolute;
+  inset: 24px 0 0 0;
+  background: var(--pink);
+}
+
+.tape__brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: calc(var(--header-h) - 24px);
+  padding-right: 4px;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tape__brand .label {
+  font-size: 14px;
+  font-stretch: 70%;
+  letter-spacing: 0.04em;
+}
+.tape__tip {
+  width: 10px;
+  height: 100%;
+  background: var(--ink);
+}
+
+.tape__ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 12px;
+  pointer-events: none;
+}
+
+.tape__nav {
+  position: absolute;
+  inset: 24px 0 0 0;
+}
+.tape__nav li {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tape__mark {
+  position: absolute;
+  left: var(--mark);
+  top: 0;
+  width: 2px;
+  height: 9px;
+  background: var(--ink);
+}
+.tape__link {
+  position: absolute;
+  left: var(--x);
+  top: 5px;
+  padding: 3px 2px 6px;
+  font-size: 12px;
+  font-stretch: 66%;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.tape__link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+}
+.tape__link[aria-current] {
+  font-weight: 900;
+}
+
+/* The live reading: orange, by law. */
+.tape__reading {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--tape-start) + var(--p) * (var(--tape-end) - var(--tape-start)));
+  top: 20px;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--orange);
+  pointer-events: none;
+}
+.tape__cat {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  left: calc(var(--tape-start) + var(--p) * (var(--tape-end) - var(--tape-start)));
+  width: 38px;
+  height: 22px;
+  margin-left: -30px;
+  pointer-events: none;
+}
+.tape__cat[data-dir='back'] {
+  transform: scaleX(-1);
+  margin-left: -8px;
+}
+.tape__cat svg {
+  width: 38px;
+  height: 22px;
+}
+
+/* The metal tab at the end of the tape: controls. */
+.tape-tab {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 12px;
+  background: var(--ink);
+  color: var(--cream);
+  --focus: var(--cream);
+}
+.tape-tab__lang {
+  display: flex;
+}
+.tape-tab__btn {
+  min-width: 40px;
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--cream);
+  opacity: 0.62;
+}
+.tape-tab__btn[aria-pressed='true'] {
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.tape-tab__btn:hover {
+  opacity: 1;
+}
+
+.pass {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 12px 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--cream);
+  color: var(--ink);
+  text-align: left;
+  transition: background-color 200ms var(--ease-out);
+  --focus: var(--cream);
+}
+.pass__hole {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink);
+  flex: none;
+}
+.pass__text {
+  display: grid;
+  line-height: 1.05;
+}
+.pass__name {
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 70%;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.pass__state {
+  font-size: 11px;
+  font-weight: 500;
+}
+.pass[aria-pressed='true'] {
+  background: var(--pink);
+}
+
+.tape-tab__menu {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--cream);
+}
+
+/* Running-order sheet (phones) */
+.sheet {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: var(--cream);
+  --focus: var(--cream);
+}
+.sheet::backdrop {
+  background: rgba(34, 36, 58, 0.6);
+}
+.sheet[open] {
+  animation: sheet-in 360ms var(--ease-out);
+}
+@keyframes sheet-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.sheet__inner {
+  min-height: 100%;
+  padding: 18px var(--gutter) 40px calc(var(--gutter) + 26px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='8'%3E%3Cpath d='M0 .5h12M0 4.5h6' stroke='%23F49CB6' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-position: 0 0;
+}
+.sheet__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.sheet__close {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--cream);
+  background: transparent;
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 80%;
+  text-transform: uppercase;
+}
+.sheet__list {
+  display: grid;
+  gap: 6px;
+}
+.sheet__list a {
+  display: block;
+  padding: 6px 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: clamp(34px, 10vw, 52px);
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.sheet__list a[aria-current] {
+  color: var(--orange);
+}
+
+@media (max-width: 759px) {
+  .pass__state {
+    display: none;
+  }
+  .pass {
+    padding: 4px 10px 4px 8px;
+  }
+  .tape-tab {
+    gap: 2px;
+    padding: 0 4px 0 8px;
+  }
+  .tape-tab__btn {
+    min-width: 34px;
+  }
+  .tape__brand .label {
+    font-size: 13px;
+  }
+}
+@media (max-width: 380px) {
+  .pass__name {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] {
+    animation: none;
+  }
+}

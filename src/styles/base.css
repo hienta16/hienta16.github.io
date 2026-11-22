@@ -1,0 +1,354 @@
+/* ───────── Electric Baby Pop ─────────
+   Flat cuts only: no gradients, no shadows. Each section is one field of colour.
+   Text pairings (WCAG 2): ink on cream 15.4 · ink on pale 12.8 · ink on pink 7.4 · ink on orange 5.5
+   white on blue 5.0 · cream on blue 4.8. Orange is reserved for the live reading. */
+:root {
+  --cream: #fff9f4;
+  --pink: #f49cb6;
+  --blue: #2463f6;
+  --orange: #ff7029;
+  --pale: #ffe5ee;
+  --ink: #22243a;
+  --white: #ffffff;
+  --ink-2: #4e4f63; /* secondary text on light fields, 7.7:1 on cream */
+  --blue-deep: #1a4fd0; /* one step down the blue ramp, for marks on the blue field */
+
+  --display: 'Anybody Variable', 'Arial Narrow', sans-serif;
+  --text: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+
+  --u: 8px; /* the module */
+  --gutter: clamp(16px, 4.4vw, 64px);
+  --measure: 1360px;
+  --section-y: clamp(96px, 11vw, 168px);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --header-h: 56px;
+
+  color-scheme: light;
+  scrollbar-color: var(--ink) var(--pale);
+  scrollbar-width: thin;
+}
+
+@media (max-width: 759px) {
+  :root {
+    --header-h: 52px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 8px);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 17px;
+  line-height: 1.6;
+  font-feature-settings: 'kern';
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+@media (min-width: 1100px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus, var(--ink));
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: fixed;
+  left: 12px;
+  top: -80px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--cream);
+  padding: 12px 18px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip:focus {
+  top: 12px;
+}
+
+/* ───────── Fields: one flat colour per section ───────── */
+.field {
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+  --focus: var(--fg);
+}
+.field--cream {
+  --bg: var(--cream);
+  --fg: var(--ink);
+  --fg-2: var(--ink-2);
+  --rule: rgba(34, 36, 58, 0.18);
+}
+.field--pale {
+  --bg: var(--pale);
+  --fg: var(--ink);
+  --fg-2: #46384a;
+  --rule: rgba(34, 36, 58, 0.2);
+}
+.field--blue {
+  --bg: var(--blue);
+  --fg: var(--white);
+  --fg-2: var(--white);
+  --rule: rgba(255, 255, 255, 0.34);
+}
+.field--blue ::selection {
+  background: var(--cream);
+  color: var(--blue);
+}
+.field--pink {
+  --bg: var(--pink);
+  --fg: var(--ink);
+  --fg-2: #33283c;
+  --rule: rgba(34, 36, 58, 0.28);
+}
+.field--orange {
+  --bg: var(--orange);
+  --fg: var(--ink);
+  --fg-2: var(--ink);
+  --rule: rgba(34, 36, 58, 0.32);
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--measure) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+}
+
+/* ───────── Type ───────── */
+.display {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+.title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 78%;
+  font-size: clamp(52px, 8.4vw, 128px);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.sub {
+  margin-top: calc(var(--u) * 3);
+  max-width: 46ch;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-wrap: pretty;
+}
+.prose p {
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+.prose p + p {
+  margin-top: 1em;
+}
+.label {
+  font-family: var(--display);
+  font-weight: 700;
+  font-stretch: 62%;
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────── Controls ───────── */
+
+/* The tape tab: an ink tab with a strip of pink tape on its leading edge. */
+.tab {
+  display: inline-flex;
+  align-items: stretch;
+  min-height: 52px;
+  border: 0;
+  padding: 0;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 88%;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  transition: transform 220ms var(--ease-out);
+}
+.tab__tape {
+  width: 22px;
+  background-color: var(--pink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='8'%3E%3Cpath d='M0 .5h9M0 4.5h5' stroke='%2322243A' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+}
+.tab__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 0 16px;
+}
+.tab:hover {
+  transform: translateX(4px);
+}
+.tab:active {
+  transform: translateX(2px);
+}
+.tab--ghost {
+  background: transparent;
+  color: var(--fg);
+  border: 2px solid var(--fg);
+}
+.tab--ghost .tab__tape {
+  display: none;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* Text link with an arrow */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+/* The backstage layer: hidden at front of house. */
+.bs {
+  display: none;
+}
+[data-backstage='on'] .bs {
+  display: block;
+}
+
+/* Backstage note: a pattern-maker's annotation. */
+.bs-note {
+  position: relative;
+  max-width: 44ch;
+  margin-top: calc(var(--u) * 3);
+  padding: 12px 14px 12px 40px;
+  border: 1.5px dashed currentColor;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+.bs-note svg {
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Pattern paper shows through every field when backstage. */
+[data-backstage='on'] .field::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M40 0H0v40' fill='none' stroke='%2322243A' stroke-opacity='.10' stroke-width='1'/%3E%3Cpath d='M20 0v40M0 20h40' fill='none' stroke='%2322243A' stroke-opacity='.05' stroke-width='1'/%3E%3C/svg%3E");
+}
+[data-backstage='on'] .field--blue::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M40 0H0v40' fill='none' stroke='%23FFFFFF' stroke-opacity='.16' stroke-width='1'/%3E%3Cpath d='M20 0v40M0 20h40' fill='none' stroke='%23FFFFFF' stroke-opacity='.07' stroke-width='1'/%3E%3C/svg%3E");
+}
+[data-backstage='on'] .field > .wrap {
+  outline: 1.5px dashed var(--rule);
+  outline-offset: -1px;
+}
+
+@media (forced-colors: active) {
+  .tab {
+    border: 2px solid ButtonText;
+  }
+}

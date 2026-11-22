@@ -1,0 +1,126 @@
+.after__wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(180px, 3fr);
+  grid-template-areas:
+    'main cat'
+    'credits credits';
+  gap: clamp(40px, 5vw, 80px) clamp(32px, 5vw, 80px);
+  align-items: end;
+}
+.after__main {
+  grid-area: main;
+}
+.after__title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 74%;
+  font-size: clamp(56px, 9vw, 140px);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  max-width: 12ch;
+}
+.after__text {
+  margin-top: 28px;
+  max-width: 40ch;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.after__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: center;
+  margin-top: 36px;
+}
+.after__github {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 0 24px;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-family: var(--display);
+  font-weight: 750;
+  font-stretch: 92%;
+  font-size: clamp(20px, 2vw, 28px);
+  transition: transform 220ms var(--ease-out);
+  --focus: var(--ink);
+}
+.after__github:hover {
+  transform: translateY(-2px);
+}
+.after__gh {
+  width: 28px;
+  height: 28px;
+}
+.after__email {
+  font-weight: 700;
+  font-size: 18px;
+}
+.after__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  font-weight: 600;
+}
+
+.after__cat {
+  grid-area: cat;
+  justify-self: center;
+  width: min(100%, 240px);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.after__cat svg {
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 100%;
+}
+.after__cat .cat-head {
+  transform-origin: 50% 100%;
+}
+
+.after__credits {
+  grid-area: credits;
+  padding-top: 28px;
+  border-top: 2px solid var(--ink);
+}
+.after__credits dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px 32px;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.after__credits dt {
+  font-weight: 700;
+}
+.after__footer {
+  margin-top: 40px;
+  font-size: 14px;
+}
+.after .section {
+  padding-bottom: clamp(48px, 5vw, 72px);
+}
+
+@media (max-width: 759px) {
+  .after__wrap {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'main'
+      'cat'
+      'credits';
+  }
+  .after__cat {
+    justify-self: start;
+    width: 160px;
+  }
+}
