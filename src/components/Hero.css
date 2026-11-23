@@ -5,9 +5,9 @@
 }
 .hero__wrap {
   display: grid;
-  grid-template-columns: minmax(0, 11fr) minmax(0, 10fr);
+  grid-template-columns: minmax(0, 10fr) minmax(0, 11fr);
   align-items: center;
-  gap: clamp(32px, 4vw, 72px);
+  gap: clamp(32px, 5vw, 88px);
 }
 @media (min-width: 1024px) and (min-height: 680px) {
   .hero__wrap {
@@ -72,13 +72,13 @@
   margin-top: 34px;
 }
 
-/* ── The avatar stage ── */
+/* ── The stage: Hien in the blue circle, her cat in front ── */
 .hero__stage {
   position: relative;
-  justify-self: end;
-  width: min(100%, 620px, 66svh);
+  justify-self: start;
+  width: min(100%, 480px, 56svh);
   aspect-ratio: 1;
-  margin-top: 13%;
+  margin-top: 6%;
 }
 .hero__disc {
   position: absolute;
@@ -87,28 +87,71 @@
   height: 100%;
   overflow: visible;
 }
+.hero__disc-fill {
+  fill: var(--blue);
+}
+.hero__disc-ticks {
+  stroke: var(--cream);
+  stroke-opacity: 0.35;
+}
+/* The bust: the portrait box is the disc; the clip keeps shoulders inside the circle, hair free above it. */
+.hero__me {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero__me .portrait {
+  position: absolute;
+  left: 4%;
+  bottom: 0;
+  width: 92%;
+}
+.portrait svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.portrait__lid {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  transition: transform 70ms linear;
+}
+.portrait__iris {
+  transition: transform 260ms var(--ease-out);
+}
+.portrait.is-alive .portrait__head,
+.portrait.is-alive .portrait__hair {
+  transform-box: view-box;
+  transform-origin: 50% 90%;
+  animation: me-breathe 5.6s var(--ease-in-out) infinite;
+}
+@keyframes me-breathe {
+  50% {
+    transform: translateY(-3px);
+  }
+}
 .hero__cat {
   position: absolute;
-  z-index: 1;
-  left: 50%;
-  top: -12%;
-  width: 78%;
+  z-index: 2;
+  right: -9%;
+  bottom: -3%;
+  width: 44%;
   padding: 0;
   border: 0;
   background: none;
-  transform: translateX(-50%);
   cursor: pointer;
   --focus: var(--ink);
 }
 .hero__cat .tortie {
   width: 100%;
 }
-/* GitHub puts your status on the avatar's edge; so does the cat. */
+/* GitHub puts your status on the avatar's edge; so does Hien. */
 .hero__status {
   position: absolute;
   z-index: 3;
-  right: -2%;
-  bottom: 9%;
+  left: -4%;
+  bottom: 7%;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -132,11 +175,28 @@
   }
   .hero__stage {
     justify-self: center;
-    width: min(86vw, 440px);
-    margin-top: 72px;
+    width: min(74vw, 340px);
+    margin-top: 6%;
   }
   .hero__status {
-    right: 0;
-    bottom: 4%;
+    left: -6%;
+    bottom: 2%;
+    font-size: 13px;
+    padding: 7px 14px 7px 10px;
+    border-width: 3px;
+  }
+  .hero__status .icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait.is-alive .portrait__head,
+  .portrait.is-alive .portrait__hair {
+    animation: none;
+  }
+  .portrait__iris,
+  .portrait__lid {
+    transition: none;
   }
 }

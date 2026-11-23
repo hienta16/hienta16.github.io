@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { createElement, type ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { CardboardBox, Feather, RulerCat, YarnBall } from '../src/components/Cat'
+import { Portrait } from '../src/components/Portrait'
 import { TortieCat } from '../src/components/TortieCat'
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -23,6 +24,13 @@ const art: Record<string, ReactElement> = {
   'tortie-happy': createElement(TortieCat, { alive: false, gaze: { x: -0.2, y: 0.1 }, mood: 'happy', curious: 0.3 }),
   'tortie-sleep': createElement(TortieCat, { alive: false, mood: 'sleep' }),
   'ruler-walk': createElement(RulerCat, { pose: 'walk' }),
+  // the black-and-white cat, for the dark-mode README images
+  'tuxie-front': createElement(TortieCat, { alive: false, coat: 'tuxie', gaze: { x: 0.22, y: 0.06 }, curious: 0.5 }),
+  'tuxie-happy': createElement(TortieCat, { alive: false, coat: 'tuxie', gaze: { x: -0.2, y: 0.1 }, mood: 'happy', curious: 0.3 }),
+  'tuxie-sleep': createElement(TortieCat, { alive: false, coat: 'tuxie', mood: 'sleep' }),
+  'ruler-walk-tuxie': createElement(RulerCat, { pose: 'walk', coat: 'tuxie' }),
+  // Hien, illustrated (no photograph is embedded)
+  portrait: createElement(Portrait, { alive: false }),
   'toy-yarn-pink': createElement(YarnBall, { color: 'pink' }),
   'toy-yarn-blue': createElement(YarnBall, { color: 'blue' }),
   'toy-feather': createElement(Feather),
@@ -34,7 +42,7 @@ function standalone(html: string) {
   const svg = html.slice(html.indexOf('<svg'), html.lastIndexOf('</svg>') + 6)
   return (
     svg
-      .replace(/<svg([^>]*)>/, '<svg xmlns="http://www.w3.org/2000/svg"$1><style>.tortie__lid{transform-box:fill-box;transform-origin:50% 0}</style>')
+      .replace(/<svg([^>]*)>/, '<svg xmlns="http://www.w3.org/2000/svg"$1><style>.tortie__lid,.portrait__lid{transform-box:fill-box;transform-origin:50% 0}</style>')
       .replace(/ aria-hidden="true"| focusable="false"/g, '')
       // two decimals are plenty at any size the README shows; keeps each cat file small
       .replace(/(\d+\.\d{2})\d+/g, '$1') + '\n'
