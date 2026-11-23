@@ -5,6 +5,7 @@ import { useGaze } from '../lib/gaze'
 import { hub, issueUrl, lifetimeWords, toyRules, TOY_KEYS, useToyState, visibleToys, type Gift, type ToyKey } from '../lib/hub'
 import { useMediaQuery, useOnScreen, useReducedMotion } from '../lib/stage'
 import { CardboardBox, Feather, Toy, YarnBall, type YarnColor } from './Cat'
+import { useTheme } from '../lib/theme'
 import { TortieCat, type CatMood } from './TortieCat'
 import './ToyBox.css'
 
@@ -47,6 +48,7 @@ const leftWords = (h: number) => (h >= 48 ? `${Math.round(h / 24)} days` : h >= 
 
 export function ToyBox() {
   const t = copy.toys
+  const { coat } = useTheme()
   const reduced = useReducedMotion()
   const [polling, setPolling] = useState(false)
   const { toys: state, source } = useToyState(polling)
@@ -109,7 +111,7 @@ export function ToyBox() {
           <h2 id="toybox-title" className="title">
             {t.title}
           </h2>
-          <p className="toybox__line">{t.line}</p>
+          <p className="toybox__line">{coat === 'tuxie' ? t.lineNight : t.line}</p>
         </div>
         {source === 'demo' && <p className="toybox__demo">{t.demo}</p>}
 
@@ -186,6 +188,7 @@ interface CatState {
 }
 
 function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; totals: Record<string, number>; reduced: boolean; now: number; newest: string | null }) {
+  const { coat } = useTheme()
   const t = copy.toys
   const ref = useRef<HTMLDivElement>(null)
   const catRef = useRef<HTMLDivElement>(null)
@@ -407,7 +410,7 @@ function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; total
     clip = Math.max(0, catTop + h - (inBoxToy.pos.y * size.h - bh * 0.06))
   }
 
-  const label = fill(t.sceneLabel, { n: toys.filter((x) => !x.preview).length })
+  const label = fill(coat === 'tuxie' ? t.sceneLabelNight : t.sceneLabel, { n: toys.filter((x) => !x.preview).length })
 
   return (
     <div
@@ -463,7 +466,7 @@ function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; total
         }}
       >
         <div className="scene__cat-body">
-          <TortieCat ref={catRef} gaze={gaze} curious={cat.curious} mood={cat.mood} alive={!reduced} label={undefined} />
+          <TortieCat ref={catRef} gaze={gaze} curious={cat.curious} mood={cat.mood} coat={coat} alive={!reduced} label={undefined} />
         </div>
         {cat.zz && (
           <span className="scene__zz" aria-hidden="true">

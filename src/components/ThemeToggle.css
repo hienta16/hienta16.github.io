@@ -1,0 +1,49 @@
+/* The theme pill sits on the pink tape, so it looks the same by day and by night: ink outline, cream inside. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 1px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+}
+.theme-toggle__btn,
+.theme-cycle {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  transition: background-color 160ms linear, color 160ms linear;
+  --focus: var(--ink);
+}
+.theme-toggle__btn .icon,
+.theme-cycle .icon {
+  width: 14px;
+  height: 14px;
+}
+.theme-toggle__btn:hover {
+  background: var(--pale);
+}
+.theme-toggle__btn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--cream);
+}
+.theme-cycle {
+  width: 30px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  background: var(--cream);
+}
+
+/* The circular reveal between themes (View Transitions); without it the swap is instant. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

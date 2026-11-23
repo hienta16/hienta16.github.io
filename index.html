@@ -6,18 +6,31 @@
     <title>Hien Ta · Data Analyst</title>
     <meta
       name="description"
-      content="Hien Ta, Data Analyst. Real GitHub stats, a 3D runway of the year, and a cat who chases your cursor."
+      content="Hien Ta, Data Analyst. Real GitHub stats, a 3D contribution year, a contribution beat you can play, and two cats: a tortoiseshell by day, a black-and-white cat by night."
     />
-    <meta name="theme-color" content="#FFF9F4" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#FFF9F4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12142A" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
     <meta property="og:title" content="Hien Ta · Data Analyst" />
-    <meta property="og:description" content="My GitHub, styled: real stats, a 3D runway of the year, and a tuxedo cat." />
+    <meta property="og:description" content="Hien Ta, Data Analyst: real GitHub stats, a 3D contribution year and two cats." />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
-      /* First paint matches the cream floor while the app loads. */
+      /* First paint matches the floor of the chosen theme while the app loads. */
       html { background: #fff9f4; }
+      html[data-theme='dark'] { background: #12142a; color-scheme: dark; }
     </style>
+    <script>
+      /* Pick the theme before anything paints: the visitor's saved choice, else their device setting. */
+      (function () {
+        var pref = null
+        try { pref = localStorage.getItem('hienta16:theme') } catch (e) {}
+        var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        var root = document.documentElement
+        root.setAttribute('data-theme', dark ? 'dark' : 'light')
+        root.setAttribute('data-theme-pref', pref === 'light' || pref === 'dark' ? pref : 'auto')
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,172 @@
+/* ───────── Electric Baby Pop, after dark ─────────
+   Not an inversion: the same pink, orange and Electric Blue, lit against midnight indigo instead of cream.
+   Floors are navy and indigo (never pure black); pink and orange keep their exact values; blue gets a deeper field
+   and a lighter text tint. Ink stays ink wherever it sits on pink, orange or cream (buttons, tags, the tape).
+   Text pairings (WCAG 2): cream on midnight 17.3 · cream on dusk 15.9 · cream on rose-night 15.7 · night-2 on
+   midnight 11.1 · pink on midnight 8.9 · orange on midnight 6.6 · blue-tint on midnight 8.4 · white on deep blue 8.0 ·
+   ink on pink 7.4 · ink on orange 5.5. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --midnight: #12142a; /* the floor */
+  --midnight-2: #1c1f3d; /* raised panels */
+  --midnight-3: #282c54; /* cards on panels */
+  --dusk: #1f1a38; /* About: a violet hour */
+  --rose-night: #2c1830; /* the toy box at night */
+  --deep: #0b0d1e; /* GitHub: the darkest field, so the 3D year glows */
+  --blue: #3366ff; /* brighter on navy */
+  --blue-tint: #8db0ff; /* blue as text on dark */
+  --ink-2: #c9cad8; /* secondary text now sits on dark floors */
+  scrollbar-color: var(--pink) var(--midnight);
+}
+:root[data-theme='dark'] body {
+  background: var(--midnight);
+  color: var(--cream);
+}
+
+/* Fields */
+:root[data-theme='dark'] .field--cream {
+  --bg: var(--midnight);
+  --fg: var(--cream);
+  --fg-2: #c9cad8;
+  --rule: rgba(255, 249, 244, 0.16);
+  --focus: var(--orange);
+}
+:root[data-theme='dark'] .field--pale {
+  --bg: var(--dusk);
+  --fg: var(--cream);
+  --fg-2: #d6cbe3;
+  --rule: rgba(255, 249, 244, 0.16);
+  --focus: var(--orange);
+}
+:root[data-theme='dark'] .field--pink {
+  --bg: var(--rose-night);
+  --fg: var(--cream);
+  --fg-2: #ecc9d8;
+  --rule: rgba(244, 156, 182, 0.3);
+  --focus: var(--pink);
+}
+:root[data-theme='dark'] .field--ink {
+  --bg: var(--deep);
+}
+:root[data-theme='dark'] .field--blue {
+  --bg: #1d3fcb;
+}
+
+/* The header: the pink tape stays pink; the lane above it becomes night sky */
+:root[data-theme='dark'] .tape-header__lane {
+  background: var(--midnight);
+}
+
+/* Shared parts */
+:root[data-theme='dark'] .shield__key,
+:root[data-theme='dark'] .chip--ink {
+  background: #33376a;
+}
+:root[data-theme='dark'] .btn--ink {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--ink);
+  --icon-cut: var(--cream);
+}
+:root[data-theme='dark'] .field--cream .btn--orange,
+:root[data-theme='dark'] .field--pale .btn--orange,
+:root[data-theme='dark'] .field--pink .btn--orange {
+  border-color: var(--orange);
+}
+
+/* Hero */
+:root[data-theme='dark'] .hero__kicker {
+  color: var(--blue-tint);
+}
+:root[data-theme='dark'] .hero__status {
+  border-color: var(--midnight);
+}
+
+/* Backstage slots */
+:root[data-theme='dark'] .pin {
+  border-color: rgba(255, 249, 244, 0.28);
+}
+:root[data-theme='dark'] .pin__line {
+  background: rgba(255, 249, 244, 0.1);
+}
+:root[data-theme='dark'] .pin .icon {
+  color: var(--ink-2);
+}
+/* ink stays ink on orange (5.5:1); cream on orange would be 2.6 */
+:root[data-theme='dark'] .pin__note {
+  color: var(--ink);
+}
+
+/* The toy box at night: an indigo room, a lamp-warm rug, the shelf lit from below */
+:root[data-theme='dark'] .scene {
+  background: linear-gradient(#262250 0 58%, #1b1838 58% 100%);
+}
+:root[data-theme='dark'] .scene__rug {
+  background: #c45e83;
+  box-shadow: inset 0 0 0 10px #c45e83, inset 0 0 0 13px rgba(255, 249, 244, 0.45);
+}
+:root[data-theme='dark'] .scene__rug::after {
+  border-color: rgba(255, 249, 244, 0.45);
+}
+:root[data-theme='dark'] .scene__hint,
+:root[data-theme='dark'] .shelf__label {
+  color: var(--ink-2);
+}
+:root[data-theme='dark'] .shelf__plank {
+  background: #e8ddf2;
+  box-shadow: 0 10px 0 -4px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme='dark'] .shelf__item b {
+  background: var(--pink);
+  color: var(--ink);
+}
+:root[data-theme='dark'] .scene__tag {
+  background: var(--cream);
+  color: var(--ink);
+}
+:root[data-theme='dark'] .wand__string {
+  background: rgba(255, 249, 244, 0.8);
+}
+:root[data-theme='dark'] .toybox__demo {
+  border-color: var(--cream);
+}
+:root[data-theme='dark'] .toybox__panel {
+  background: var(--midnight-2);
+  color: var(--cream);
+}
+:root[data-theme='dark'] .gift {
+  background: var(--midnight-3);
+}
+:root[data-theme='dark'] .gift:hover {
+  border-color: rgba(255, 249, 244, 0.25);
+}
+:root[data-theme='dark'] .gift.is-on {
+  border-color: var(--pink);
+  background: #363b70;
+}
+:root[data-theme='dark'] .gift:has(input:focus-visible) {
+  outline-color: var(--pink);
+}
+:root[data-theme='dark'] .toybox__counts {
+  border-top-color: rgba(255, 249, 244, 0.15);
+}
+
+/* Without View Transitions, the floors still fade rather than snap */
+@supports not (view-transition-name: none) {
+  body,
+  .field,
+  .tape-header__lane,
+  .toybox__panel,
+  .scene {
+    transition: background-color 360ms ease, color 360ms ease;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .field,
+  .tape-header__lane,
+  .toybox__panel,
+  .scene {
+    transition: none;
+  }
+}

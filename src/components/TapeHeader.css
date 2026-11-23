@@ -217,6 +217,17 @@
   color: var(--cream);
 }
 
+.tape-tab {
+  gap: 6px;
+}
+.sheet__theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
 /* Sections sheet (phones) */
 .sheet {
   width: 100%;
