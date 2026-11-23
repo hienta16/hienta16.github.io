@@ -108,7 +108,33 @@
   transition: translate 900ms var(--ease-out);
 }
 
+/* Costume change: when the theme swaps the coat, a quick squash-and-stretch with a blink (the lids close in JS). */
+.tortie__swap {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.tortie.is-swapping .tortie__swap {
+  animation: tortie-swap 600ms var(--ease-out);
+}
+@keyframes tortie-swap {
+  0% {
+    transform: scale(0.92, 1.07);
+  }
+  38% {
+    transform: scale(1.05, 0.95);
+  }
+  68% {
+    transform: scale(0.99, 1.02);
+  }
+  100% {
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .tortie.is-swapping .tortie__swap {
+    animation: none;
+  }
   .tortie.is-alive .tortie__body,
   .tortie.is-alive .tortie__tail,
   .tortie__ear.is-twitch,
