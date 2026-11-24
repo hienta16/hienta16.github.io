@@ -8,27 +8,38 @@
       name="description"
       content="Hien Ta, Data Analyst. Real GitHub stats, a 3D contribution year, a contribution beat you can play, and two cats: a tortoiseshell by day, a black-and-white cat by night."
     />
-    <meta name="theme-color" content="#FFF9F4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#12142A" media="(prefers-color-scheme: dark)" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#FFF9F4" />
     <meta property="og:title" content="Hien Ta · Data Analyst" />
     <meta property="og:description" content="Hien Ta, Data Analyst: real GitHub stats, a 3D contribution year and two cats." />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style>
       /* First paint matches the floor of the chosen theme while the app loads. */
-      html { background: #fff9f4; }
+      html { background: #fff9f4; color-scheme: light; }
       html[data-theme='dark'] { background: #12142a; color-scheme: dark; }
     </style>
     <script>
-      /* Pick the theme before anything paints: the visitor's saved choice, else their device setting. */
+      /* Pick the theme before anything paints: the visitor's saved choice, else Hanoi time (Asia/Ho_Chi_Minh):
+         light from 06:00 to 17:59, dark from 18:00 to 05:59, the same for every visitor. Mirrors src/lib/theme.ts. */
       (function () {
         var pref = null
         try { pref = localStorage.getItem('hienta16:theme') } catch (e) {}
-        var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        var dark
+        if (pref === 'light' || pref === 'dark') dark = pref === 'dark'
+        else {
+          var h
+          try {
+            h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', hourCycle: 'h23' }).format(new Date()) % 24
+          } catch (e) {
+            h = new Date(Date.now() + 7 * 3600e3).getUTCHours() /* only if the browser has no time-zone data */
+          }
+          dark = h < 6 || h >= 18
+        }
         var root = document.documentElement
         root.setAttribute('data-theme', dark ? 'dark' : 'light')
         root.setAttribute('data-theme-pref', pref === 'light' || pref === 'dark' ? pref : 'auto')
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', dark ? '#12142A' : '#FFF9F4')
       })()
     </script>
   </head>

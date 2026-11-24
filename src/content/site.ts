@@ -50,7 +50,8 @@ export const copy = {
     label: 'Theme',
     light: 'Light',
     dark: 'Dark',
-    auto: 'Auto (follow device)',
+    auto: 'Auto · Hanoi time',
+    autoHint: 'Automatically switches at 6 AM and 6 PM Hanoi time.',
     next: 'press to change',
   },
   hero: {

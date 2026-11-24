@@ -15,12 +15,15 @@ const Moon = () => (
     <path d="M19.6 14.6A8 8 0 0 1 9.4 4.4a8 8 0 1 0 10.2 10.2Z" fill="currentColor" />
   </svg>
 )
+/** Auto follows Hanoi time, so its mark is a clock */
 const Auto = () => (
   <svg viewBox="0 0 24 24" className="icon" aria-hidden="true" focusable="false">
-    <circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" strokeWidth="2" />
-    <path d="M12 4.4a7.6 7.6 0 0 1 0 15.2Z" fill="currentColor" />
+    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" />
+    <path d="M12 7.4V12l3.2 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
+/** The words for each choice; Auto also says when it switches */
+const say = (p: ThemePref) => (p === 'auto' ? `${copy.theme.auto}. ${copy.theme.autoHint}` : copy.theme[p])
 const ICON: Record<ThemePref, () => React.ReactElement> = { light: Sun, auto: Auto, dark: Moon }
 
 const centre = (e: React.MouseEvent<HTMLElement>) => {
@@ -28,7 +31,7 @@ const centre = (e: React.MouseEvent<HTMLElement>) => {
   return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
 }
 
-/** Three choices in a pill: sun, follow the device, moon. */
+/** Three choices in a pill: sun, Auto (Hanoi time), moon. */
 export function ThemeToggle({ className = '' }: { className?: string }) {
   const t = copy.theme
   const { pref, setPref } = useTheme()
@@ -43,11 +46,11 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
             className="theme-toggle__btn"
             data-pref={p}
             aria-pressed={pref === p}
-            title={t[p]}
+            title={say(p)}
             onClick={(e) => setPref(p, centre(e))}
           >
             <Icon />
-            <span className="sr-only">{t[p]}</span>
+            <span className="sr-only">{say(p)}</span>
           </button>
         )
       })}
@@ -62,9 +65,9 @@ export function ThemeCycle() {
   const next: ThemePref = pref === 'light' ? 'dark' : pref === 'dark' ? 'auto' : 'light'
   const Icon = ICON[pref]
   return (
-    <button type="button" className="theme-cycle" onClick={(e) => setPref(next, centre(e))} title={`${t[pref]} · ${t.next}`}>
+    <button type="button" className="theme-cycle" onClick={(e) => setPref(next, centre(e))} title={`${say(pref)} (${t.next})`}>
       <Icon />
-      <span className="sr-only">{`${t.label}: ${t[pref]}. ${t.next}`}</span>
+      <span className="sr-only">{`${t.label}: ${say(pref)} (${t.next})`}</span>
     </button>
   )
 }
