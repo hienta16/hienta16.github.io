@@ -9,7 +9,7 @@ import { TortieCat, type CatMood } from './TortieCat'
 import './Hero.css'
 
 /**
- * Hello. On the left, Hien (a 3D portrait that looks toward your pointer) in the blue circle with her cat in front: the tortoiseshell by day, the
+ * Hello. On the left, Hien (a 3D portrait, always facing you) in the blue circle with her cat in front: the tortoiseshell by day, the
  * black-and-white cat by night. On the right, the words. Both of them watch your pointer.
  */
 export function Hero() {
@@ -18,10 +18,8 @@ export function Hero() {
   const { coat } = useTheme()
   const sectionRef = useRef<HTMLElement>(null)
   const catRef = useRef<HTMLDivElement>(null)
-  const meRef = useRef<HTMLDivElement>(null)
   const onScreen = useOnScreen(sectionRef)
   const gaze = useGaze(catRef, { active: onScreen, reduced })
-  const look = useGaze(meRef, { active: onScreen, reduced, reach: 700 })
   const curious = useExcitement(onScreen, reduced)
   const [mood, setMood] = useState<CatMood>('idle')
 
@@ -49,7 +47,7 @@ export function Hero() {
             <circle cx="50" cy="50" r="46.5" fill="none" className="hero__disc-ticks" strokeWidth=".6" strokeDasharray=".4 2.04" />
           </svg>
           <div className="hero__me" style={{ clipPath: 'url(#hero-bust)' }}>
-            <Portrait3D ref={meRef} gaze={look} alive={!reduced} label={t.portraitLabel} />
+            <Portrait3D label={t.portraitLabel} />
           </div>
           <button type="button" className="hero__cat" onClick={hello} aria-label={coat === 'tuxie' ? t.catLabelNight : t.catLabel}>
             <TortieCat ref={catRef} gaze={gaze} curious={curious} mood={mood} coat={coat} alive={!reduced} />

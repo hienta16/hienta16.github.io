@@ -4,20 +4,17 @@
     python scripts/portrait_cutout.py --src D:/hienta16-review/portrait-sources
     python scripts/portrait_cutout.py --src <folder> --check     # also save checker previews next to the sources
 
-The portrait is a 3D art-toy render made with an image model from the owner's own photos (front, looking left,
-looking right), each on a flat green backdrop. The source images and photos never enter this repository; only the
-cut-outs below do:
+The portrait is a 3D art-toy render made with an image model from the owner's own photos, on a flat green
+backdrop. The source images and photos never enter this repository; only the cut-out does:
 
-    public/art/hien-front.webp   default: facing the visitor, glancing toward the cat
-    public/art/hien-left.webp    when the pointer is on the left
-    public/art/hien-right.webp   when the pointer is on the right
+    public/art/hien-front.webp   facing the visitor (the owner wants her face to stay front-on; only the cat moves)
 
 What the script does, per image:
 1. measures the backdrop from the border (median colour), so a slightly different green per render is fine;
 2. keys by "green excess" (G above max(R, B)), which the brown hair, warm skin, black tweed and gold never have,
    with a soft ramp so hair tips get partial alpha;
 3. un-mixes the backdrop from edge pixels and removes green spill (G is capped at max(R, B));
-4. crops all views to one shared square, so they line up when the website switches between them.
+4. crops to a square around the figure (shared across views, if more are ever added).
 Requires numpy and Pillow (a dev tool; it never runs in CI or in the browser).
 """
 
@@ -31,7 +28,7 @@ from PIL import Image
 
 SITE = Path(__file__).resolve().parent.parent
 OUT = SITE / "public" / "art"
-VIEWS = {"front": "front.png", "left": "view-a.png", "right": "view-b.png"}
+VIEWS = {"front": "front.png"}
 SIZE = 720  # px, square; shown at up to ~460 css px, so this covers 1.5x screens
 EXCESS_BG, EXCESS_FG = 70.0, 22.0  # green excess: at or above BG is backdrop, at or below FG is subject
 
@@ -85,7 +82,7 @@ def checker(img: Image.Image) -> Image.Image:
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--src", type=Path, required=True, help="folder with front.png, view-a.png (left), view-b.png (right)")
+    ap.add_argument("--src", type=Path, required=True, help="folder with front.png")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--check", action="store_true", help="save checker previews into the source folder")
     args = ap.parse_args(argv)
