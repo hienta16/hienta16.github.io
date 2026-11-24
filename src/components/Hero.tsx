@@ -9,7 +9,7 @@ import { TortieCat, type CatMood } from './TortieCat'
 import './Hero.css'
 
 /**
- * Hello. On the left, Hien (a 3D portrait, always facing you) in the blue circle with her cat in front: the tortoiseshell by day, the
+ * Hello. On the left, Hien (a 3D portrait, always facing you, with a wink every 10 s) in the blue circle with her cat in front: the tortoiseshell by day, the
  * black-and-white cat by night. On the right, the words. Both of them watch your pointer.
  */
 export function Hero() {
@@ -47,7 +47,7 @@ export function Hero() {
             <circle cx="50" cy="50" r="46.5" fill="none" className="hero__disc-ticks" strokeWidth=".6" strokeDasharray=".4 2.04" />
           </svg>
           <div className="hero__me" style={{ clipPath: 'url(#hero-bust)' }}>
-            <Portrait3D label={t.portraitLabel} />
+            <Portrait3D alive={!reduced} label={t.portraitLabel} />
           </div>
           <button type="button" className="hero__cat" onClick={hello} aria-label={coat === 'tuxie' ? t.catLabelNight : t.catLabel}>
             <TortieCat ref={catRef} gaze={gaze} curious={curious} mood={mood} coat={coat} alive={!reduced} />
