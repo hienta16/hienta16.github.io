@@ -72,18 +72,13 @@
   margin-top: 34px;
 }
 
-/* ── The stage: Hien in her frame (an editorial arch, or the blue circle), her cat in front ── */
+/* ── The stage: Hien in the blue circle, her cat in front ── */
 .hero__stage {
   position: relative;
   justify-self: center;
   width: min(100%, 420px, 50svh);
   aspect-ratio: 1;
   margin-top: 6%;
-}
-.hero__stage--arch {
-  width: min(100%, 380px, 44svh);
-  aspect-ratio: 5 / 6;
-  margin-top: 0;
 }
 .hero__frame {
   position: absolute;
@@ -99,83 +94,32 @@
   stroke: var(--cream);
   stroke-opacity: 0.35;
 }
-.hero__arch-fill {
-  fill: var(--pink);
-}
-.hero__arch-line {
-  stroke: var(--ink);
-}
-.hero__arch-sun {
-  fill: var(--orange);
-}
-:root[data-theme='dark'] .hero__arch-line {
-  stroke: var(--cream);
-  stroke-opacity: 0.7;
-}
-/* The bust fills the frame; the clip keeps the shoulders inside it. */
+/* The bust: the render's collar rests on the circle's lower edge, the hair rises above its middle. */
 .hero__me {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-.hero__me .portrait {
+.portrait--3d {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-}
-.hero__stage--disc .hero__me .portrait {
-  left: 7%;
-  width: 86%;
-}
-/* The 3D render (5:6 frame): shoulders on the circle's lower edge, the crown just inside its top */
-.hero__stage--3d .hero__me .portrait {
-  left: 3%;
-  width: 94%;
-}
-.portrait3d__lean {
-  position: relative;
-  transition: transform 420ms var(--ease-out);
+  left: -2%;
+  bottom: -1%;
+  width: 104%;
+  aspect-ratio: 1;
 }
 .portrait3d__img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.portrait3d__blink {
   position: absolute;
   inset: 0;
-  transition: opacity 40ms linear;
-}
-@media (prefers-reduced-motion: reduce) {
-  .portrait3d__lean {
-    transition: none;
-  }
-}
-.portrait svg {
-  display: block;
   width: 100%;
-  height: auto;
-  overflow: visible;
+  height: 100%;
 }
-.portrait__lid {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  transition: transform 70ms linear;
+/* the side views sit on top of the front one and fade in when the pointer is on their side */
+.portrait3d__alt {
+  opacity: 0;
+  transition: opacity 260ms var(--ease-out);
 }
-.portrait__iris {
-  transition: transform 260ms var(--ease-out);
-}
-.portrait.is-alive .portrait__head,
-.portrait.is-alive .portrait__hair {
-  transform-box: view-box;
-  transform-origin: 50% 90%;
-  animation: me-breathe 5.6s var(--ease-in-out) infinite;
-}
-@keyframes me-breathe {
-  50% {
-    transform: translateY(-3px);
-  }
+.portrait3d__alt.is-on {
+  opacity: 1;
 }
 .hero__cat {
   position: absolute;
@@ -224,10 +168,6 @@
     width: min(72vw, 320px);
     margin-top: 6%;
   }
-  .hero__stage--arch {
-    width: min(64vw, 280px);
-    margin-top: 2%;
-  }
   .hero__status {
     left: -6%;
     bottom: 2%;
@@ -241,12 +181,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .portrait.is-alive .portrait__head,
-  .portrait.is-alive .portrait__hair {
-    animation: none;
-  }
-  .portrait__iris,
-  .portrait__lid {
+  .portrait3d__alt {
     transition: none;
   }
 }
