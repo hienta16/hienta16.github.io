@@ -4,7 +4,7 @@ import { useExcitement, useGaze } from '../lib/gaze'
 import { useOnScreen, useReducedMotion } from '../lib/stage'
 import { useTheme } from '../lib/theme'
 import { GitHubMark, IconLinkedIn, IconYarn } from './icons'
-import { Portrait } from './Portrait'
+import { Portrait, type PortraitLook } from './Portrait'
 import { TortieCat, type CatMood } from './TortieCat'
 import './Hero.css'
 
@@ -12,6 +12,9 @@ import './Hero.css'
  * Hello. On the left, Hien (illustrated) in the blue circle with her cat in front: the tortoiseshell by day, the
  * black-and-white cat by night. On the right, the words. Both of them watch your pointer.
  */
+/** Preview only, until one is chosen: ?portrait=a (editorial, in an arch) or ?portrait=b (soft 2.5D, in the circle). */
+const LOOK: PortraitLook = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('portrait') === 'b' ? 'soft' : 'editorial'
+
 export function Hero() {
   const t = copy.hero
   const reduced = useReducedMotion()
@@ -35,21 +38,35 @@ export function Hero() {
   return (
     <section id="hello" ref={sectionRef} className="hero field field--cream" aria-labelledby="hero-title">
       <div className="wrap hero__wrap">
-        <div className="hero__stage">
-          <svg className="hero__disc" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-            <defs>
-              {/* above the middle, anything goes (her hair breaks out of the circle); below it, only the circle */}
-              <clipPath id="hero-bust" clipPathUnits="objectBoundingBox">
-                <circle cx=".5" cy=".5" r=".502" />
-                <rect x="-1" y="-1" width="3" height="1.5" />
-              </clipPath>
-            </defs>
-            <circle cx="50" cy="50" r="50" className="hero__disc-fill" />
-            {/* a ring of tape ticks around the avatar */}
-            <circle cx="50" cy="50" r="46.5" fill="none" className="hero__disc-ticks" strokeWidth=".6" strokeDasharray=".4 2.04" />
-          </svg>
+        <div className={`hero__stage hero__stage--${LOOK === 'soft' ? 'disc' : 'arch'}`}>
+          {LOOK === 'soft' ? (
+            <svg className="hero__frame" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+              <defs>
+                {/* above the middle, anything goes (her hair may rise out of the circle); below it, only the circle */}
+                <clipPath id="hero-bust" clipPathUnits="objectBoundingBox">
+                  <circle cx=".5" cy=".5" r=".502" />
+                  <rect x="-1" y="-1" width="3" height="1.5" />
+                </clipPath>
+              </defs>
+              <circle cx="50" cy="50" r="50" className="hero__disc-fill" />
+              {/* a ring of tape ticks around the avatar */}
+              <circle cx="50" cy="50" r="46.5" fill="none" className="hero__disc-ticks" strokeWidth=".6" strokeDasharray=".4 2.04" />
+            </svg>
+          ) : (
+            <svg className="hero__frame" viewBox="0 0 100 120" aria-hidden="true" focusable="false">
+              <defs>
+                <clipPath id="hero-bust" clipPathUnits="objectBoundingBox">
+                  <path d="M.08 1V.4167A.42 .35 0 0 1 .92 .4167V1Z" />
+                </clipPath>
+              </defs>
+              {/* an editorial arch: an ink outline set off behind a Baby Pink arch, a small orange sun */}
+              <path d="M13 116V48A37 37 0 0 1 87 48V116" fill="none" className="hero__arch-line" strokeWidth=".7" transform="translate(5 -4)" />
+              <path d="M8 120V50A42 42 0 0 1 92 50V120Z" className="hero__arch-fill" />
+              <circle cx="84" cy="16" r="5" className="hero__arch-sun" />
+            </svg>
+          )}
           <div className="hero__me" style={{ clipPath: 'url(#hero-bust)' }}>
-            <Portrait ref={meRef} gaze={look} alive={!reduced} label={t.portraitLabel} />
+            <Portrait ref={meRef} look={LOOK} gaze={look} alive={!reduced} label={t.portraitLabel} />
           </div>
           <button type="button" className="hero__cat" onClick={hello} aria-label={coat === 'tuxie' ? t.catLabelNight : t.catLabel}>
             <TortieCat ref={catRef} gaze={gaze} curious={curious} mood={mood} coat={coat} alive={!reduced} />

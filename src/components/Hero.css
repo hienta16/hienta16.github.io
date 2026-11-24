@@ -72,15 +72,20 @@
   margin-top: 34px;
 }
 
-/* ── The stage: Hien in the blue circle, her cat in front ── */
+/* ── The stage: Hien in her frame (an editorial arch, or the blue circle), her cat in front ── */
 .hero__stage {
   position: relative;
-  justify-self: start;
-  width: min(100%, 480px, 56svh);
+  justify-self: center;
+  width: min(100%, 420px, 50svh);
   aspect-ratio: 1;
   margin-top: 6%;
 }
-.hero__disc {
+.hero__stage--arch {
+  width: min(100%, 380px, 44svh);
+  aspect-ratio: 5 / 6;
+  margin-top: 0;
+}
+.hero__frame {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -94,7 +99,20 @@
   stroke: var(--cream);
   stroke-opacity: 0.35;
 }
-/* The bust: the portrait box is the disc; the clip keeps shoulders inside the circle, hair free above it. */
+.hero__arch-fill {
+  fill: var(--pink);
+}
+.hero__arch-line {
+  stroke: var(--ink);
+}
+.hero__arch-sun {
+  fill: var(--orange);
+}
+:root[data-theme='dark'] .hero__arch-line {
+  stroke: var(--cream);
+  stroke-opacity: 0.7;
+}
+/* The bust fills the frame; the clip keeps the shoulders inside it. */
 .hero__me {
   position: absolute;
   inset: 0;
@@ -102,9 +120,13 @@
 }
 .hero__me .portrait {
   position: absolute;
-  left: 4%;
+  left: 0;
   bottom: 0;
-  width: 92%;
+  width: 100%;
+}
+.hero__stage--disc .hero__me .portrait {
+  left: 7%;
+  width: 86%;
 }
 .portrait svg {
   display: block;
@@ -175,8 +197,12 @@
   }
   .hero__stage {
     justify-self: center;
-    width: min(74vw, 340px);
+    width: min(72vw, 320px);
     margin-top: 6%;
+  }
+  .hero__stage--arch {
+    width: min(64vw, 280px);
+    margin-top: 2%;
   }
   .hero__status {
     left: -6%;

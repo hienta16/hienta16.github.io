@@ -1,42 +1,49 @@
 import { forwardRef, useEffect, useId, useState, type CSSProperties } from 'react'
 
 /**
- * Hien, illustrated for this site in the same rounded 2.5D language as the cats: big soft volumes lit from the upper
- * left, gentle gradients, no outlines. Drawn by hand as vector shapes from her own features: a round face with full
- * cheeks, smiling eyes with a lifted outer lash line, a small rounded nose, a closed-lip coral smile and a light flush
- * of blush; dark layered hair with see-through curtain bangs, face-framing locks that flick outward at the jaw and
- * again at the chest; the black tweed jacket with gold buttons from her photos. No photograph is embedded.
+ * Hien, illustrated for this site from her own features: a soft oval face with full cheeks, almond eyes that smile,
+ * soft straight brows, a small nose, a small closed smile; dark layered hair with volume at the crown, see-through
+ * curtain bangs and face-framing locks that flick out at the jaw and again at the chest; the black tweed jacket with
+ * gold buttons from her photos. No photograph is embedded.
  *
- * The coordinate space is the portrait's own (0 0 400 460): head, hair and shoulders, the head tilted a little
- * toward the cat. The eyes blink now and then and follow the pointer, like the cats' eyes do.
+ * Two looks share one drawing, so the likeness is the same in both:
+ *   'editorial'  A: a soft 2D editorial illustration: flat colour, fine warm line work, graphic hair highlights.
+ *   'soft'       B: a gently dimensional 2.5D character: rounded gradients, a warm rim light, glossy highlights.
+ *
+ * Coordinates are the portrait's own (0 0 400 480): head, hair and shoulders, the head tilted a little toward the cat.
+ * The eyes blink now and then and follow the pointer, like the cats' eyes do.
  */
 
+export type PortraitLook = 'editorial' | 'soft'
+
 export const HIEN = {
-  skin: '#F8D9C9',
-  skinLit: '#FFEDE3',
-  skinShade: '#EDB59F',
-  skinDeep: '#D69480',
-  blush: '#F28F98',
-  lip: '#D84B5B',
-  lipLow: '#EA6670',
-  lipLit: '#FFD0CB',
-  iris: '#2E1D1A',
-  irisLit: '#7B5143',
-  lash: '#1B1315',
-  brow: '#3B2B27',
-  hair: '#1D1618',
-  hairMid: '#2E2426',
-  hairLit: '#5C4740',
-  hairRim: '#B9764F',
-  jacket: '#1C1A22',
-  jacketLit: '#3A3644',
+  skin: '#F8DFD1',
+  skinLit: '#FFF1E9',
+  skinShade: '#EDC0AD',
+  skinDeep: '#D9A08C',
+  line: '#B97E6C',
+  blush: '#F29A9C',
+  lipTop: '#D46E78',
+  lipLow: '#E68A8E',
+  lipLine: '#B5525E',
+  irisDark: '#2B1A17',
+  irisLit: '#7A4F3E',
+  lash: '#2A1B19',
+  brow: '#4A3530',
+  hair: '#221A1B',
+  hairDeep: '#150F11',
+  hairMid: '#35292A',
+  hairLit: '#6E5751',
+  hairRim: '#C08562',
+  jacket: '#1E1C24',
+  jacketLit: '#383541',
   gold: '#E3A64C',
   goldLit: '#FFE4A6',
   goldDeep: '#9C6A28',
 }
 
-/** A tapered ribbon along a cubic Bézier: how every strand of hair is drawn. Width eases from `w0` to `w1`. */
-export function ribbon(p0: number[], p1: number[], p2: number[], p3: number[], w0: number, w1 = 0, steps = 16) {
+/** A tapered ribbon along a cubic Bézier, wide at the start and tapering near the end. */
+export function ribbon(p0: number[], p1: number[], p2: number[], p3: number[], w0: number, w1 = 0, steps = 18, swell = false) {
   const pt = (t: number) => {
     const u = 1 - t
     return [0, 1].map((k) => u * u * u * p0[k] + 3 * u * u * t * p1[k] + 3 * u * t * t * p2[k] + t * t * t * p3[k])
@@ -49,7 +56,8 @@ export function ribbon(p0: number[], p1: number[], p2: number[], p3: number[], w
     const [x2, y2] = pt(Math.min(1, t + 0.01))
     const [x1, y1] = pt(Math.max(0, t - 0.01))
     const len = Math.hypot(x2 - x1, y2 - y1) || 1
-    const w = (w1 + (w0 - w1) * (1 - t * t)) / 2
+    // `swell`: start narrow at the root (a lock growing out from under the crown), full by a fifth of the way down
+    const w = ((w1 + (w0 - w1) * (1 - t * t)) * (swell ? Math.min(1, 0.2 + t * 4) : 1)) / 2
     left.push([x - ((y2 - y1) / len) * w, y + ((x2 - x1) / len) * w])
     right.push([x + ((y2 - y1) / len) * w, y - ((x2 - x1) / len) * w])
   }
@@ -60,68 +68,114 @@ export function ribbon(p0: number[], p1: number[], p2: number[], p3: number[], w
     .join('L')}Z`
 }
 
-type Strand = [number[], number[], number[], number[], number, number?]
+type Strand = [number[], number[], number[], number[], number, number]
 const strands = (list: Strand[]) => list.map((s) => ribbon(...s))
+/** Mirror a point around the centre line */
+const mx = (p: number[]) => [400 - p[0], p[1]]
+/** Mirror every "x y" pair of a path around the centre line */
+const mirrorPath = (d: string) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x: string, y: string) => `${400 - +x} ${y}`)
 
-/* ── Shapes ── */
+/* ── Face ── */
 const FACE =
-  'M200 104C252 104 289 138 291 198C293 246 279 279 255 299C237 313 219 319 200 319C181 319 163 313 145 299C121 279 107 246 109 198C111 138 148 104 200 104Z'
-const NECK = 'M170 268C172 300 170 326 160 346C158 362 168 384 200 386C232 384 242 362 240 346C230 326 228 300 230 268Z'
+  'M200 140C238 140 266 162 268 200C270 234 267 262 255 284C242 302 224 311 200 312C176 311 158 302 145 284C133 262 130 234 132 200C134 162 162 140 200 140Z'
+/** The shade side (light comes from the upper left, like the cats) */
+const FACE_SHADE = 'M268 196C270 234 267 262 255 284C242 302 224 311 200 312C226 298 248 276 254 246C258 224 258 208 256 196Z'
+const NECK = 'M184 290C186 316 184 336 176 356C184 372 216 372 224 356C216 336 214 316 216 290Z'
 const JACKET =
-  'M14 460C18 404 56 372 118 358C142 353 154 348 160 340C170 358 186 364 200 364C214 364 230 358 240 340C246 348 258 353 282 358C344 372 382 404 386 460Z'
-/** The mass of hair behind her head and neck */
-const HAIR_BACK = 'M200 50C290 50 340 112 338 204C336 268 336 330 322 392L78 392C64 330 64 268 62 204C60 112 110 50 200 50Z'
-/** Crown and hairline: volume on top, a soft parting a little left of centre */
-const CAP =
-  'M80 204C72 112 128 48 200 48C274 48 330 112 320 204C312 198 298 196 286 200C278 168 262 146 236 134C222 128 212 127 203 129L197 139L191 129C182 127 170 128 160 134C136 146 122 168 114 200C102 196 88 198 80 204Z'
-/** Where the bangs leave the hairline, before they separate into strands: one lobe each side of the parting */
-const BANG_ROOTS = [
-  'M195 130C184 126 160 128 142 140C134 150 130 162 131 172C150 160 168 152 186 150C190 144 193 137 195 130Z',
-  'M199 130C210 126 236 128 256 140C265 150 270 162 269 172C250 160 230 152 212 150C207 144 202 137 199 130Z',
-]
-/** Face-framing locks: down the cheek, an outward flick at the jaw, then a longer layer over the shoulder */
-const LOCK_L =
-  'M120 142C104 192 102 244 116 282C126 310 140 332 142 360C144 388 138 412 150 436C128 432 112 420 104 404C96 420 78 432 52 436C70 416 78 394 82 372C70 360 50 356 42 346C37 339 43 332 52 330C64 326 72 316 74 300C62 266 60 222 72 186C82 160 100 144 120 142Z'
-const LOCK_R =
-  'M280 142C296 192 298 244 284 282C274 310 260 332 258 360C256 388 264 414 252 438C276 432 292 420 300 404C308 422 328 434 354 434C334 414 324 392 320 372C330 356 350 352 358 342C363 335 357 328 348 326C336 322 328 314 326 298C338 264 340 220 328 186C318 160 300 144 280 142Z'
+  'M36 480C40 430 78 400 138 386C158 381 170 372 176 356C184 366 192 371 200 371C208 371 216 366 224 356C230 372 242 381 262 386C322 400 360 430 364 480Z'
+const NECKLINE = 'M176 356C184 366 192 371 200 371C208 371 216 366 224 356'
 
-/** See-through curtain bangs, swept out from the parting */
-const BANGS = strands([
-  [[156, 136], [130, 150], [110, 196], [112, 250], 22, 2],
-  [[170, 132], [150, 146], [126, 180], [120, 226], 24, 2],
-  [[182, 130], [172, 150], [152, 176], [138, 204], 22, 1],
-  [[190, 130], [186, 150], [176, 174], [160, 192], 18, 1],
-  [[194, 132], [192, 150], [188, 170], [184, 186], 9, 0.5],
-  [[232, 136], [262, 150], [290, 196], [288, 250], 22, 2],
-  [[218, 132], [246, 146], [272, 180], [280, 226], 24, 2],
-  [[206, 130], [220, 150], [244, 176], [256, 204], 22, 1],
-  [[198, 130], [204, 150], [220, 174], [232, 190], 18, 1],
-  [[200, 134], [202, 150], [206, 168], [208, 182], 8, 0.5],
+/* ── Hair ── */
+const HAIR_BACK = 'M200 76C266 76 306 122 308 192C310 262 308 334 300 398C280 404 260 400 240 392L160 392C140 400 120 404 100 398C92 334 90 262 92 192C94 122 134 76 200 76Z'
+/** Crown down to the hairline, the parting a little left of centre */
+const CROWN =
+  'M100 214C92 142 136 76 200 76C264 76 308 142 300 214C292 200 282 192 270 192C262 170 238 154 204 150L199 156L194 150C162 154 138 170 130 192C118 192 108 200 100 214Z'
+const CROWN_RIM = 'M104 206C96 140 138 78 200 78C262 78 304 140 296 206'
+/** One side's locks, outermost first: [p0, p1, p2, p3, width at the root, width at the tip] */
+const SIDE: Strand[] = [
+  [[120, 128], [80, 230], [96, 312], [60, 356], 44, 3],
+  [[126, 136], [90, 250], [118, 340], [82, 426], 46, 3],
+  [[136, 232], [158, 310], [156, 384], [138, 448], 34, 2],
+  [[136, 148], [118, 228], [126, 284], [100, 330], 32, 2],
+]
+const SIDE_L = SIDE.map((s) => ribbon(...s, 24, true))
+const SIDE_R = SIDE.map(([a, b, c, d, w0, w1]) => ribbon(mx(a), mx(b), mx(c), mx(d), w0, w1, 24, true))
+/** Curtain bangs: tapered locks swept out from the parting, the longest to the cheekbones, gaps between */
+const BANG: Strand[] = [
+  [[174, 154], [150, 162], [130, 192], [126, 252], 18, 2],
+  [[184, 150], [162, 160], [142, 188], [136, 238], 20, 1.5],
+  [[192, 150], [176, 164], [158, 186], [151, 214], 16, 1],
+  [[197, 152], [188, 170], [178, 190], [170, 208], 11, 0.6],
+]
+const BANGS = [...strands(BANG), ...strands(BANG.map(([a, b, c, d, w0, w1]) => [mx([a[0] - 2, a[1]]), mx([b[0] - 2, b[1]]), mx(c), mx(d), w0, w1] as Strand))]
+/** Fine wisps where the curtain parts */
+const WISPS = strands([
+  [[197, 154], [195, 170], [192, 186], [189, 200], 4.5, 0.4],
+  [[203, 154], [206, 170], [209, 184], [212, 198], 4, 0.4],
 ])
-/** Darker strands inside the locks, so the layers read as hair and not as a cut-out */
+/** Fine lines along each lock (A: lighter; B: darker) */
 const LOCK_LINES = strands([
-  [[100, 180], [92, 240], [96, 300], [64, 336], 3, 0.5],
-  [[114, 300], [126, 340], [118, 380], [84, 420], 3, 0.5],
-  [[128, 330], [136, 370], [130, 400], [140, 428], 2.5, 0.5],
-  [[300, 180], [308, 240], [304, 300], [340, 334], 3, 0.5],
-  [[286, 300], [274, 340], [282, 380], [318, 420], 3, 0.5],
-  [[272, 330], [264, 370], [270, 402], [262, 428], 2.5, 0.5],
+  [[110, 196], [94, 250], [100, 312], [74, 356], 1.8, 0.3],
+  [[124, 230], [110, 290], [124, 352], [98, 414], 1.8, 0.3],
+  [[140, 280], [150, 330], [150, 384], [136, 436], 1.6, 0.3],
+  [[128, 204], [122, 240], [122, 280], [106, 318], 1.6, 0.3],
+  [mx([110, 196]), mx([94, 250]), mx([100, 312]), mx([74, 356]), 1.8, 0.3],
+  [mx([124, 230]), mx([110, 290]), mx([124, 352]), mx([98, 414]), 1.8, 0.3],
+  [mx([140, 280]), mx([150, 330]), mx([150, 384]), mx([136, 436]), 1.6, 0.3],
+  [mx([128, 204]), mx([122, 240]), mx([122, 280]), mx([106, 318]), 1.6, 0.3],
+  [[178, 86], [152, 96], [126, 128], [114, 176], 1.8, 0.3],
+  [[222, 86], [248, 96], [274, 128], [286, 176], 1.8, 0.3],
+  [[186, 156], [166, 168], [148, 192], [142, 226], 1.4, 0.3],
+  [[214, 156], [234, 168], [252, 192], [258, 226], 1.4, 0.3],
 ])
-/** The soft halo of light across the crown, and a sheen down each lock */
-const SHEEN = strands([
-  [[128, 92], [158, 70], [196, 64], [226, 66], 7, 1],
-  [[214, 68], [244, 72], [270, 88], [288, 110], 5, 0.5],
-  [[90, 196], [86, 236], [88, 270], [84, 296], 4, 0.5],
-  [[106, 330], [98, 360], [86, 388], [70, 414], 3.5, 0.5],
-  [[312, 196], [316, 236], [314, 266], [318, 292], 3.5, 0.5],
+/** Light on the hair: across the crown, and down the outer locks */
+const SHINE = strands([
+  [[136, 112], [152, 94], [176, 86], [198, 84], 7, 1],
+  [[206, 84], [230, 88], [252, 100], [266, 120], 5, 0.5],
+  [[100, 222], [92, 260], [98, 300], [86, 330], 4, 0.4],
+  [[108, 340], [106, 368], [100, 392], [90, 410], 3.5, 0.4],
+  [[300, 222], [308, 260], [302, 300], [314, 330], 3.5, 0.4],
 ])
 
-const EYES: { cx: number; cy: number; white: string; lash: string; wing: number[][] }[] = [
-  { cx: 158, cy: 213, white: 'M133 216C140 201 170 197 181 215C170 221 146 223 133 216Z', lash: 'M130 218C138 200 170 194 183 214', wing: [[134, 213], [130, 210], [126, 206], [121, 203]] },
-  { cx: 242, cy: 213, white: 'M267 216C260 201 230 197 219 215C230 221 254 223 267 216Z', lash: 'M270 218C262 200 230 194 217 214', wing: [[266, 213], [270, 210], [274, 206], [279, 203]] },
-]
+/* ── Features ── */
+interface Eye {
+  cx: number
+  cy: number
+  white: string
+  lash: string
+  wing: number[][]
+  crease: string
+  lower: string
+  fold: string
+  brow: Strand
+}
+const EYE_L: Eye = {
+  cx: 168.5,
+  cy: 224.5,
+  white: 'M184 227C179 217 161 214 152 225C160 231 176 232 184 227Z',
+  lash: 'M185 226.5C179 215.5 160 212.5 150.5 224.5',
+  wing: [[152, 223.5], [148.5, 222.5], [146, 220.5], [143, 218]],
+  crease: 'M182 216.5C176 210 162 209 155 215.5',
+  lower: 'M155 228.5C163 232.5 176 232.5 182 229',
+  fold: 'M156 234C164 238.5 175 238.5 181 234.5',
+  brow: [[186, 206], [176, 200.5], [162, 199.5], [150, 204], 4.4, 1.4],
+}
+const EYE_R: Eye = {
+  cx: 400 - EYE_L.cx,
+  cy: EYE_L.cy,
+  white: mirrorPath(EYE_L.white),
+  lash: mirrorPath(EYE_L.lash),
+  wing: EYE_L.wing.map(mx),
+  crease: mirrorPath(EYE_L.crease),
+  lower: mirrorPath(EYE_L.lower),
+  fold: mirrorPath(EYE_L.fold),
+  brow: [mx(EYE_L.brow[0]), mx(EYE_L.brow[1]), mx(EYE_L.brow[2]), mx(EYE_L.brow[3]), 4.4, 1.4],
+}
+const EYES = [EYE_L, EYE_R]
 
 interface Props {
+  /** A (editorial) or B (soft 2.5D) */
+  look?: PortraitLook
   /** Where she looks, each axis -1 … 1 (a gentle follow) */
   gaze?: { x: number; y: number }
   /** Blink and breathe. Off for static renders and reduced motion. */
@@ -131,10 +185,14 @@ interface Props {
   label?: string
 }
 
-export const Portrait = forwardRef<HTMLDivElement, Props>(function Portrait({ gaze = { x: 0, y: 0 }, alive = true, className = '', style, label }, ref) {
+export const Portrait = forwardRef<HTMLDivElement, Props>(function Portrait(
+  { look = 'editorial', gaze = { x: 0, y: 0 }, alive = true, className = '', style, label },
+  ref,
+) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const id = (n: string) => `${n}-${uid}`
   const url = (n: string) => `url(#${id(n)})`
+  const soft = look === 'soft'
   const [blink, setBlink] = useState(false)
 
   useEffect(() => {
@@ -153,212 +211,193 @@ export const Portrait = forwardRef<HTMLDivElement, Props>(function Portrait({ ga
 
   const gx = Math.max(-1, Math.min(1, gaze.x))
   const gy = Math.max(-1, Math.min(1, gaze.y))
-  const look = `translate(${(gx * 3.2).toFixed(2)} ${(gy * 1.8).toFixed(2)})`
-  const tilt = 'rotate(4 200 340)'
+  const lookAt = `translate(${(gx * 2.4).toFixed(2)} ${(gy * 1.2).toFixed(2)})`
+  const tilt = 'rotate(3 200 340)'
+  const hairFill = soft ? url('hairGrad') : HIEN.hair
+  const skinFill = soft ? url('skinGrad') : HIEN.skin
 
   return (
-    <div ref={ref} className={`portrait ${alive ? 'is-alive' : ''} ${className}`} style={style} role={label ? 'img' : undefined} aria-label={label}>
-      <svg viewBox="0 0 400 460" aria-hidden="true" focusable="false">
+    <div ref={ref} className={`portrait portrait--${look} ${alive ? 'is-alive' : ''} ${className}`} style={style} role={label ? 'img' : undefined} aria-label={label}>
+      <svg viewBox="0 0 400 480" aria-hidden="true" focusable="false">
         <defs>
-          <radialGradient id={id('skin')} gradientUnits="userSpaceOnUse" cx="170" cy="180" r="190">
+          <radialGradient id={id('skinGrad')} gradientUnits="userSpaceOnUse" cx="176" cy="200" r="150">
             <stop offset="0" stopColor={HIEN.skinLit} />
-            <stop offset=".6" stopColor={HIEN.skin} />
+            <stop offset=".62" stopColor={HIEN.skin} />
             <stop offset="1" stopColor={HIEN.skinShade} />
           </radialGradient>
+          <linearGradient id={id('hairGrad')} gradientUnits="userSpaceOnUse" x1="140" y1="70" x2="260" y2="440">
+            <stop offset="0" stopColor={HIEN.hairMid} />
+            <stop offset=".5" stopColor={HIEN.hair} />
+            <stop offset="1" stopColor={HIEN.hairDeep} />
+          </linearGradient>
+          {(['bang', 'bangMid'] as const).map((n) => (
+            <linearGradient key={n} id={id(n)} gradientUnits="userSpaceOnUse" x1="0" y1="150" x2="0" y2="252">
+              <stop offset="0" stopColor={n === 'bang' ? HIEN.hair : HIEN.hairMid} />
+              <stop offset=".5" stopColor={n === 'bang' ? HIEN.hair : HIEN.hairMid} />
+              <stop offset="1" stopColor={n === 'bang' ? HIEN.hair : HIEN.hairMid} stopOpacity=".3" />
+            </linearGradient>
+          ))}
           <linearGradient id={id('neck')} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={HIEN.skinDeep} />
-            <stop offset=".45" stopColor={HIEN.skinShade} />
+            <stop offset=".5" stopColor={HIEN.skinShade} />
             <stop offset="1" stopColor={HIEN.skin} />
           </linearGradient>
-          <linearGradient id={id('hair')} gradientUnits="userSpaceOnUse" x1="120" y1="40" x2="300" y2="440">
-            <stop offset="0" stopColor={HIEN.hairMid} />
-            <stop offset=".55" stopColor={HIEN.hair} />
-            <stop offset="1" stopColor="#140F11" />
+          <linearGradient id={id('jacket')} gradientUnits="userSpaceOnUse" x1="80" y1="380" x2="300" y2="480">
+            <stop offset="0" stopColor={soft ? HIEN.jacketLit : HIEN.jacket} />
+            <stop offset=".6" stopColor={HIEN.jacket} />
+            <stop offset="1" stopColor="#14131A" />
           </linearGradient>
-          <radialGradient id={id('cap')} gradientUnits="userSpaceOnUse" cx="170" cy="70" r="180">
-            <stop offset="0" stopColor="#3A2E2E" />
-            <stop offset=".6" stopColor={HIEN.hair} />
-            <stop offset="1" stopColor="#120D0F" />
-          </radialGradient>
-          <linearGradient id={id('bang')} gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="0" y2="224">
-            <stop offset="0" stopColor={HIEN.hairMid} />
-            <stop offset=".7" stopColor={HIEN.hair} />
-            <stop offset="1" stopColor={HIEN.hair} stopOpacity=".7" />
-          </linearGradient>
-          <linearGradient id={id('jacket')} gradientUnits="userSpaceOnUse" x1="60" y1="350" x2="300" y2="460">
-            <stop offset="0" stopColor={HIEN.jacketLit} />
-            <stop offset=".55" stopColor={HIEN.jacket} />
-            <stop offset="1" stopColor="#121118" />
-          </linearGradient>
-          <pattern id={id('tweed')} width="7" height="7" patternUnits="userSpaceOnUse">
-            <path d="M0 3.5h3.5M3.5 0v3.5M5 6.2l1.4-1.4" stroke="#5B5668" strokeWidth=".8" />
-            <circle cx="5.6" cy="1.6" r=".7" fill="#77718A" />
+          <pattern id={id('tweed')} width="6" height="6" patternUnits="userSpaceOnUse">
+            <path d="M0 3h3M3 0v3M4.4 5.4l1.2-1.2" stroke="#5B5668" strokeWidth=".7" />
+            <circle cx="4.8" cy="1.4" r=".6" fill="#7A748C" />
           </pattern>
           <radialGradient id={id('gold')} cx=".38" cy=".34" r=".7">
             <stop offset="0" stopColor={HIEN.goldLit} />
             <stop offset=".5" stopColor={HIEN.gold} />
             <stop offset="1" stopColor={HIEN.goldDeep} />
           </radialGradient>
-          <radialGradient id={id('iris')} cx=".5" cy=".62" r=".6">
+          <radialGradient id={id('iris')} cx=".5" cy=".72" r=".62">
             <stop offset="0" stopColor={HIEN.irisLit} />
-            <stop offset=".75" stopColor={HIEN.iris} />
+            <stop offset=".8" stopColor={HIEN.irisDark} />
           </radialGradient>
           <radialGradient id={id('blush')}>
-            <stop offset="0" stopColor={HIEN.blush} stopOpacity=".75" />
+            <stop offset="0" stopColor={HIEN.blush} stopOpacity={soft ? 0.6 : 0.45} />
             <stop offset="1" stopColor={HIEN.blush} stopOpacity="0" />
           </radialGradient>
-          <linearGradient id={id('lip')} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor={HIEN.lip} />
+          <linearGradient id={id('lipLow')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={HIEN.lipTop} />
             <stop offset="1" stopColor={HIEN.lipLow} />
           </linearGradient>
           <filter id={id('soft')} x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="5" />
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
+          <filter id={id('blur2')} x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.4" />
           </filter>
           <filter id={id('edge')} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.4" />
+            <feGaussianBlur stdDeviation="1.2" />
           </filter>
+          <clipPath id={id('face')}>
+            <path d={FACE} />
+          </clipPath>
           {EYES.map((e, i) => (
             <clipPath key={i} id={id(`eye${i}`)}>
               <path d={e.white} />
             </clipPath>
           ))}
-          <clipPath id={id('face')}>
-            <path d={FACE} />
-          </clipPath>
         </defs>
 
         {/* hair behind */}
         <g transform={tilt}>
           <g className="portrait__hair">
-            <path d={HAIR_BACK} fill={url('hair')} />
+            <path d={HAIR_BACK} fill={soft ? HIEN.hairDeep : '#1A1415'} />
           </g>
         </g>
 
         {/* neck and jacket */}
         <path d={NECK} fill={url('neck')} />
-        <ellipse cx="200" cy="300" rx="42" ry="16" fill={HIEN.skinDeep} opacity=".4" filter={url('soft')} />
         <g className="portrait__jacket">
           <path d={JACKET} fill={url('jacket')} />
-          <path d={JACKET} fill={url('tweed')} opacity=".55" />
-          {/* the neckline trim and the opening */}
-          <path d="M160 340C170 358 186 364 200 364C214 364 230 358 240 340" fill="none" stroke="#4E4959" strokeWidth="3" strokeLinecap="round" />
-          <path d="M206 364C208 396 210 430 212 460" fill="none" stroke="#0E0D12" strokeWidth="2" opacity=".7" />
-          <path d="M60 392C90 380 116 372 140 368" fill="none" stroke="#FFFFFF" strokeOpacity=".08" strokeWidth="6" strokeLinecap="round" filter={url('edge')} />
-          <g>
-            <circle cx="222" cy="418" r="8" fill={url('gold')} />
-            <circle cx="222" cy="418" r="4.6" fill="none" stroke={HIEN.goldDeep} strokeWidth="1.2" opacity=".75" />
-            <circle cx="219.5" cy="415" r="1.8" fill="#FFF6DC" opacity=".9" />
-          </g>
+          <path d={JACKET} fill={url('tweed')} opacity=".5" />
+          <path d={NECKLINE} fill="none" stroke="#4E4959" strokeWidth="2.6" strokeLinecap="round" />
+          <path d="M205 371C207 404 209 444 211 480" fill="none" stroke="#0E0D12" strokeWidth="1.6" opacity=".7" />
+          {[414, 462].map((y) => (
+            <g key={y}>
+              <circle cx="216" cy={y} r="6.5" fill={url('gold')} />
+              <circle cx="216" cy={y} r="3.6" fill="none" stroke={HIEN.goldDeep} strokeWidth="1" opacity=".7" />
+            </g>
+          ))}
         </g>
 
         <g transform={tilt}>
-          {/* face */}
           <g className="portrait__head">
-            <path d={FACE} fill={url('skin')} />
+            {/* face */}
+            <path d={FACE} fill={skinFill} />
             <g clipPath={url('face')}>
-              {/* shade where the hair and the jaw turn away from the light */}
-              <path d="M291 150C296 230 282 290 236 322L300 330Z" fill={HIEN.skinShade} opacity=".6" filter={url('soft')} />
-              <path d="M109 200C110 250 128 290 168 316L120 330Z" fill={HIEN.skinShade} opacity=".35" filter={url('soft')} />
-              <path d="M100 120H300V176C250 160 150 160 100 176Z" fill={HIEN.skinDeep} opacity=".3" filter={url('soft')} />
+              <path d={FACE_SHADE} fill={HIEN.skinShade} opacity={soft ? 0.55 : 0.55} filter={soft ? url('soft') : url('blur2')} />
+              {/* the shadow the bangs cast on the forehead */}
+              <path d="M120 150H280V212C246 192 154 192 120 212Z" fill={HIEN.skinDeep} opacity=".28" filter={url('soft')} />
+              <ellipse cx="152" cy="258" rx="24" ry="12" fill={url('blush')} />
+              <ellipse cx="248" cy="258" rx="24" ry="12" fill={url('blush')} />
+              {soft && <ellipse cx="156" cy="250" rx="9" ry="4" fill="#FFFFFF" opacity=".35" filter={url('edge')} />}
+              {soft && <ellipse cx="204" cy="306" rx="12" ry="4" fill={HIEN.skinLit} opacity=".7" filter={url('edge')} />}
             </g>
-            <ellipse cx="146" cy="254" rx="30" ry="20" fill={url('blush')} />
-            <ellipse cx="256" cy="254" rx="30" ry="20" fill={url('blush')} />
-            <ellipse cx="150" cy="246" rx="9" ry="4" fill="#FFFFFF" opacity=".35" filter={url('edge')} />
-            <ellipse cx="204" cy="306" rx="12" ry="4" fill={HIEN.skinLit} opacity=".7" filter={url('edge')} />
+            {/* the jaw line on the shade side, drawn fine (A only) */}
+            {!soft && <path d="M262 246C258 270 244 294 224 308" fill="none" stroke={HIEN.line} strokeWidth="1.2" strokeLinecap="round" opacity=".45" />}
 
-            {/* brows, mostly behind the bangs */}
-            <path d={ribbon([132, 188], [142, 180], [162, 178], [180, 184], 5.5, 2.5)} fill={HIEN.brow} opacity=".8" />
-            <path d={ribbon([268, 188], [258, 180], [238, 178], [220, 184], 5.5, 2.5)} fill={HIEN.brow} opacity=".8" />
-
-            {/* eyes: smiling, with the lower lid lifted */}
+            {/* brows */}
             {EYES.map((e, i) => (
-              <g key={i} className="portrait__eye">
-                <path d={e.white} fill="#FFFDFB" />
+              <path key={`b${i}`} d={ribbon(...e.brow)} fill={HIEN.brow} opacity=".78" />
+            ))}
+
+            {/* eyes: almond, mostly iris, a fine lash line with a small lift at the outer corner */}
+            {EYES.map((e, i) => (
+              <g key={`e${i}`} className="portrait__eye">
+                <path d={e.white} fill="#FFFBF8" />
                 <g clipPath={url(`eye${i}`)}>
-                  <g className="portrait__iris" transform={look}>
-                    <circle cx={e.cx} cy={e.cy} r="12.5" fill={url('iris')} />
-                    <circle cx={e.cx} cy={e.cy} r="5.6" fill="#120B0A" />
-                    <circle cx={e.cx + 4} cy={e.cy - 4.5} r="3.6" fill="#FFFFFF" />
-                    <circle cx={e.cx - 3.5} cy={e.cy + 4.5} r="1.6" fill="#FFFFFF" opacity=".8" />
+                  <g className="portrait__iris" transform={lookAt}>
+                    <circle cx={e.cx} cy={e.cy} r={soft ? 8.2 : 7.6} fill={url('iris')} />
+                    <circle cx={e.cx} cy={e.cy} r="3.4" fill="#140C0B" />
+                    <circle cx={e.cx + 2.6} cy={e.cy - 2.8} r={soft ? 2.4 : 1.9} fill="#FFFFFF" />
+                    <circle cx={e.cx - 2.4} cy={e.cy + 2.8} r=".9" fill="#FFFFFF" opacity=".75" />
                   </g>
-                  <path d={`M${e.cx - 30} ${e.cy - 16}H${e.cx + 30}V${e.cy - 6}C${e.cx + 14} ${e.cy - 11} ${e.cx - 14} ${e.cy - 11} ${e.cx - 30} ${e.cy - 6}Z`} fill={HIEN.lash} opacity=".18" />
+                  {/* the upper lid's shadow on the eye */}
                   <path
-                    d={`M${e.cx - 32} ${e.cy - 20}H${e.cx + 32}V${e.cy + 18}H${e.cx - 32}Z`}
+                    d={`M${e.cx - 20} ${e.cy - 14}H${e.cx + 20}V${e.cy - 4}C${e.cx + 8} ${e.cy - 7} ${e.cx - 8} ${e.cy - 7} ${e.cx - 20} ${e.cy - 4}Z`}
+                    fill={HIEN.lash}
+                    opacity=".22"
+                  />
+                  <path
+                    d={`M${e.cx - 22} ${e.cy - 14}H${e.cx + 22}V${e.cy + 12}H${e.cx - 22}Z`}
                     fill={HIEN.skin}
                     className="portrait__lid"
                     style={{ transform: blink ? 'scaleY(1)' : 'scaleY(0)' }}
                   />
                 </g>
-                <path d={e.lash} fill="none" stroke={HIEN.lash} strokeWidth="4.2" strokeLinecap="round" />
-                <path d={ribbon(e.wing[0], e.wing[1], e.wing[2], e.wing[3], 4, 0.6)} fill={HIEN.lash} />
-                {/* the crease above, and the smile fold below */}
-                <path
-                  d={i === 0 ? 'M139 201C150 191 168 191 179 202' : 'M261 201C250 191 232 191 221 202'}
-                  fill="none"
-                  stroke={HIEN.skinDeep}
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  opacity=".55"
-                />
-                <path
-                  d={i === 0 ? 'M139 223C149 230 167 230 177 222' : 'M261 223C251 230 233 230 223 222'}
-                  fill="none"
-                  stroke={HIEN.skinShade}
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  opacity=".45"
-                />
-                <path
-                  d={i === 0 ? 'M142 227C151 232 165 232 174 227' : 'M258 227C249 232 235 232 226 227'}
-                  fill="none"
-                  stroke={HIEN.skinLit}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  opacity=".8"
-                />
+                <path d={e.lash} fill="none" stroke={HIEN.lash} strokeWidth="2.6" strokeLinecap="round" />
+                <path d={ribbon(e.wing[0], e.wing[1], e.wing[2], e.wing[3], 2.6, 0.4)} fill={HIEN.lash} />
+                <path d={e.crease} fill="none" stroke={HIEN.line} strokeWidth="1" strokeLinecap="round" opacity=".55" />
+                <path d={e.lower} fill="none" stroke={HIEN.line} strokeWidth="1" strokeLinecap="round" opacity=".5" />
+                <path d={e.fold} fill="none" stroke={HIEN.skinLit} strokeWidth="2" strokeLinecap="round" opacity=".75" />
               </g>
             ))}
 
-            {/* nose: a soft rounded tip, light on the bridge, shade on the far side */}
-            <path d={ribbon([212, 222], [215, 234], [215, 246], [211, 254], 4, 1.5)} fill={HIEN.skinShade} opacity=".5" filter={url('edge')} />
-            <ellipse cx="199" cy="251" rx="7" ry="5" fill={HIEN.skinLit} opacity=".9" filter={url('edge')} />
-            <path d="M188 258C193 266 207 266 213 257" fill="none" stroke={HIEN.skinShade} strokeWidth="3" strokeLinecap="round" opacity=".85" filter={url('edge')} />
-            <path d="M193 259.5C195 261.5 197 261.5 198 260.5M203 260.5C204.5 261.5 206.5 261.5 208.5 259.5" fill="none" stroke={HIEN.skinDeep} strokeWidth="2" strokeLinecap="round" opacity=".8" />
+            {/* nose: a whisper of shade and a soft tip */}
+            <path d={ribbon([207, 232], [209, 242], [209, 250], [207, 257], 3, 1)} fill={HIEN.skinShade} opacity=".7" filter={url('edge')} />
+            {soft && <ellipse cx="199" cy="255" rx="4.5" ry="3.2" fill={HIEN.skinLit} opacity=".85" filter={url('edge')} />}
+            <path d="M193.5 261C197 264.5 203.5 264.5 207 260.5" fill="none" stroke={HIEN.line} strokeWidth="1.4" strokeLinecap="round" opacity=".7" />
 
-            {/* a closed-lip smile, a little higher on her left */}
-            <path d="M170 280C180 288 218 290 230 275C222 293 208 299 198 299C186 299 176 292 170 280Z" fill={HIEN.lipLow} />
-            <path d="M170 280C179 274 190 272 198 276C206 272 218 271 230 275C218 285 184 287 170 280Z" fill={url('lip')} />
-            <path d="M172 280.5C186 285.5 216 285.5 228 276" fill="none" stroke="#B23443" strokeWidth="1.6" strokeLinecap="round" opacity=".7" />
-            <ellipse cx="203" cy="291" rx="9" ry="2.4" fill={HIEN.lipLit} opacity=".6" filter={url('edge')} />
-            <path d="M166 276C167.5 280.5 170 282.5 173 282M234 270.5C236 274.5 235.5 278 232.5 279" fill="none" stroke={HIEN.skinDeep} strokeWidth="2" strokeLinecap="round" opacity=".55" />
+            {/* a small closed smile */}
+            <path d="M184 284C192 287 208 287 216 284C212 292 205 295.5 200 295.5C195 295.5 188 292 184 284Z" fill={url('lipLow')} />
+            <path d="M183 283C189 279 195 278 200 280C205 278 211 279 217 283C208 285.6 192 285.6 183 283Z" fill={HIEN.lipTop} />
+            <path d="M182.5 282.6C191 286.4 209 286.4 217.5 282.6" fill="none" stroke={HIEN.lipLine} strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M180 280.6C181 283 182.6 284 184.6 284M220 280.6C219 283 217.4 284 215.4 284" fill="none" stroke={HIEN.line} strokeWidth="1.1" strokeLinecap="round" opacity=".7" />
+            <ellipse cx="203" cy="290.5" rx={soft ? 5 : 4} ry="1.4" fill="#FFFFFF" opacity={soft ? 0.6 : 0.4} />
           </g>
 
           {/* hair in front */}
           <g className="portrait__hair">
-            {/* the shadow the hair casts on her face */}
-            <g clipPath={url('face')} opacity=".55">
-              <path d={CAP} fill={HIEN.skinDeep} transform="translate(2 10)" filter={url('edge')} />
-              {BANGS.map((d, i) => (
-                <path key={`bs${i}`} d={d} fill={HIEN.skinDeep} transform="translate(1 5)" filter={url('edge')} opacity=".6" />
+            <g clipPath={url('face')} opacity=".3">
+              {[...BANGS, ...SIDE_L, ...SIDE_R].map((d, i) => (
+                <path key={`c${i}`} d={d} fill={HIEN.skinDeep} transform="translate(2 5)" filter={url('edge')} />
               ))}
-              <path d={LOCK_L} fill={HIEN.skinDeep} transform="translate(8 2)" filter={url('edge')} />
-              <path d={LOCK_R} fill={HIEN.skinDeep} transform="translate(-8 2)" filter={url('edge')} />
             </g>
-            <path d={CAP} fill={url('hair')} />
-            <path d={CAP} fill={url('cap')} opacity=".55" />
-            <path d={LOCK_L} fill={url('hair')} />
-            <path d={LOCK_R} fill={url('hair')} />
-            {LOCK_LINES.map((d, i) => (
-              <path key={`ll${i}`} d={d} fill="#0F0B0C" opacity=".55" />
+            {[...SIDE_L, ...SIDE_R].map((d, i) => (
+              <path key={`s${i}`} d={d} fill={i % 4 === 1 ? (soft ? url('hairGrad') : HIEN.hairMid) : hairFill} />
             ))}
-            {BANG_ROOTS.map((d, i) => (
-              <path key={`r${i}`} d={d} fill={url('bang')} />
+            <path d={CROWN} fill={hairFill} />
+            {soft && <path d={CROWN_RIM} fill="none" stroke={HIEN.hairRim} strokeOpacity=".35" strokeWidth="3" filter={url('edge')} />}
+            {LOCK_LINES.map((d, i) => (
+              <path key={`l${i}`} d={d} fill={soft ? HIEN.hairDeep : HIEN.hairLit} opacity={soft ? 0.8 : 0.45} />
+            ))}
+            {WISPS.map((d, i) => (
+              <path key={`w${i}`} d={d} fill={hairFill} />
             ))}
             {BANGS.map((d, i) => (
-              <path key={`b${i}`} d={d} fill={url('bang')} />
+              <path key={`b${i}`} d={d} fill={url(i % 4 === 1 ? 'bangMid' : 'bang')} />
             ))}
-            {SHEEN.map((d, i) => (
-              <path key={`s${i}`} d={d} fill={HIEN.hairLit} opacity=".7" filter={url('edge')} />
+            {SHINE.map((d, i) => (
+              <path key={`h${i}`} d={d} fill={soft ? '#8A716A' : HIEN.hairLit} opacity={soft ? 0.45 : 0.7} filter={soft ? url('blur2') : undefined} />
             ))}
           </g>
         </g>
