@@ -128,6 +128,30 @@
   left: 7%;
   width: 86%;
 }
+/* The 3D render (5:6 frame): shoulders on the circle's lower edge, the crown just inside its top */
+.hero__stage--3d .hero__me .portrait {
+  left: 3%;
+  width: 94%;
+}
+.portrait3d__lean {
+  position: relative;
+  transition: transform 420ms var(--ease-out);
+}
+.portrait3d__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.portrait3d__blink {
+  position: absolute;
+  inset: 0;
+  transition: opacity 40ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait3d__lean {
+    transition: none;
+  }
+}
 .portrait svg {
   display: block;
   width: 100%;

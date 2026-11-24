@@ -5,6 +5,7 @@ import { useOnScreen, useReducedMotion } from '../lib/stage'
 import { useTheme } from '../lib/theme'
 import { GitHubMark, IconLinkedIn, IconYarn } from './icons'
 import { Portrait, type PortraitLook } from './Portrait'
+import { Portrait3D } from './Portrait3D'
 import { TortieCat, type CatMood } from './TortieCat'
 import './Hero.css'
 
@@ -12,8 +13,12 @@ import './Hero.css'
  * Hello. On the left, Hien (illustrated) in the blue circle with her cat in front: the tortoiseshell by day, the
  * black-and-white cat by night. On the right, the words. Both of them watch your pointer.
  */
-/** Preview only, until one is chosen: ?portrait=a (editorial, in an arch) or ?portrait=b (soft 2.5D, in the circle). */
-const LOOK: PortraitLook = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('portrait') === 'b' ? 'soft' : 'editorial'
+/**
+ * The portrait: the 3D art-toy render (default). Preview only, for comparison: ?portrait=a (editorial 2D, in an arch)
+ * or ?portrait=b (soft 2.5D drawing). The unused looks go once one is chosen.
+ */
+const PICK = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('portrait') : null
+const LOOK: PortraitLook | '3d' = PICK === 'a' ? 'editorial' : PICK === 'b' ? 'soft' : '3d'
 
 export function Hero() {
   const t = copy.hero
@@ -38,8 +43,8 @@ export function Hero() {
   return (
     <section id="hello" ref={sectionRef} className="hero field field--cream" aria-labelledby="hero-title">
       <div className="wrap hero__wrap">
-        <div className={`hero__stage hero__stage--${LOOK === 'soft' ? 'disc' : 'arch'}`}>
-          {LOOK === 'soft' ? (
+        <div className={`hero__stage hero__stage--${LOOK === 'editorial' ? 'arch' : 'disc'} hero__stage--${LOOK}`}>
+          {LOOK !== 'editorial' ? (
             <svg className="hero__frame" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
               <defs>
                 {/* above the middle, anything goes (her hair may rise out of the circle); below it, only the circle */}
@@ -66,7 +71,11 @@ export function Hero() {
             </svg>
           )}
           <div className="hero__me" style={{ clipPath: 'url(#hero-bust)' }}>
-            <Portrait ref={meRef} look={LOOK} gaze={look} alive={!reduced} label={t.portraitLabel} />
+            {LOOK === '3d' ? (
+              <Portrait3D ref={meRef} gaze={look} alive={!reduced} label={t.portraitLabel} />
+            ) : (
+              <Portrait ref={meRef} look={LOOK} gaze={look} alive={!reduced} label={t.portraitLabel} />
+            )}
           </div>
           <button type="button" className="hero__cat" onClick={hello} aria-label={coat === 'tuxie' ? t.catLabelNight : t.catLabel}>
             <TortieCat ref={catRef} gaze={gaze} curious={curious} mood={mood} coat={coat} alive={!reduced} />
