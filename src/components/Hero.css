@@ -94,7 +94,9 @@
   stroke: var(--cream);
   stroke-opacity: 0.35;
 }
-/* The bust: the render's collar rests on the circle's lower edge, the hair rises above its middle. */
+/* The bust: sized and lowered so the collar covers the whole bottom of the circle (no sliver of blue beneath it);
+   the clip trims the collar along the circle's edge, while the hair may rise above the middle. Measured from the
+   cut-out in scripts/portrait_cutout.py: collar centre at 48.1% of the image, bottom at 97.1%. */
 .hero__me {
   position: absolute;
   inset: 0;
@@ -102,24 +104,15 @@
 }
 .portrait--3d {
   position: absolute;
-  left: -2%;
-  bottom: -1%;
+  left: -0.05%;
+  top: 2.5%;
   width: 104%;
   aspect-ratio: 1;
 }
 .portrait3d__img {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-}
-/* the side views sit on top of the front one and fade in when the pointer is on their side */
-.portrait3d__alt {
-  opacity: 0;
-  transition: opacity 260ms var(--ease-out);
-}
-.portrait3d__alt.is-on {
-  opacity: 1;
 }
 .hero__cat {
   position: absolute;
@@ -181,7 +174,4 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .portrait3d__alt {
-    transition: none;
-  }
 }
