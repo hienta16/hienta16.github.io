@@ -7,14 +7,19 @@
 The portrait is a 3D art-toy render made with an image model from the owner's own photos, on a flat green
 backdrop. The source images and photos never enter this repository; only the cut-out does:
 
-    public/art/hien-front.webp   facing the visitor (the owner wants her face to stay front-on; only the cat moves)
+    public/art/hien-front.webp   facing the visitor, in round glasses (her face stays front-on; only the cat moves)
+    public/art/hien-wink.webp    the same frame with a wink, shown for a moment every 10 seconds
+
+The wink frame is not the second render as-is: two renders differ in small ways all over (hair texture), so a
+swap would shimmer. Instead only the winking eye is taken from it, blended into the front render under a soft
+elliptical mask (WINK_EYE); every other pixel is identical, so the wink is the only thing that moves.
 
 What the script does, per image:
 1. measures the backdrop from the border (median colour), so a slightly different green per render is fine;
 2. keys by "green excess" (G above max(R, B)), which the brown hair, warm skin, black tweed and gold never have,
    with a soft ramp so hair tips get partial alpha;
 3. un-mixes the backdrop from edge pixels and removes green spill (G is capped at max(R, B));
-4. crops to a square around the figure (shared across views, if more are ever added).
+4. crops every frame to one shared square, so frames line up exactly.
 Requires numpy and Pillow (a dev tool; it never runs in CI or in the browser).
 """
 
@@ -28,14 +33,29 @@ from PIL import Image
 
 SITE = Path(__file__).resolve().parent.parent
 OUT = SITE / "public" / "art"
-VIEWS = {"front": "front.png"}
+FRONT, WINK = "front-glasses.png", "wink-glasses.png"
+# The winking eye in the source renders (1254 px): centre and radii of a soft ellipse, found where the two renders
+# really differ (eye and brow).
+WINK_EYE = (752, 508, 122, 128)
 SIZE = 720  # px, square; shown at up to ~460 css px, so this covers 1.5x screens
 EXCESS_BG, EXCESS_FG = 70.0, 22.0  # green excess: at or above BG is backdrop, at or below FG is subject
 
 
-def cut(path: Path) -> np.ndarray:
+def load(path: Path) -> np.ndarray:
+    return np.asarray(Image.open(path).convert("RGB")).astype(np.float64)
+
+
+def with_wink(front: np.ndarray, wink: np.ndarray) -> np.ndarray:
+    """The front render with only the winking eye taken from the wink render (soft-edged)."""
+    cx, cy, rx, ry = WINK_EYE
+    ys, xs = np.mgrid[: front.shape[0], : front.shape[1]]
+    r = np.sqrt(((xs - cx) / rx) ** 2 + ((ys - cy) / ry) ** 2)
+    mask = np.clip((1.0 - r) / 0.15, 0.0, 1.0)[..., None]  # full inside, a soft 15% rim
+    return front * (1 - mask) + wink * mask
+
+
+def cut(rgb: np.ndarray) -> np.ndarray:
     """RGBA float array (0..1) with the backdrop keyed out."""
-    rgb = np.asarray(Image.open(path).convert("RGB")).astype(np.float64)
     border = np.concatenate([rgb[:10].reshape(-1, 3), rgb[-10:].reshape(-1, 3), rgb[:, :10].reshape(-1, 3), rgb[:, -10:].reshape(-1, 3)])
     bg = np.median(border, axis=0)
     excess = rgb[..., 1] - np.maximum(rgb[..., 0], rgb[..., 2])
@@ -82,11 +102,12 @@ def checker(img: Image.Image) -> Image.Image:
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--src", type=Path, required=True, help="folder with front.png")
+    ap.add_argument("--src", type=Path, required=True, help="folder with front-glasses.png and wink-glasses.png")
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--check", action="store_true", help="save checker previews into the source folder")
     args = ap.parse_args(argv)
-    layers = {name: cut(args.src / file) for name, file in VIEWS.items()}
+    front = load(args.src / FRONT)
+    layers = {"front": cut(front), "wink": cut(with_wink(front, load(args.src / WINK)))}
     box = shared_box(list(layers.values()))
     args.out.mkdir(parents=True, exist_ok=True)
     for name, layer in layers.items():

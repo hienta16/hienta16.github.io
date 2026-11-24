@@ -96,7 +96,7 @@
 }
 /* The bust: sized and lowered so the collar covers the whole bottom of the circle (no sliver of blue beneath it);
    the clip trims the collar along the circle's edge, while the hair may rise above the middle. Measured from the
-   cut-out in scripts/portrait_cutout.py: collar centre at 48.1% of the image, bottom at 97.1%. */
+   cut-out in scripts/portrait_cutout.py: collar centre at 49.9% of the image, hem at 97.1%. */
 .hero__me {
   position: absolute;
   inset: 0;
@@ -104,15 +104,25 @@
 }
 .portrait--3d {
   position: absolute;
-  left: -0.05%;
-  top: 2.5%;
+  left: -1.93%;
+  top: 1.5%;
   width: 104%;
   aspect-ratio: 1;
 }
 .portrait3d__img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+}
+/* the wink frame waits on top, invisible, and shows for a moment every 10 s */
+.portrait3d__wink {
+  opacity: 0;
+  transition: opacity 90ms linear;
+}
+.portrait--3d.is-winking .portrait3d__wink {
+  opacity: 1;
 }
 .hero__cat {
   position: absolute;

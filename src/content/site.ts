@@ -66,7 +66,7 @@ export const copy = {
     status: 'Untangling a dataset',
     catLabel: 'A tortoiseshell cat with big yellow-green eyes, watching your pointer. Click to say hello.',
     catLabelNight: 'A black-and-white cat with yellow-green eyes, watching your pointer. Click to say hello.',
-    portraitLabel: 'A 3D portrait of Hien: layered dark brown hair with curtain bangs, a warm smile, a black tweed jacket with a gold button. She looks toward your pointer.',
+    portraitLabel: 'A 3D portrait of Hien: layered brown hair with curtain bangs, round glasses, a warm smile, a black tweed jacket with a gold button.',
   },
   about: {
     title: 'About',
