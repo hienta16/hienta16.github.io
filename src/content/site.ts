@@ -70,7 +70,7 @@ export const copy = {
   },
   about: {
     title: 'About',
-    lead: "I'm Hien, a data analyst studying Information Systems at National Economics University (NEU) in Hanoi.",
+    lead: "I'm Hien, a data analyst who loves untangling messy data and making the results as good-looking as they are useful.",
     body: [
       'Information Systems taught me that every business runs on systems, and every system leaves a trail of data. I like following that trail until it turns into something a person can decide with: a clean table, an honest chart, one sentence that changes a plan.',
       "Most of how I work, I learned away from the keyboard. Dance taught me to find the count before adding style, so I clean the data and check its rhythm before I decorate anything. Music taught me to hear the pattern, and the one note that doesn't belong.",
