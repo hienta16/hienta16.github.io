@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { copy, profile, sectionOrder, type SectionId } from '../content/site'
 import { useMediaQuery, useReducedMotion } from '../lib/stage'
+import { useTheme } from '../lib/theme'
 import { RulerCat, type RulerPose } from './Cat'
-import { GitHubMark } from './icons'
+import { ThemeCycle, ThemeToggle } from './ThemeToggle'
 import './Cat.css'
 import './TapeHeader.css'
 
@@ -20,6 +21,7 @@ export function TapeHeader() {
   const t = copy.nav
   const reduced = useReducedMotion()
   const wide = useMediaQuery('(min-width: 760px)')
+  const { coat } = useTheme()
 
   const tapeRef = useRef<HTMLDivElement>(null)
   const labelRefs = useRef<Partial<Record<SectionId, HTMLAnchorElement | null>>>({})
@@ -184,7 +186,7 @@ export function TapeHeader() {
         )}
         <button type="button" className={`tape__cat is-${dir}`} onClick={sayMrrp} aria-label="Say hello to the cat">
           <span className="tape__cat-body">
-            <RulerCat pose={pose} />
+            <RulerCat pose={pose} coat={coat} />
           </span>
           {meow && (
             <span className="tape__meow" aria-hidden="true">
@@ -196,11 +198,7 @@ export function TapeHeader() {
       </div>
 
       <div className="tape-tab">
-        <a className="tape-tab__gh" href={profile.githubUrl} rel="noopener">
-          <GitHubMark className="icon" />
-          <span className="tape-tab__gh-text">@{profile.githubLogin}</span>
-          <span className="sr-only">{t.github}</span>
-        </a>
+        {wide ? <ThemeToggle /> : <ThemeCycle />}
         {!wide && (
           <button type="button" className="tape-tab__menu" onClick={() => sheetRef.current?.showModal()} aria-haspopup="dialog">
             <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
@@ -225,6 +223,10 @@ export function TapeHeader() {
             <button type="button" className="sheet__close" onClick={() => sheetRef.current?.close()}>
               {t.close}
             </button>
+          </div>
+          <div className="sheet__theme">
+            <p className="label">{copy.theme.label}</p>
+            <ThemeToggle />
           </div>
           <ol className="sheet__list">
             {sectionOrder.map((s) => (

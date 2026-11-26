@@ -1,13 +1,18 @@
-import { forwardRef, useEffect, useId, useState, type CSSProperties } from 'react'
+import { forwardRef, useEffect, useId, useRef, useState, type CSSProperties } from 'react'
 
 /**
- * The cat: a tortoiseshell, drawn for this site from a photo of Hien's own cat. Soft 2.5D: rounded volumes from
- * light-to-shadow gradients, soft-edged tortie mottling, an orange rim light, and a face that turns toward what the
- * cat is watching (features slide across the rounded head while the head tilts, so it reads as a turn in depth).
- * Pure SVG + CSS. `npm run export:art` renders static copies for the GitHub profile README (Python embeds them).
+ * Hien's two cats, drawn for this site from photos. One body, two coats:
+ * - `tortie` (light theme): the tortoiseshell, brindled black, rust and ginger, big yellow-green eyes.
+ * - `tuxie` (dark theme): the black-and-white cat: white muzzle, chest and paws, a black cap that sweeps from her
+ *   black ear over the head and around one eye, a black saddle and tail, pink nose, yellow-green eyes.
+ * Soft 2.5D: rounded volumes from light-to-shadow gradients, soft-edged markings, a warm rim light, and a face that
+ * turns toward what the cat is watching. Both coats share every pose, mood and animation, so changing the theme
+ * swaps the costume without resetting anything. Pure SVG + CSS; `npm run export:art` renders static copies for the
+ * GitHub profile README.
  */
 
 export type CatMood = 'idle' | 'blink' | 'swat' | 'bob' | 'bow' | 'happy' | 'sleep' | 'crouch'
+export type Coat = 'tortie' | 'tuxie'
 
 export const TORTIE = {
   base: '#221B1F',
@@ -26,12 +31,34 @@ export const TORTIE = {
   whisker: '#F4E9DF',
 }
 
+export const TUXIE = {
+  white: '#F7F3EF',
+  whiteLit: '#FFFFFF',
+  black: '#1D1A1F',
+  blackLit: '#38343B',
+  earPink: '#F3B9BE',
+  earPinkDeep: '#DE919C',
+  earDark: '#A98289',
+  earDarkDeep: '#6E4C53',
+  irisHi: '#F6F1A2',
+  iris: '#DED56E',
+  irisLo: '#B3AE44',
+  irisRim: '#6B6524',
+  nose: '#EE9FAC',
+  noseLit: '#FAD3DA',
+  mouth: '#B48690',
+  whisker: '#D3CACA',
+  toe: '#BDB3B6',
+}
+
 interface Props {
   /** Where the cat looks, each axis -1 … 1 */
   gaze?: { x: number; y: number }
   /** 0 calm … 1 very curious: the pupils widen */
   curious?: number
   mood?: CatMood
+  /** Which of Hien's cats: the tortoiseshell (light theme) or the black-and-white cat (dark theme) */
+  coat?: Coat
   /** Animate idle life (breathing, blinking, tail, ears). Off for static renders and reduced motion. */
   alive?: boolean
   className?: string
@@ -46,6 +73,16 @@ const EAR_L = 'M92 112C84 84 80 50 88 22C112 34 132 52 146 72Z'
 const EAR_R = 'M228 112C236 84 240 50 232 22C208 34 188 52 174 72Z'
 const LEG_L = 'M125 300C124 290 150 290 150 300C152 322 152 338 151 352C147 360 131 360 125 352C121 336 122 318 125 300Z'
 const LEG_R = 'M170 300C170 290 195 290 195 300C198 318 199 336 195 352C189 360 173 360 169 352C168 338 168 322 170 300Z'
+const TAIL = 'M232 346C282 350 304 312 292 276C285 255 265 249 258 262C253 273 268 280 272 296C278 320 260 334 230 332Z'
+
+/* The black-and-white cat's markings (from the photos): a cap that covers her right ear side of the head, passes
+   just above the left eye, runs down the nose bridge and wraps the right eye to the cheek; a saddle on the back. */
+const TUX_CAP =
+  'M66 36H254V180C242 174 226 181 208 178C190 176 176 170 169 160C164 150 162 136 159 124C155 111 146 102 130 100C112 98 96 104 86 113C79 120 72 127 66 132Z'
+const TUX_SADDLE =
+  'M206 194C236 212 258 254 258 298C258 320 252 336 242 344C228 322 214 292 201 262C190 240 186 214 194 200Z' +
+  'M234 282C254 290 266 314 262 336C254 350 236 352 224 344C230 324 230 302 234 282Z'
+
 /** Deterministic pseudo-random flecks in a region, angled with the fur: tortoiseshell is brindled, not spotted. */
 function flecks(seed: number, cx: number, cy: number, rx: number, ry: number, n: number, colors: string[], angle = 70) {
   let x = seed
@@ -88,17 +125,19 @@ const HEAD_FLECKS = [
 ]
 const TAIL_FLECKS = flecks(61, 276, 296, 16, 34, 26, WARM, 100)
 const LEG_FLECKS = [...flecks(71, 136, 318, 9, 26, 10, WARM, 90), ...flecks(83, 184, 300, 9, 20, 7, WARM, 90)]
-
-const TAIL = 'M232 346C282 350 304 312 292 276C285 255 265 249 258 262C253 273 268 280 272 296C278 320 260 334 230 332Z'
+/* a few long guard hairs where black meets white, so the boundary reads as fur, not a cut-out */
+const TUX_FUZZ = flecks(97, 166, 156, 8, 26, 9, [TUXIE.black], 80)
 
 export const TortieCat = forwardRef<HTMLDivElement, Props>(function TortieCat(
-  { gaze = { x: 0, y: 0 }, curious = 0.3, mood = 'idle', alive = true, className = '', style, label },
+  { gaze = { x: 0, y: 0 }, curious = 0.3, mood = 'idle', coat = 'tortie', alive = true, className = '', style, label },
   ref,
 ) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const id = (n: string) => `${n}-${uid}`
   const [blink, setBlink] = useState(false)
   const [twitch, setTwitch] = useState<'l' | 'r' | null>(null)
+  const [swap, setSwap] = useState(false)
+  const lastCoat = useRef(coat)
 
   useEffect(() => {
     if (!alive) return
@@ -126,18 +165,38 @@ export const TortieCat = forwardRef<HTMLDivElement, Props>(function TortieCat(
     }
   }, [alive])
 
+  // A costume change: when the theme swaps the coat, the cat does a little shake-and-blink instead of popping.
+  useEffect(() => {
+    if (lastCoat.current === coat) return
+    lastCoat.current = coat
+    setSwap(true)
+    const t = window.setTimeout(() => setSwap(false), 620)
+    return () => window.clearTimeout(t)
+  }, [coat])
+
+  const tux = coat === 'tuxie'
+  const fur = tux ? TUXIE.white : TORTIE.base
+  const furLit = tux ? TUXIE.whiteLit : TORTIE.lit
+  const ink = tux ? TUXIE.black : TORTIE.base
+  const C = tux ? TUXIE : TORTIE
+
   const gx = Math.max(-1, Math.min(1, gaze.x))
   const gy = Math.max(-1, Math.min(1, gaze.y))
   const dil = 0.82 + 0.42 * Math.max(0, Math.min(1, curious))
-  const lid = blink || mood === 'blink' || mood === 'sleep' ? 1 : mood === 'happy' ? 0.55 : 0
+  const lid = blink || swap || mood === 'blink' || mood === 'sleep' ? 1 : mood === 'happy' ? 0.55 : 0
   const headT = `translate(${gx * 5} ${gy * 4}) rotate(${gx * 5} 160 200)`
   const faceT = `translate(${gx * 10} ${gy * 7})`
   const earT = (side: 1 | -1) => `translate(${gx * 3 - side * Math.abs(gx) * 2} ${gy * 2})`
+  // per eye: the black-and-white cat's left eye sits in white fur, her right eye inside the black cap
+  const eyeFur = (cx: number) => (tux ? (cx < 160 ? TUXIE.white : TUXIE.black) : TORTIE.base)
+  const eyeRing = (cx: number) => (tux && cx < 160 ? '#4A3B42' : '#1a1317')
+  const rim = tux ? '#FFD9C4' : TORTIE.ginger
+  const legEdge = tux ? { stroke: '#2B2440', strokeOpacity: 0.08, strokeWidth: 1.2 } : {}
 
   return (
     <div
       ref={ref}
-      className={`tortie ${alive ? 'is-alive' : ''} tortie--${mood} ${className}`}
+      className={`tortie tortie--coat-${coat} ${alive ? 'is-alive' : ''} tortie--${mood} ${swap ? 'is-swapping' : ''} ${className}`}
       style={style}
       role={label ? 'img' : undefined}
       aria-label={label}
@@ -147,24 +206,28 @@ export const TortieCat = forwardRef<HTMLDivElement, Props>(function TortieCat(
           <radialGradient id={id('shade')} cx="36%" cy="28%" r="78%">
             <stop offset="0" stopColor="#fff3e8" stopOpacity=".26" />
             <stop offset=".42" stopColor="#fff3e8" stopOpacity="0" />
-            <stop offset=".78" stopColor="#000" stopOpacity=".18" />
-            <stop offset="1" stopColor="#000" stopOpacity=".5" />
+            <stop offset=".78" stopColor={tux ? '#2B2440' : '#000'} stopOpacity={tux ? 0.14 : 0.18} />
+            <stop offset="1" stopColor={tux ? '#2B2440' : '#000'} stopOpacity={tux ? 0.36 : 0.5} />
           </radialGradient>
           <radialGradient id={id('shadeU')} gradientUnits="userSpaceOnUse" cx="128" cy="96" r="190">
-            <stop offset="0" stopColor="#fff3e8" stopOpacity=".24" />
+            <stop offset="0" stopColor="#fff3e8" stopOpacity={tux ? 0.1 : 0.24} />
             <stop offset=".4" stopColor="#fff3e8" stopOpacity="0" />
-            <stop offset=".75" stopColor="#000" stopOpacity=".16" />
-            <stop offset="1" stopColor="#000" stopOpacity=".45" />
+            <stop offset=".75" stopColor={tux ? '#2B2440' : '#000'} stopOpacity={tux ? 0.12 : 0.16} />
+            <stop offset="1" stopColor={tux ? '#2B2440' : '#000'} stopOpacity={tux ? 0.32 : 0.45} />
           </radialGradient>
           <radialGradient id={id('iris')} cx="50%" cy="62%" r="62%">
-            <stop offset="0" stopColor={TORTIE.irisHi} />
-            <stop offset=".55" stopColor={TORTIE.iris} />
-            <stop offset=".9" stopColor={TORTIE.irisLo} />
-            <stop offset="1" stopColor={TORTIE.irisRim} />
+            <stop offset="0" stopColor={C.irisHi} />
+            <stop offset=".55" stopColor={C.iris} />
+            <stop offset=".9" stopColor={C.irisLo} />
+            <stop offset="1" stopColor={C.irisRim} />
           </radialGradient>
           <radialGradient id={id('ear')} cx="50%" cy="80%" r="80%">
-            <stop offset="0" stopColor={TORTIE.earIn} />
-            <stop offset="1" stopColor={TORTIE.earInDeep} />
+            <stop offset="0" stopColor={tux ? TUXIE.earDark : TORTIE.earIn} />
+            <stop offset="1" stopColor={tux ? TUXIE.earDarkDeep : TORTIE.earInDeep} />
+          </radialGradient>
+          <radialGradient id={id('earPink')} cx="50%" cy="80%" r="80%">
+            <stop offset="0" stopColor={TUXIE.earPink} />
+            <stop offset="1" stopColor={TUXIE.earPinkDeep} />
           </radialGradient>
           <filter id={id('soft')} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2.6" />
@@ -217,111 +280,171 @@ export const TortieCat = forwardRef<HTMLDivElement, Props>(function TortieCat(
         {/* contact shadow */}
         <ellipse cx="160" cy="364" rx="118" ry="13" fill="#22243A" opacity=".28" filter={`url(#${id('blur6')})`} />
 
-        {/* tail */}
-        <g className="tortie__tail">
-          <path d={TAIL} fill={TORTIE.base} />
-          <g clipPath={`url(#${id('tail')})`}>
-            <g filter={`url(#${id('fleck')})`}>
-              <Flecks list={TAIL_FLECKS} />
-            </g>
-            <path d={TAIL} fill={`url(#${id('shade')})`} />
-          </g>
-        </g>
-
-        {/* body */}
-        <g className="tortie__body">
-          <ellipse cx="100" cy="320" rx="42" ry="44" fill={TORTIE.base} />
-          <ellipse cx="220" cy="320" rx="42" ry="44" fill={TORTIE.base} />
-          <path d={BODY} fill={TORTIE.base} />
-          <g clipPath={`url(#${id('body')})`}>
-            <g filter={`url(#${id('soft')})`}>
-              <path d="M160 206c-20 10-28 36-25 62 3 18 14 30 25 30s22-12 25-30c3-26-5-52-25-62z" fill={TORTIE.peach} opacity=".82" />
-              <path d="M90 232c16-10 34-2 32 18-2 18-16 30-30 26-8-14-10-32-2-44z" fill={TORTIE.rust} opacity=".55" />
-              <path d="M206 284c20-2 36 16 32 34-8 12-28 10-34-4-4-12-4-24 2-30z" fill={TORTIE.rust} opacity=".6" />
-            </g>
-            <g filter={`url(#${id('fleck')})`}>
-              <Flecks list={BODY_FLECKS} />
-            </g>
-            <rect x="40" y="180" width="240" height="190" fill={`url(#${id('shade')})`} />
-          </g>
-          <path d={BODY} fill={TORTIE.ginger} opacity=".16" mask={`url(#${id('rimBody')})`} filter={`url(#${id('soft')})`} />
-        </g>
-
-        {/* front legs */}
-        <g className="tortie__leg" mask={`url(#${id('legFade')})`}>
-          <path d={LEG_L} fill={TORTIE.base} />
-          <path d="M131 286c-2 22-2 44 0 58" stroke={TORTIE.lit} strokeWidth="5" strokeLinecap="round" opacity=".8" filter={`url(#${id('soft')})`} />
-          <ellipse cx="138" cy="355" rx="16" ry="8.5" fill={TORTIE.base} />
-          <path d="M127 352c5-4 12-4 16 0" fill="none" stroke={TORTIE.ginger} strokeWidth="3" strokeLinecap="round" opacity=".8" />
-          <path d="M133 361v-4M143 361v-4" stroke="#6b5a5f" strokeWidth="1.4" strokeLinecap="round" />
-        </g>
-        <g className="tortie__paw" mask={`url(#${id('legFade')})`}>
-          <path d={LEG_R} fill={TORTIE.base} />
-          <path d="M176 286c-2 22-2 44 0 58" stroke={TORTIE.lit} strokeWidth="5" strokeLinecap="round" opacity=".8" filter={`url(#${id('soft')})`} />
-          <ellipse cx="182" cy="355" rx="16" ry="8.5" fill={TORTIE.base} />
-          <path d="M177 361v-4M187 361v-4" stroke="#6b5a5f" strokeWidth="1.4" strokeLinecap="round" />
-        </g>
-
-        <g clipPath={`url(#${id('body')})`} filter={`url(#${id('fleck')})`}>
-          <Flecks list={LEG_FLECKS} />
-        </g>
-
-        {/* head */}
-        <g className="tortie__head" transform={headT}>
-          <g className={`tortie__ear tortie__ear--l ${twitch === 'l' ? 'is-twitch' : ''}`} transform={earT(-1)}>
-            <path d={EAR_L} fill={TORTIE.base} stroke={TORTIE.base} strokeWidth="6" strokeLinejoin="round" />
-            <path d="M101 98C97 78 96 57 100 41C114 51 126 63 134 75Z" fill={`url(#${id('ear')})`} />
-            <path d="M106 86l9-12M110 94l11-10" stroke={TORTIE.whisker} strokeOpacity=".45" strokeWidth="1.3" strokeLinecap="round" />
-          </g>
-          <g className={`tortie__ear tortie__ear--r ${twitch === 'r' ? 'is-twitch' : ''}`} transform={earT(1)}>
-            <path d={EAR_R} fill={TORTIE.base} stroke={TORTIE.base} strokeWidth="6" strokeLinejoin="round" />
-            <path d="M219 98C223 78 224 57 220 41C206 51 194 63 186 75Z" fill={`url(#${id('ear')})`} />
-            <path d="M214 86l-9-12M210 94l-11-10" stroke={TORTIE.whisker} strokeOpacity=".45" strokeWidth="1.3" strokeLinecap="round" />
-            <path d="M226 36c6 10 6 24 2 34" fill="none" stroke={TORTIE.rust} strokeWidth="5" strokeLinecap="round" opacity=".55" />
-          </g>
-
-          <path d="M82 158l-15 11 19 6zM238 158l15 11-19 6z" fill={TORTIE.base} />
-          <path d={HEAD} fill={TORTIE.base} />
-          <g clipPath={`url(#${id('head')})`}>
-            <g filter={`url(#${id('fleck')})`} transform={`translate(${gx * 4} ${gy * 3})`}>
-              <path d="M90 106c10-10 26-6 24 8-2 12-10 22-20 24-7-9-9-24-4-32z" fill={TORTIE.rust} opacity=".5" />
-              <Flecks list={HEAD_FLECKS} />
-            </g>
-            <rect x="60" y="50" width="200" height="180" fill={`url(#${id('shadeU')})`} />
-          </g>
-          <path d={HEAD} fill={TORTIE.ginger} opacity=".2" mask={`url(#${id('rimHead')})`} filter={`url(#${id('soft')})`} />
-
-          {/* the face slides across the rounded head as it turns */}
-          <g className="tortie__face" transform={faceT}>
-            {[128, 192].map((cx) => (
-              <g key={cx}>
-                <circle cx={cx} cy="138" r="28.5" fill="#1a1317" />
-                <g clipPath={`url(#${id(`eye${cx}`)})`}>
-                  <circle cx={cx} cy="138" r="25" fill={`url(#${id('iris')})`} />
-                  <ellipse cx={cx} cy="117" rx="30" ry="12" fill="#000" opacity=".22" />
-                  <g className="tortie__pupil" transform={`translate(${gx * 6} ${gy * 5})`}>
-                    <ellipse cx={cx} cy="139" rx={10.5 * dil} ry={14 * dil} fill="#110c0f" />
-                  </g>
-                  <circle cx={cx - 9} cy="128" r="6.4" fill="#fff" opacity=".95" />
-                  <circle cx={cx + 8} cy="148" r="2.6" fill="#fff" opacity=".7" />
+        <g className="tortie__swap">
+          {/* tail */}
+          <g className="tortie__tail">
+            <path d={TAIL} fill={ink} />
+            <g clipPath={`url(#${id('tail')})`}>
+              {!tux && (
+                <g filter={`url(#${id('fleck')})`}>
+                  <Flecks list={TAIL_FLECKS} />
                 </g>
-                <g clipPath={`url(#${id(`sock${cx}`)})`}>
-                  <g className="tortie__lid" style={{ transform: `scaleY(${lid})` }}>
-                    <rect x={cx - 31} y="108" width="62" height="62" fill={TORTIE.base} />
-                    <rect x={cx - 31} y="108" width="62" height="62" fill={`url(#${id('shadeU')})`} />
+              )}
+              <path d={TAIL} fill={`url(#${id('shade')})`} />
+            </g>
+          </g>
+
+          {/* body */}
+          <g className="tortie__body">
+            <ellipse cx="100" cy="320" rx="42" ry="44" fill={fur} />
+            <ellipse cx="220" cy="320" rx="42" ry="44" fill={fur} />
+            <path d={BODY} fill={fur} />
+            <g clipPath={`url(#${id('body')})`}>
+              {tux ? (
+                <>
+                  <g filter={`url(#${id('fleck')})`}>
+                    <path d={TUX_SADDLE} fill={TUXIE.black} />
                   </g>
-                </g>
-                {lid >= 1 && <path d={`M${cx - 18} 138q18 10 36 0`} fill="none" stroke="#9a868b" strokeWidth="3" strokeLinecap="round" />}
+                  {/* the chin casts a soft shadow onto the white chest */}
+                  <path d="M118 198C138 216 182 216 202 198L204 216C184 232 136 232 116 216Z" fill="#2B2440" opacity=".14" filter={`url(#${id('soft')})`} />
+                </>
+              ) : (
+                <>
+                  <g filter={`url(#${id('soft')})`}>
+                    <path d="M160 206c-20 10-28 36-25 62 3 18 14 30 25 30s22-12 25-30c3-26-5-52-25-62z" fill={TORTIE.peach} opacity=".82" />
+                    <path d="M90 232c16-10 34-2 32 18-2 18-16 30-30 26-8-14-10-32-2-44z" fill={TORTIE.rust} opacity=".55" />
+                    <path d="M206 284c20-2 36 16 32 34-8 12-28 10-34-4-4-12-4-24 2-30z" fill={TORTIE.rust} opacity=".6" />
+                  </g>
+                  <g filter={`url(#${id('fleck')})`}>
+                    <Flecks list={BODY_FLECKS} />
+                  </g>
+                </>
+              )}
+              <rect x="40" y="180" width="240" height="190" fill={`url(#${id('shade')})`} />
+            </g>
+            <path d={BODY} fill={rim} opacity={tux ? 0.1 : 0.16} mask={`url(#${id('rimBody')})`} filter={`url(#${id('soft')})`} />
+          </g>
+
+          {/* front legs */}
+          <g className="tortie__leg" mask={`url(#${id('legFade')})`}>
+            <path d={LEG_L} fill={fur} {...legEdge} />
+            <path d="M131 286c-2 22-2 44 0 58" stroke={furLit} strokeWidth="5" strokeLinecap="round" opacity=".8" filter={`url(#${id('soft')})`} />
+            <ellipse cx="138" cy="355" rx="16" ry="8.5" fill={fur} {...legEdge} />
+            {!tux && <path d="M127 352c5-4 12-4 16 0" fill="none" stroke={TORTIE.ginger} strokeWidth="3" strokeLinecap="round" opacity=".8" />}
+            <path d="M133 361v-4M143 361v-4" stroke={tux ? TUXIE.toe : '#6b5a5f'} strokeWidth="1.4" strokeLinecap="round" />
+          </g>
+          <g className="tortie__paw" mask={`url(#${id('legFade')})`}>
+            <path d={LEG_R} fill={fur} {...legEdge} />
+            <path d="M176 286c-2 22-2 44 0 58" stroke={furLit} strokeWidth="5" strokeLinecap="round" opacity=".8" filter={`url(#${id('soft')})`} />
+            <ellipse cx="182" cy="355" rx="16" ry="8.5" fill={fur} {...legEdge} />
+            <path d="M177 361v-4M187 361v-4" stroke={tux ? TUXIE.toe : '#6b5a5f'} strokeWidth="1.4" strokeLinecap="round" />
+          </g>
+
+          {!tux && (
+            <g clipPath={`url(#${id('body')})`} filter={`url(#${id('fleck')})`}>
+              <Flecks list={LEG_FLECKS} />
+            </g>
+          )}
+          {tux && (
+            /* white on white: soft fur shadows where the legs meet the chest and each other */
+            <g filter={`url(#${id('soft')})`} stroke="#2B2440" strokeLinecap="round" fill="none">
+              <path d="M160 300c0 18 0 36-1 54" strokeWidth="7" strokeOpacity=".14" />
+              <path d="M123 304c-1 16-1 32 1 48M197 304c1 16 1 32-1 48" strokeWidth="5" strokeOpacity=".1" />
+              <path d="M126 292c10-4 22-4 32 0M168 292c10-4 22-4 30 0" strokeWidth="4" strokeOpacity=".12" />
+            </g>
+          )}
+
+          {/* head */}
+          <g className="tortie__head" transform={headT}>
+            <g className={`tortie__ear tortie__ear--l ${twitch === 'l' ? 'is-twitch' : ''}`} transform={earT(-1)}>
+              <path d={EAR_L} fill={ink} stroke={ink} strokeWidth="6" strokeLinejoin="round" />
+              <path d="M101 98C97 78 96 57 100 41C114 51 126 63 134 75Z" fill={`url(#${id('ear')})`} />
+              <path d="M106 86l9-12M110 94l11-10" stroke={TORTIE.whisker} strokeOpacity=".45" strokeWidth="1.3" strokeLinecap="round" />
+            </g>
+            <g className={`tortie__ear tortie__ear--r ${twitch === 'r' ? 'is-twitch' : ''}`} transform={earT(1)}>
+              <path d={EAR_R} fill={fur} stroke={fur} strokeWidth="6" strokeLinejoin="round" />
+              <path d="M219 98C223 78 224 57 220 41C206 51 194 63 186 75Z" fill={`url(#${id(tux ? 'earPink' : 'ear')})`} />
+              <path d="M214 86l-9-12M210 94l-11-10" stroke={tux ? '#FFFFFF' : TORTIE.whisker} strokeOpacity={tux ? 0.8 : 0.45} strokeWidth="1.3" strokeLinecap="round" />
+              {!tux && <path d="M226 36c6 10 6 24 2 34" fill="none" stroke={TORTIE.rust} strokeWidth="5" strokeLinecap="round" opacity=".55" />}
+            </g>
+
+            <path d="M82 158l-15 11 19 6z" fill={fur} />
+            <path d="M238 158l15 11-19 6z" fill={ink} />
+            <path d={HEAD} fill={fur} />
+            <g clipPath={`url(#${id('head')})`}>
+              <g filter={`url(#${id('fleck')})`} transform={`translate(${gx * 4} ${gy * 3})`}>
+                {tux ? (
+                  <>
+                    <path d={TUX_CAP} fill={TUXIE.black} />
+                    <Flecks list={TUX_FUZZ} />
+                  </>
+                ) : (
+                  <>
+                    <path d="M90 106c10-10 26-6 24 8-2 12-10 22-20 24-7-9-9-24-4-32z" fill={TORTIE.rust} opacity=".5" />
+                    <Flecks list={HEAD_FLECKS} />
+                  </>
+                )}
               </g>
-            ))}
-            <circle cx="146" cy="184" r="12" fill={TORTIE.lit} opacity=".55" />
-            <circle cx="174" cy="184" r="12" fill={TORTIE.lit} opacity=".55" />
-            <ellipse cx="152" cy="201" rx="15" ry="8" fill={TORTIE.peach} opacity=".85" filter={`url(#${id('soft')})`} />
-            <path d="M151 168q9-4 18 0-3 8-9 11-6-3-9-11z" fill={TORTIE.nose} />
-            <ellipse cx="157" cy="169.5" rx="3" ry="1.4" fill="#7a6266" />
-            <path d="M160 179v6m0 0c-4 6-12 6-15 1m15-1c4 6 12 6 15 1" fill="none" stroke="#5f4c51" strokeWidth="2.2" strokeLinecap="round" />
-            <g stroke={TORTIE.whisker} strokeOpacity=".62" strokeWidth="1.6" strokeLinecap="round">
-              <path d="M134 186L70 176M134 192L72 199M186 186l64-10M186 192l62 7" />
+              <rect x="60" y="50" width="200" height="180" fill={`url(#${id('shadeU')})`} />
+            </g>
+            <path d={HEAD} fill={rim} opacity={tux ? 0.28 : 0.2} mask={`url(#${id('rimHead')})`} filter={`url(#${id('soft')})`} />
+
+            {/* the face slides across the rounded head as it turns */}
+            <g className="tortie__face" transform={faceT}>
+              {[128, 192].map((cx) => (
+                <g key={cx}>
+                  <circle cx={cx} cy="138" r={tux && cx < 160 ? 27.2 : 28.5} fill={eyeRing(cx)} />
+                  <g clipPath={`url(#${id(`eye${cx}`)})`}>
+                    <circle cx={cx} cy="138" r="25" fill={`url(#${id('iris')})`} />
+                    <ellipse cx={cx} cy="117" rx="30" ry="12" fill="#000" opacity=".22" />
+                    <g className="tortie__pupil" transform={`translate(${gx * 6} ${gy * 5})`}>
+                      <ellipse cx={cx} cy="139" rx={10.5 * dil} ry={14 * dil} fill="#110c0f" />
+                    </g>
+                    <circle cx={cx - 9} cy="128" r="6.4" fill="#fff" opacity=".95" />
+                    <circle cx={cx + 8} cy="148" r="2.6" fill="#fff" opacity=".7" />
+                  </g>
+                  <g clipPath={`url(#${id(`sock${cx}`)})`}>
+                    <g className="tortie__lid" style={{ transform: `scaleY(${lid})` }}>
+                      <rect x={cx - 31} y="108" width="62" height="62" fill={eyeFur(cx)} />
+                      <rect x={cx - 31} y="108" width="62" height="62" fill={`url(#${id('shadeU')})`} />
+                    </g>
+                  </g>
+                  {lid >= 1 && (
+                    <path d={`M${cx - 18} 138q18 10 36 0`} fill="none" stroke={tux && cx < 160 ? '#8C7A80' : '#9a868b'} strokeWidth="3" strokeLinecap="round" />
+                  )}
+                </g>
+              ))}
+              {tux ? (
+                <>
+                  <circle cx="146" cy="184" r="12" fill={TUXIE.whiteLit} opacity=".75" />
+                  <circle cx="174" cy="184" r="12" fill={TUXIE.whiteLit} opacity=".75" />
+                  <g fill={TUXIE.toe} opacity=".55">
+                    <circle cx="141" cy="183" r="1.2" />
+                    <circle cx="147" cy="188" r="1.2" />
+                    <circle cx="173" cy="188" r="1.2" />
+                    <circle cx="179" cy="183" r="1.2" />
+                  </g>
+                  <ellipse cx="160" cy="201" rx="15" ry="8" fill={TUXIE.whiteLit} opacity=".7" filter={`url(#${id('soft')})`} />
+                  <path d="M151 168q9-4 18 0-3 8-9 11-6-3-9-11z" fill={TUXIE.nose} />
+                  <ellipse cx="157" cy="169.5" rx="3" ry="1.4" fill={TUXIE.noseLit} />
+                  <path d="M160 179v6m0 0c-4 6-12 6-15 1m15-1c4 6 12 6 15 1" fill="none" stroke={TUXIE.mouth} strokeWidth="2.2" strokeLinecap="round" />
+                  <g stroke={TUXIE.whisker} strokeOpacity=".9" strokeWidth="1.6" strokeLinecap="round">
+                    <path d="M134 186L70 176M134 192L72 199M186 186l64-10M186 192l62 7" />
+                  </g>
+                </>
+              ) : (
+                <>
+                  <circle cx="146" cy="184" r="12" fill={TORTIE.lit} opacity=".55" />
+                  <circle cx="174" cy="184" r="12" fill={TORTIE.lit} opacity=".55" />
+                  <ellipse cx="152" cy="201" rx="15" ry="8" fill={TORTIE.peach} opacity=".85" filter={`url(#${id('soft')})`} />
+                  <path d="M151 168q9-4 18 0-3 8-9 11-6-3-9-11z" fill={TORTIE.nose} />
+                  <ellipse cx="157" cy="169.5" rx="3" ry="1.4" fill="#7a6266" />
+                  <path d="M160 179v6m0 0c-4 6-12 6-15 1m15-1c4 6 12 6 15 1" fill="none" stroke="#5f4c51" strokeWidth="2.2" strokeLinecap="round" />
+                  <g stroke={TORTIE.whisker} strokeOpacity=".62" strokeWidth="1.6" strokeLinecap="round">
+                    <path d="M134 186L70 176M134 192L72 199M186 186l64-10M186 192l62 7" />
+                  </g>
+                </>
+              )}
             </g>
           </g>
         </g>

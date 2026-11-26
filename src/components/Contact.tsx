@@ -4,10 +4,12 @@ import { fill } from '../lib/format'
 import { useGaze } from '../lib/gaze'
 import { useOnScreen, useReducedMotion, useSeen } from '../lib/stage'
 import { GitHubMark, IconArrow, IconLinkedIn, IconUp } from './icons'
+import { useTheme } from '../lib/theme'
 import { TortieCat, type CatMood } from './TortieCat'
 import './Contact.css'
 
 export function Contact() {
+  const { coat } = useTheme()
   const t = copy.contact
   const reduced = useReducedMotion()
   const ref = useRef<HTMLElement>(null)
@@ -57,10 +59,10 @@ export function Contact() {
           </a>
         </div>
         <button type="button" className="contact__cat" onClick={bow} aria-label={t.bow}>
-          <TortieCat ref={catRef} gaze={gaze} mood={mood} alive={!reduced} />
+          <TortieCat ref={catRef} gaze={gaze} mood={mood} coat={coat} alive={!reduced} />
         </button>
       </div>
-      <p className="wrap contact__footer">{fill(t.footer, { year: new Date().getFullYear() })}</p>
+      <p className="wrap contact__footer">{fill(coat === 'tuxie' ? t.footerNight : t.footer, { year: new Date().getFullYear() })}</p>
     </section>
   )
 }

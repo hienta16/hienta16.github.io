@@ -23,6 +23,12 @@ const art: Record<string, ReactElement> = {
   'tortie-happy': createElement(TortieCat, { alive: false, gaze: { x: -0.2, y: 0.1 }, mood: 'happy', curious: 0.3 }),
   'tortie-sleep': createElement(TortieCat, { alive: false, mood: 'sleep' }),
   'ruler-walk': createElement(RulerCat, { pose: 'walk' }),
+  // the black-and-white cat, for the dark-mode README images
+  'tuxie-front': createElement(TortieCat, { alive: false, coat: 'tuxie', gaze: { x: 0.22, y: 0.06 }, curious: 0.5 }),
+  'tuxie-happy': createElement(TortieCat, { alive: false, coat: 'tuxie', gaze: { x: -0.2, y: 0.1 }, mood: 'happy', curious: 0.3 }),
+  'tuxie-sleep': createElement(TortieCat, { alive: false, coat: 'tuxie', mood: 'sleep' }),
+  'ruler-walk-tuxie': createElement(RulerCat, { pose: 'walk', coat: 'tuxie' }),
+  // Hien, illustrated (no photograph is embedded)
   'toy-yarn-pink': createElement(YarnBall, { color: 'pink' }),
   'toy-yarn-blue': createElement(YarnBall, { color: 'blue' }),
   'toy-feather': createElement(Feather),

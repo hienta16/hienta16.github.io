@@ -46,6 +46,14 @@ export const copy = {
     tape: 'Page progress. The cat walks to where you are.',
     github: 'GitHub profile',
   },
+  theme: {
+    label: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+    auto: 'Auto · Hanoi time',
+    autoHint: 'Automatically switches at 6 AM and 6 PM Hanoi time.',
+    next: 'press to change',
+  },
   hero: {
     hello: "Hi, I'm Hien Ta!",
     role: 'Data Analyst',
@@ -56,7 +64,9 @@ export const copy = {
     ctaGithub: 'See my GitHub',
     ctaLinkedIn: 'LinkedIn',
     status: 'Untangling a dataset',
-    catLabel: 'A tortoiseshell cat with big yellow-green eyes, sitting in a blue circle and watching your pointer. Click to say hello.',
+    catLabel: 'A tortoiseshell cat with big yellow-green eyes, watching your pointer. Click to say hello.',
+    catLabelNight: 'A black-and-white cat with yellow-green eyes, watching your pointer. Click to say hello.',
+    portraitLabel: 'A 3D portrait of Hien: layered brown hair with curtain bangs, round glasses, a warm smile, a black tweed jacket with a gold button.',
   },
   about: {
     title: 'About',
@@ -130,6 +140,8 @@ export const copy = {
   toys: {
     title: "The cat's toy box",
     line: 'Leave a toy for my tortoiseshell. Real gifts travel through a GitHub issue, and Python checks every one before the cat gets it.',
+    /** after dark, the black-and-white cat keeps the box */
+    lineNight: 'Leave a toy for my black-and-white cat. Real gifts travel through a GitHub issue, and Python checks every one before the cat gets it.',
     pick: 'Pick a toy',
     stays: 'Stays {time}',
     give: 'Give to cat',
@@ -154,6 +166,7 @@ export const copy = {
     ],
     demo: 'Demo data from python -m catwalk toys demo: made-up visitors, not real gifts.',
     sceneLabel: "Hien's tortoiseshell cat on a rug with {n} toy(s).",
+    sceneLabelNight: "Hien's black-and-white cat on a rug with {n} toy(s).",
     catLabel: 'Pet the cat',
     cursorHint: 'Your cursor is yarn here. Click the rug and the cat pounces.',
     shelf: 'The shelf: {n} gifts given so far, counted by toy.',
@@ -178,6 +191,7 @@ export const copy = {
     email: 'Email',
     back: 'Back to the top',
     footer: '© {year} Hien Ta · Made with curiosity and one very patient tortoiseshell cat.',
+    footerNight: '© {year} Hien Ta · Made with curiosity and one very patient black-and-white cat.',
     bow: 'The cat takes a bow',
   },
 }

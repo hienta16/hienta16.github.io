@@ -266,11 +266,13 @@ a {
   background: transparent;
   color: var(--fg, var(--ink));
   border-color: currentColor;
+  --icon-cut: var(--bg, var(--cream)); /* the "in" of the LinkedIn mark is cut out of the button's own background */
 }
 .btn--ink {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--cream);
+  --icon-cut: var(--ink);
 }
 .text-btn {
   display: inline-flex;

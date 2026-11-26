@@ -5,6 +5,7 @@ import { useGaze } from '../lib/gaze'
 import { hub, issueUrl, lifetimeWords, toyRules, TOY_KEYS, useToyState, visibleToys, type Gift, type ToyKey } from '../lib/hub'
 import { useMediaQuery, useOnScreen, useReducedMotion } from '../lib/stage'
 import { CardboardBox, Feather, Toy, YarnBall, type YarnColor } from './Cat'
+import { useTheme } from '../lib/theme'
 import { TortieCat, type CatMood } from './TortieCat'
 import './ToyBox.css'
 
@@ -47,6 +48,7 @@ const leftWords = (h: number) => (h >= 48 ? `${Math.round(h / 24)} days` : h >= 
 
 export function ToyBox() {
   const t = copy.toys
+  const { coat } = useTheme()
   const reduced = useReducedMotion()
   const [polling, setPolling] = useState(false)
   const { toys: state, source } = useToyState(polling)
@@ -109,7 +111,7 @@ export function ToyBox() {
           <h2 id="toybox-title" className="title">
             {t.title}
           </h2>
-          <p className="toybox__line">{t.line}</p>
+          <p className="toybox__line">{coat === 'tuxie' ? t.lineNight : t.line}</p>
         </div>
         {source === 'demo' && <p className="toybox__demo">{t.demo}</p>}
 
@@ -186,6 +188,7 @@ interface CatState {
 }
 
 function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; totals: Record<string, number>; reduced: boolean; now: number; newest: string | null }) {
+  const { coat } = useTheme()
   const t = copy.toys
   const ref = useRef<HTMLDivElement>(null)
   const catRef = useRef<HTMLDivElement>(null)
@@ -396,18 +399,20 @@ function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; total
   const inBoxToy = cat.inBox && focus?.toy === 'box' ? focus : null
   let catTop = FLOOR * size.h - catH * 0.95
   let catScale = 1
-  let clip = 0
+  // inside a box: how far below the cat's top edge the box floor is; nothing of the cat shows beneath it
+  let floorFromTop: number | null = null
   if (inBoxToy) {
     const bh = boxW * (100 / 120)
     const rim = inBoxToy.pos.y * size.h - bh * 0.94 + bh * 0.4
     catScale = 0.8
     const h = catH * catScale
     catTop = rim - h * (cat.inBox === 'hide' ? 0.22 : cat.inBox === 'peek' ? 0.4 : 0.52)
-    // nothing of the cat shows below the box floor
-    clip = Math.max(0, catTop + h - (inBoxToy.pos.y * size.h - bh * 0.06))
+    // Cut the cat at the box floor, measured from the cat's own top edge, so the cut is right whatever height the
+    // cat is drawn at (her paws, body and shadow never poke out under the box)
+    floorFromTop = Math.max(0, inBoxToy.pos.y * size.h - bh * 0.06 - catTop)
   }
 
-  const label = fill(t.sceneLabel, { n: toys.filter((x) => !x.preview).length })
+  const label = fill(coat === 'tuxie' ? t.sceneLabelNight : t.sceneLabel, { n: toys.filter((x) => !x.preview).length })
 
   return (
     <div
@@ -459,11 +464,11 @@ function Scene({ toys, totals, reduced, now, newest }: { toys: SceneToy[]; total
           left: cat.x * size.w - (catW * catScale) / 2,
           top: catTop,
           zIndex: inBoxToy ? 4 : 6,
-          clipPath: clip ? `inset(-50% -50% ${clip}px -50%)` : undefined,
+          clipPath: floorFromTop !== null ? `inset(-50% -50% calc(100% - ${floorFromTop.toFixed(1)}px) -50%)` : undefined,
         }}
       >
         <div className="scene__cat-body">
-          <TortieCat ref={catRef} gaze={gaze} curious={cat.curious} mood={cat.mood} alive={!reduced} label={undefined} />
+          <TortieCat ref={catRef} gaze={gaze} curious={cat.curious} mood={cat.mood} coat={coat} alive={!reduced} label={undefined} />
         </div>
         {cat.zz && (
           <span className="scene__zz" aria-hidden="true">

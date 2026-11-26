@@ -1,7 +1,7 @@
 import { useId } from 'react'
-import { TORTIE } from './TortieCat'
+import { TORTIE, TUXIE, type Coat } from './TortieCat'
 
-/* ───────── The ruler cat: the same tortoiseshell, side view, five poses ───────── */
+/* ───────── The ruler cat: the same cat, side view, five poses ───────── */
 
 export type RulerPose = 'walk' | 'run' | 'sit' | 'sleep' | 'play'
 
@@ -13,45 +13,75 @@ const Patches = ({ d }: { d: string[] }) => (
   </g>
 )
 
-export function RulerCat({ pose }: { pose: RulerPose }) {
+/**
+ * The tape's walking cat. `coat` matches the theme: the tortoiseshell by day, the black-and-white cat by night
+ * (white body, black cap over the head and eye, black saddle and tail, pink nose).
+ */
+export function RulerCat({ pose, coat = 'tortie' }: { pose: RulerPose; coat?: Coat }) {
   const moving = pose === 'walk' || pose === 'run'
+  const tux = coat === 'tuxie'
+  const fur = tux ? TUXIE.white : TORTIE.base
+  const ink = tux ? TUXIE.black : TORTIE.base
+  const eye = tux ? TUXIE.iris : TORTIE.iris
+  const muzzle = tux ? TUXIE.whiteLit : TORTIE.peach
+  const outline = tux ? { stroke: '#22243A', strokeWidth: 0.9, strokeOpacity: 0.35 } : {}
   return (
-    <svg viewBox="0 0 76 46" className={`rcat rcat--${pose}`} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 76 46" className={`rcat rcat--${pose} rcat--${coat}`} aria-hidden="true" focusable="false">
       {moving && (
         <g>
-          <path className="rcat__tail" d="M16 24C8 22 4 15 8 6" fill="none" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
+          <path className="rcat__tail" d="M16 24C8 22 4 15 8 6" fill="none" stroke={ink} strokeWidth="3.6" strokeLinecap="round" />
           <g strokeWidth="3.8" strokeLinecap="round">
-            <path className="rcat__leg rcat__leg--a" d="M21 30v11" stroke={TORTIE.base} />
-            <path className="rcat__leg rcat__leg--b" d="M27 30v11" stroke={TORTIE.base} />
-            <path className="rcat__leg rcat__leg--b" d="M47 30v11" stroke={TORTIE.base} />
-            <path className="rcat__leg rcat__leg--a" d="M53 30v11" stroke={TORTIE.base} />
+            <path className="rcat__leg rcat__leg--a" d="M21 30v11" stroke={fur} />
+            <path className="rcat__leg rcat__leg--b" d="M27 30v11" stroke={fur} />
+            <path className="rcat__leg rcat__leg--b" d="M47 30v11" stroke={fur} />
+            <path className="rcat__leg rcat__leg--a" d="M53 30v11" stroke={fur} />
           </g>
-          <path d="M14 25c0-8 10-10 20-10h14c8 0 12 4 12 10s-4 8-10 8H23c-6 0-9-3-9-8z" fill={TORTIE.base} />
-          <Patches d={['M22 17c5-2 10 0 10 4s-5 6-10 5c-3-3-3-7 0-9z', 'M38 26c4-1 8 1 8 3h-9z', 'M42 16c3 0 6 1 7 3-3 1-6 1-8-1z']} />
-          <path d="M51 22c5 2 7 7 4 10h-5z" fill={TORTIE.peach} />
+          <path d="M14 25c0-8 10-10 20-10h14c8 0 12 4 12 10s-4 8-10 8H23c-6 0-9-3-9-8z" fill={fur} {...outline} />
+          {tux ? (
+            <path d="M18 18c6-4 20-4 26-2 3 4 1 9-3 11H24c-5-1-8-5-6-9z" fill={TUXIE.black} />
+          ) : (
+            <Patches d={['M22 17c5-2 10 0 10 4s-5 6-10 5c-3-3-3-7 0-9z', 'M38 26c4-1 8 1 8 3h-9z', 'M42 16c3 0 6 1 7 3-3 1-6 1-8-1z']} />
+          )}
+          <path d="M51 22c5 2 7 7 4 10h-5z" fill={muzzle} />
           <g className="rcat__head">
-            <path d="M54 9l1-8 6 6zM65 7l5-6 1 9z" fill={TORTIE.base} />
-            <circle cx="62" cy="14" r="9" fill={TORTIE.base} />
-            <path d="M56 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
-            <ellipse cx="67.5" cy="19" rx="3.6" ry="2.4" fill={TORTIE.peach} opacity=".9" />
-            <circle cx="65" cy="12.5" r="2.4" fill={TORTIE.iris} />
+            <path d="M54 9l1-8 6 6z" fill={ink} />
+            <path d="M65 7l5-6 1 9z" fill={tux ? TUXIE.earPink : TORTIE.base} />
+            <circle cx="62" cy="14" r="9" fill={fur} {...outline} />
+            {tux ? (
+              <path d="M53.5 12c1-6 6-8.5 11-7.5 4 .8 6.5 3.5 6.8 6.8-2 .6-4.4 1.2-6.3 3-1.6 1.6-3 2.6-5 2.2-3-.6-5.8-1.6-6.5-4.5z" fill={TUXIE.black} />
+            ) : (
+              <path d="M56 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
+            )}
+            <ellipse cx="67.5" cy="19" rx="3.6" ry="2.4" fill={muzzle} opacity=".9" />
+            {tux && <ellipse cx="70.6" cy="17.6" rx="1.3" ry="1" fill={TUXIE.nose} />}
+            <circle cx="65" cy="12.5" r="2.4" fill={eye} />
             <circle cx="65.5" cy="12.6" r="1.1" fill="#110c0f" />
           </g>
         </g>
       )}
       {(pose === 'sit' || pose === 'play') && (
         <g>
-          <path className="rcat__tail" d="M24 42c-10 0-14-6-9-11" fill="none" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M24 42c-4-12 2-24 12-26s16 6 16 16v10z" fill={TORTIE.base} />
-          <Patches d={['M27 30c3-4 8-4 9 0 0 4-4 7-8 6-2-2-2-4-1-6z', 'M30 20c3-1 6 0 7 2-2 2-5 2-7 1z']} />
-          <path d="M44 22c5 4 6 12 3 19h-5z" fill={TORTIE.peach} />
-          <ellipse cx="45" cy="40.5" rx="5" ry="2.6" fill={TORTIE.base} />
+          <path className="rcat__tail" d="M24 42c-10 0-14-6-9-11" fill="none" stroke={ink} strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M24 42c-4-12 2-24 12-26s16 6 16 16v10z" fill={fur} {...outline} />
+          {tux ? (
+            <path d="M25 33c1-8 6-14 12-15 1 5-1 10-5 13-2 2-5 3-7 2z" fill={TUXIE.black} />
+          ) : (
+            <Patches d={['M27 30c3-4 8-4 9 0 0 4-4 7-8 6-2-2-2-4-1-6z', 'M30 20c3-1 6 0 7 2-2 2-5 2-7 1z']} />
+          )}
+          <path d="M44 22c5 4 6 12 3 19h-5z" fill={muzzle} />
+          <ellipse cx="45" cy="40.5" rx="5" ry="2.6" fill={fur} {...outline} />
           <g className="rcat__head">
-            <path d="M40 9l1-8 6 6zM51 7l5-6 1 9z" fill={TORTIE.base} />
-            <circle cx="48" cy="14" r="9" fill={TORTIE.base} />
-            <path d="M42 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
-            <ellipse cx="53" cy="19" rx="3.6" ry="2.4" fill={TORTIE.peach} opacity=".9" />
-            <circle cx="51" cy="12.5" r="2.4" fill={TORTIE.iris} />
+            <path d="M40 9l1-8 6 6z" fill={ink} />
+            <path d="M51 7l5-6 1 9z" fill={tux ? TUXIE.earPink : TORTIE.base} />
+            <circle cx="48" cy="14" r="9" fill={fur} {...outline} />
+            {tux ? (
+              <path d="M39.5 12c1-6 6-8.5 11-7.5 4 .8 6.5 3.5 6.8 6.8-2 .6-4.4 1.2-6.3 3-1.6 1.6-3 2.6-5 2.2-3-.6-5.8-1.6-6.5-4.5z" fill={TUXIE.black} />
+            ) : (
+              <path d="M42 8c3-2 6-2 8 0-2 2-5 2-8 0z" fill={TORTIE.ginger} />
+            )}
+            <ellipse cx="53" cy="19" rx="3.6" ry="2.4" fill={muzzle} opacity=".9" />
+            {tux && <ellipse cx="56.1" cy="17.6" rx="1.3" ry="1" fill={TUXIE.nose} />}
+            <circle cx="51" cy="12.5" r="2.4" fill={eye} />
             <circle cx="51.5" cy="12.6" r="1.1" fill="#110c0f" />
           </g>
           {pose === 'play' && (
@@ -64,15 +94,25 @@ export function RulerCat({ pose }: { pose: RulerPose }) {
       )}
       {pose === 'sleep' && (
         <g>
-          <path d="M14 42c-2-11 9-18 24-18s26 6 26 18z" fill={TORTIE.base} />
-          <Patches d={['M22 34c4-5 10-5 12 0-2 4-8 6-12 4z', 'M36 28c4-2 9-1 10 2-3 2-7 2-10 0z']} />
-          <path d="M16 42c8 2 22 2 30 0" stroke={TORTIE.base} strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M48 26l1-8 6 6zM59 24l5-6 1 9z" fill={TORTIE.base} />
-          <circle cx="56" cy="32" r="9" fill={TORTIE.base} />
-          <ellipse cx="61" cy="36.5" rx="3.6" ry="2.3" fill={TORTIE.peach} opacity=".9" />
-          <path d="M55 30.5q2.5 2 5 0" fill="none" stroke={TORTIE.irisLo} strokeWidth="1.6" strokeLinecap="round" />
-          <text x="66" y="14" className="rcat__z">z</text>
-          <text x="71" y="7" className="rcat__z rcat__z--2">z</text>
+          <path d="M14 42c-2-11 9-18 24-18s26 6 26 18z" fill={fur} {...outline} />
+          {tux ? (
+            <path d="M22 30c6-5 16-6 22-3 2 4-1 8-6 9-6 1-12 0-16-2-2-1-2-3 0-4z" fill={TUXIE.black} />
+          ) : (
+            <Patches d={['M22 34c4-5 10-5 12 0-2 4-8 6-12 4z', 'M36 28c4-2 9-1 10 2-3 2-7 2-10 0z']} />
+          )}
+          <path d="M16 42c8 2 22 2 30 0" stroke={ink} strokeWidth="3.6" strokeLinecap="round" />
+          <path d="M48 26l1-8 6 6z" fill={ink} />
+          <path d="M59 24l5-6 1 9z" fill={tux ? TUXIE.earPink : TORTIE.base} />
+          <circle cx="56" cy="32" r="9" fill={fur} {...outline} />
+          {tux && <path d="M47.5 30c1-6 6-8.5 11-7.5 4 .8 6.5 3.5 6.8 6.8-2 .6-4.4 1.2-6.3 3-1.6 1.6-3 2.6-5 2.2-3-.6-5.8-1.6-6.5-4.5z" fill={TUXIE.black} />}
+          <ellipse cx="61" cy="36.5" rx="3.6" ry="2.3" fill={muzzle} opacity=".9" />
+          <path d="M55 30.5q2.5 2 5 0" fill="none" stroke={tux ? '#9A9091' : TORTIE.irisLo} strokeWidth="1.6" strokeLinecap="round" />
+          <text x="66" y="14" className="rcat__z">
+            z
+          </text>
+          <text x="71" y="7" className="rcat__z rcat__z--2">
+            z
+          </text>
         </g>
       )}
     </svg>
