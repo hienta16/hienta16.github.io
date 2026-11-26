@@ -3,7 +3,6 @@ import { copy, profile, sectionOrder, type SectionId } from '../content/site'
 import { useMediaQuery, useReducedMotion } from '../lib/stage'
 import { useTheme } from '../lib/theme'
 import { RulerCat, type RulerPose } from './Cat'
-import { GitHubMark } from './icons'
 import { ThemeCycle, ThemeToggle } from './ThemeToggle'
 import './Cat.css'
 import './TapeHeader.css'
@@ -200,11 +199,6 @@ export function TapeHeader() {
 
       <div className="tape-tab">
         {wide ? <ThemeToggle /> : <ThemeCycle />}
-        <a className="tape-tab__gh" href={profile.githubUrl} rel="noopener">
-          <GitHubMark className="icon" />
-          <span className="tape-tab__gh-text">@{profile.githubLogin}</span>
-          <span className="sr-only">{t.github}</span>
-        </a>
         {!wide && (
           <button type="button" className="tape-tab__menu" onClick={() => sheetRef.current?.showModal()} aria-haspopup="dialog">
             <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
