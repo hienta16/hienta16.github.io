@@ -72,10 +72,10 @@ export const copy = {
     title: 'About',
     lead: "I'm Hien, a data analyst with an eye for both insights and aesthetics.",
     body: [
-      'Information Systems taught me that every business runs on systems, and every system leaves a trail of data. I like following that trail until it turns into something a person can decide with: a clean table, an honest chart, one sentence that changes a plan.',
-      "Most of how I work, I learned away from the keyboard. Dance taught me to find the count before adding style, so I clean the data and check its rhythm before I decorate anything. Music taught me to hear the pattern, and the one note that doesn't belong.",
-      'My tortoiseshell cat taught me observation: a long, still look at the whole room before any move. I try to give every dataset the same look before I touch it.',
-      'Curiosity does the rest. It is why this page has a beat you can play and a cat you can give toys to: data is more fun when you can touch it.',
+      "I study Information Systems at National Economics University (NEU). I enjoy the messy work behind a good visualization: figuring out what doesn't add up and making the results both useful and worth looking at.",
+      "Dance taught me to find the count before adding style. Music taught me to hear patterns and notice the one note that doesn't belong. Turns out, both come in handy when working with data.",
+      "My two cats have taught me patience, too. They observe everything before making a move, and I try to give unfamiliar datasets the same attention.",
+      "That's why this page has a beat you can play and cats you can give toys to. Data is more fun when you get to play with it.",
     ],
     now: [
       { key: 'studying', value: 'IS @ NEU' },
